@@ -12,7 +12,6 @@
     -webkit-user-select: none; user-select: none;
   }
   canvas { display: block; }
-
   #overlay {
     position: fixed; inset: 0; z-index: 10;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -20,7 +19,6 @@
     background: radial-gradient(circle at 50% 50%, #1a0000 0%, #000000 80%);
   }
   #overlay.hidden { display: none; }
-
   h1 {
     margin: 0; font-size: clamp(40px, 10vw, 90px);
     letter-spacing: .1em; color: #8a0303;
@@ -32,7 +30,6 @@
     50% { opacity: 1; text-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000; }
     100% { opacity: 0.8; text-shadow: 0 0 10px #ff0000; }
   }
-  
   #status { max-width: 600px; line-height: 1.6; font-size: 1.2rem; color: #ccc; }
   button {
     font-family: inherit; font-size: 1.5rem; letter-spacing: .2em; padding: 15px 50px;
@@ -52,8 +49,8 @@
   <button id="startBtn" style="display:none" disabled>ENTER THE VOID</button>
   <div id="hint">
     WARNING: Contains flashing lights and intense audio. <br>
-    <b>RIGHT HAND:</b> Flashlight &nbsp;•&nbsp; <b>GOAL:</b> Find 3 red doors. <br>
-    <b>SURVIVAL:</b> If you hear a heartbeat, keep your light on the entity.
+    <b>RIGHT HAND:</b> Flashlight &nbsp;•&nbsp; <b>GOAL:</b> Find 3 glowing doors. <br>
+    <b>SURVIVAL:</b> Shine your flashlight directly at the entity to freeze it.
   </div>
 </div>
 
@@ -68,7 +65,6 @@
 <script type="module">
 import * as THREE from 'three';
 
-// --- DOM ---
 const overlayEl = document.getElementById('overlay');
 const statusEl = document.getElementById('status');
 const startBtn = document.getElementById('startBtn');
@@ -88,7 +84,6 @@ navigator.xr?.isSessionSupported('immersive-vr').then(supported => {
   statusEl.innerHTML = 'WebXR error. Please use a compatible browser.';
 });
 
-// --- RENDERER & SCENE ---
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -99,22 +94,21 @@ document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
-// Heavy fog for claustrophobia
-scene.fog = new THREE.FogExp2(0x000000, 0.08);
+// Thick fog to make it scary
+scene.fog = new THREE.FogExp2(0x000000, 0.1);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 1.6, 0);
 
 // --- LIGHTING ---
 // Barely any ambient light
-scene.add(new THREE.AmbientLight(0x111111, 0.5));
+scene.add(new THREE.AmbientLight(0x111111, 0.2));
 
 // Red glowing light from doors
-const doorLight = new THREE.PointLight(0xff0000, 0, 10);
+const doorLight = new THREE.PointLight(0xff0000, 0, 15);
 scene.add(doorLight);
 
-// Flashlight (Attached to camera for now, we'll move it to the controller later)
-const flashlight = new THREE.SpotLight(0xffffff, 0, 30, Math.PI / 6, 0.5, 1.5);
+// Flashlight (Attached to right hand)
+const flashlight = new THREE.SpotLight(0xffffff, 8, 40, Math.PI / 5, 0.4, 1);
 flashlight.position.set(0, 0, 0);
 flashlight.target.position.set(0, 0, -1);
 scene.add(flashlight);
@@ -130,22 +124,22 @@ function initAudio() {
   if (actx.state === 'suspended') actx.resume();
 }
 
-// Drone sound
+// Atmospheric Drone
 let droneOsc = null;
 function startDrone() {
   if (!actx || droneOsc) return;
   droneOsc = actx.createOscillator();
   const gain = actx.createGain();
   droneOsc.type = 'sawtooth';
-  droneOsc.frequency.value = 45; // Low rumble
-  gain.gain.value = 0.05;
+  droneOsc.frequency.value = 40; // Deep rumble
+  gain.gain.value = 0.08;
   droneOsc.connect(gain).connect(actx.destination);
   droneOsc.start();
 }
 
-// Heartbeat sound
+// Heartbeat
 let heartTimer = 0;
-function playHeartbeat(rate) {
+function playHeartbeat() {
   if (!actx) return;
   const t = actx.currentTime;
   const osc = actx.createOscillator();
@@ -153,14 +147,14 @@ function playHeartbeat(rate) {
   osc.type = 'sine';
   osc.frequency.setValueAtTime(60, t);
   osc.frequency.exponentialRampToValueAtTime(30, t + 0.15);
-  gain.gain.setValueAtTime(0.2, t);
-  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+  gain.gain.setValueAtTime(0.3, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
   osc.connect(gain).connect(actx.destination);
   osc.start(t);
-  osc.stop(t + 0.25);
+  osc.stop(t + 0.35);
 }
 
-// Scream sound
+// Scream
 function playScream() {
   if (!actx) return;
   const t = actx.currentTime;
@@ -168,110 +162,116 @@ function playScream() {
   const gain = actx.createGain();
   osc.type = 'sawtooth';
   osc.frequency.setValueAtTime(800, t);
-  osc.frequency.exponentialRampToValueAtTime(200, t + 1.0);
-  gain.gain.setValueAtTime(0.5, t);
+  osc.frequency.exponentialRampToValueAtTime(100, t + 1.0);
+  gain.gain.setValueAtTime(0.6, t);
   gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
   osc.connect(gain).connect(actx.destination);
   osc.start(t);
   osc.stop(t + 1.5);
 }
 
-// --- THE ENVIRONMENT ---
-// Dark floor
-const floorGeo = new THREE.PlaneGeometry(100, 100);
-const floorMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.9, metalness: 0.1 });
+// --- ENVIRONMENT ---
+// Floor (Slightly reflective)
+const floorGeo = new THREE.PlaneGeometry(200, 200);
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.5, metalness: 0.8 });
 const floor = new THREE.Mesh(floorGeo, floorMat);
 floor.rotation.x = -Math.PI / 2;
 scene.add(floor);
 
-// Random pillars (to break line of sight)
-const pillarGeo = new THREE.BoxGeometry(1, 8, 1);
-const pillarMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-for (let i = 0; i < 40; i++) {
+// Pillars to get lost in
+const pillarGeo = new THREE.BoxGeometry(1.5, 10, 1.5);
+const pillarMat = new THREE.MeshStandardMaterial({ color: 0x151515 });
+for (let i = 0; i < 60; i++) {
   const pillar = new THREE.Mesh(pillarGeo, pillarMat);
   const angle = Math.random() * Math.PI * 2;
-  const dist = 5 + Math.random() * 30;
-  pillar.position.set(Math.cos(angle) * dist, 4, Math.sin(angle) * dist);
+  const dist = 4 + Math.random() * 45;
+  pillar.position.set(Math.cos(angle) * dist, 5, Math.sin(angle) * dist);
+  pillar.rotation.y = Math.random() * Math.PI;
   scene.add(pillar);
 }
 
-// Exit Doors (Red glowing rectangles)
+// Doors
 const doors = [];
 function spawnDoor() {
-  const geo = new THREE.PlaneGeometry(2, 4);
-  const mat = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+  // Create a glowing door
+  const geo = new THREE.BoxGeometry(2, 4, 0.2);
+  const mat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
   const door = new THREE.Mesh(geo, mat);
   
   const angle = Math.random() * Math.PI * 2;
-  const dist = 10 + Math.random() * 15;
+  const dist = 12 + Math.random() * 15; // Spawn 12-27 meters away
   door.position.set(Math.cos(angle) * dist, 2, Math.sin(angle) * dist);
   door.lookAt(0, 2, 0);
+  
+  // Add a glowing halo behind it
+  const haloGeo = new THREE.PlaneGeometry(3, 5);
+  const haloMat = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending });
+  const halo = new THREE.Mesh(haloGeo, haloMat);
+  halo.position.z = -0.1;
+  door.add(halo);
   
   scene.add(door);
   doors.push(door);
 }
 
-// --- THE ENTITY (Scary Monster) ---
+// --- THE ENTITY ---
 const entityGroup = new THREE.Group();
-// Body
-const bodyGeo = new THREE.CapsuleGeometry(0.3, 1.5, 4, 8);
-const bodyMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.2, metalness: 0.8 });
+const bodyGeo = new THREE.CapsuleGeometry(0.4, 1.8, 4, 8);
+const bodyMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
 const body = new THREE.Mesh(bodyGeo, bodyMat);
-body.position.y = 1.2;
+body.position.y = 1.4;
 entityGroup.add(body);
-// Head (weird shape)
-const headGeo = new THREE.DodecahedronGeometry(0.4, 1);
-const headMat = new THREE.MeshStandardMaterial({ color: 0x2a0000, roughness: 0.1 });
-const head = new THREE.Mesh(headGeo, headMat);
-head.position.y = 2.3;
-head.scale.set(0.8, 1.2, 0.8);
-entityGroup.add(head);
-// Glowing Eyes
-const eyeGeo = new THREE.SphereGeometry(0.05, 8, 8);
-const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const eye1 = new THREE.Mesh(eyeGeo, eyeMat); eye1.position.set(-0.15, 2.35, -0.35); entityGroup.add(eye1);
-const eye2 = new THREE.Mesh(eyeGeo, eyeMat); eye2.position.set(0.15, 2.35, -0.35); entityGroup.add(eye2);
-// Long creepy arms
-const armGeo = new THREE.CylinderGeometry(0.05, 0.02, 1.5, 6);
-const arm1 = new THREE.Mesh(armGeo, bodyMat); arm1.position.set(-0.35, 1.5, 0); arm1.rotation.z = 0.2; entityGroup.add(arm1);
-const arm2 = new THREE.Mesh(armGeo, bodyMat); arm2.position.set(0.35, 1.5, 0); arm2.rotation.z = -0.2; entityGroup.add(arm2);
 
-entityGroup.position.set(0, 0, 0);
+const headGeo = new THREE.DodecahedronGeometry(0.4, 1);
+const headMat = new THREE.MeshStandardMaterial({ color: 0x050000, roughness: 0.1 });
+const head = new THREE.Mesh(headGeo, headMat);
+head.position.y = 2.6;
+head.scale.set(0.8, 1.3, 0.8);
+entityGroup.add(head);
+
+// Glowing Eyes
+const eyeGeo = new THREE.SphereGeometry(0.06, 8, 8);
+const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const eye1 = new THREE.Mesh(eyeGeo, eyeMat); eye1.position.set(-0.15, 2.65, -0.35); entityGroup.add(eye1);
+const eye2 = new THREE.Mesh(eyeGeo, eyeMat); eye2.position.set(0.15, 2.65, -0.35); entityGroup.add(eye2);
+
+// Creepy long arms
+const armGeo = new THREE.CylinderGeometry(0.06, 0.02, 2.0, 6);
+const arm1 = new THREE.Mesh(armGeo, bodyMat); arm1.position.set(-0.45, 1.4, 0); arm1.rotation.z = 0.3; entityGroup.add(arm1);
+const arm2 = new THREE.Mesh(armGeo, bodyMat); arm2.position.set(0.45, 1.4, 0); arm2.rotation.z = -0.3; entityGroup.add(arm2);
+
 scene.add(entityGroup);
 
 // --- GAME STATE ---
 const state = {
   active: false,
   over: false,
-  score: 0,
   doorsFound: 0,
   totalDoors: 3,
-  health: 100,
-  entitySpeed: 1.5,
+  entitySpeed: 1.2,
   entityFrozen: false,
   lastHeartbeat: 0,
-  headPos: new THREE.Vector3()
+  headPos: new THREE.Vector3(),
+  flashlightOn: true
 };
 
 // --- CONTROLLERS ---
 const controllers = [];
 for (let i = 0; i < 2; i++) {
   const c = renderer.xr.getController(i);
-  c.userData.hand = i === 0 ? 'left' : 'right';
   
-  // Add a subtle mesh so the user knows where their hands are
-  const handGeo = new THREE.SphereGeometry(0.03, 8, 8);
-  const handMat = new THREE.MeshBasicMaterial({ color: 0x555555 });
-  c.add(new THREE.Mesh(handGeo, handMat));
+  // Simple hand mesh
+  const handGeo = new THREE.CylinderGeometry(0.02, 0.03, 0.15, 8);
+  const handMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+  const hand = new THREE.Mesh(handGeo, handMat);
+  hand.rotation.x = Math.PI / 2;
+  c.add(hand);
 
-  // If it's the right hand, attach the flashlight!
+  // Attach flashlight to right hand (index 1)
   if (i === 1) {
     c.add(flashlight);
-    flashlight.position.set(0, -0.05, -0.1); // Offset slightly
-    flashlight.target.position.set(0, 0, -1);
+    flashlight.position.set(0, -0.05, -0.1);
     c.add(flashlight.target);
-    // Turn flashlight on
-    flashlight.intensity = 5;
   }
 
   scene.add(c);
@@ -311,26 +311,19 @@ function onSessionEnd() {
 function startGame() {
   state.active = true;
   state.over = false;
-  state.score = 0;
   state.doorsFound = 0;
-  state.health = 100;
   state.entityFrozen = false;
   
-  // Clear old doors
   doors.forEach(d => scene.remove(d));
   doors.length = 0;
   
-  // Spawn first door
   spawnDoor();
   
-  // Reset entity
-  entityGroup.position.set(0, 0, -15); 
+  // Spawn entity far away
+  entityGroup.position.set(0, 0, -20); 
   
-  // Start audio
   initAudio();
   startDrone();
-  
-  startBtn.textContent = 'SURVIVE';
 }
 
 function gameOver() {
@@ -351,16 +344,15 @@ function winGame() {
 
 // --- UPDATE LOOP ---
 const clock = new THREE.Clock();
+const raycaster = new THREE.Raycaster();
 
 function update(dt) {
   if (!state.active) return;
 
-  // Get Head Position
   const cam = renderer.xr.getCamera();
   cam.updateWorldMatrix(true, false);
   state.headPos.setFromMatrixPosition(cam.matrixWorld);
 
-  // Check Win Condition
   if (state.doorsFound >= state.totalDoors) {
     winGame();
     return;
@@ -369,13 +361,19 @@ function update(dt) {
   // --- ENTITY AI ---
   const distToPlayer = entityGroup.position.distanceTo(state.headPos);
   
-  // Check if player is looking at the entity
-  const cameraDir = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion).normalize();
-  const dirToEntity = entityGroup.position.clone().sub(state.headPos).normalize();
-  const dot = cameraDir.dot(dirToEntity);
+  // Create a raycast from the flashlight
+  const flashMatrix = new THREE.Matrix4().extractRotation(flashlight.matrixWorld);
+  const flashDir = new THREE.Vector3(0, 0, -1).applyMatrix4(flashMatrix).normalize();
+  const flashPos = new THREE.Vector3().setFromMatrixPosition(flashlight.matrixWorld);
   
-  // If the entity is in front of the player (within field of view) AND flashlight is on
-  state.entityFrozen = (dot > 0.5 && flashlight.intensity > 0);
+  raycaster.set(flashPos, flashDir);
+  raycaster.far = 20; // Flashlight range
+  
+  // Check if the flashlight beam hits the entity
+  const intersect = raycaster.intersectObject(body);
+  const hitByLight = intersect.length > 0 && intersect[0].distance < 15;
+  
+  state.entityFrozen = hitByLight;
 
   if (!state.entityFrozen) {
     // Move towards player
@@ -383,36 +381,35 @@ function update(dt) {
     moveDir.y = 0;
     moveDir.normalize();
     
-    // Add speed based on proximity (scarier)
-    const speed = distToPlayer < 5 ? state.entitySpeed * 2.5 : state.entitySpeed;
+    const speed = distToPlayer < 6 ? state.entitySpeed * 2.0 : state.entitySpeed;
     entityGroup.position.addScaledVector(moveDir, speed * dt);
     
-    // Spin creepily when moving
-    entityGroup.rotation.y += dt * 2;
+    // Creepy head bob
+    entityGroup.rotation.y += dt * 3;
+    entityGroup.position.y = Math.sin(state.time * 5) * 0.1;
   } else {
-    // Shake slightly when frozen
-    entityGroup.position.x += (Math.random() - 0.5) * 0.02;
+    // Shake when frozen
+    entityGroup.position.x += (Math.random() - 0.5) * 0.03;
+    entityGroup.position.y += (Math.random() - 0.5) * 0.03;
   }
 
   // Look at player
   const lookPos = state.headPos.clone();
-  lookPos.y = entityGroup.position.y + 1.2; // Aim torso at player
+  lookPos.y = entityGroup.position.y + 1.5;
   entityGroup.lookAt(lookPos);
 
   // --- AUDIO & DAMAGE ---
-  if (distToPlayer < 15) {
-    // Heartbeat speed increases as entity gets closer
-    const hbRate = distToPlayer < 5 ? 0.3 : (distToPlayer < 10 ? 0.6 : 1.0);
+  if (distToPlayer < 20) {
+    const hbRate = distToPlayer < 6 ? 0.25 : (distToPlayer < 12 ? 0.5 : 0.9);
     if (state.lastHeartbeat <= 0) {
-      playHeartbeat(hbRate);
+      playHeartbeat();
       state.lastHeartbeat = hbRate;
     } else {
       state.lastHeartbeat -= dt;
     }
   }
 
-  if (distToPlayer < 1.2) {
-    // Catch player
+  if (distToPlayer < 1.0) {
     gameOver();
   }
 
@@ -420,29 +417,23 @@ function update(dt) {
   for (let i = doors.length - 1; i >= 0; i--) {
     const d = doors[i];
     if (d.position.distanceTo(state.headPos) < 1.5) {
-      // Reached door!
       scene.remove(d);
       doors.splice(i, 1);
       state.doorsFound++;
-      state.score += 100;
       
-      // Spawn next door
       if (state.doorsFound < state.totalDoors) {
         spawnDoor();
       }
       
-      // Teleport player back to center for next round
-      // (Wait, we can't teleport the VR camera easily without messing up tracking. 
-      // Instead, we just spawn the next door far away)
-      state.headPos.set(0, 1.6, 0); // Fake position for entity AI reset
-      entityGroup.position.set(0, 0, -20); // Reset entity far away
+      // Reset entity position to give player a breather
+      entityGroup.position.set(0, 0, -25); 
     }
   }
 
-  // Flicker the door light
+  // Pulse door light
   if (doors.length > 0) {
     doorLight.position.copy(doors[0].position);
-    doorLight.intensity = 2 + Math.sin(state.time * 10) * 1;
+    doorLight.intensity = 3 + Math.sin(state.time * 15) * 2;
   }
 }
 
