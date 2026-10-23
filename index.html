@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>BLACKWATER ASYLUM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>BLACKWATER ASYLUM — VR DIRECTOR'S CUT</title>
 <style>
 /* ============================================================
    GLOBAL
@@ -13,12 +13,12 @@ html,body {
   width:100%; height:100%; overflow:hidden; background:#000;
   font-family: "Courier New", Courier, monospace;
   color:#cfd6dd; user-select:none; -webkit-user-select:none;
-  cursor:default;
+  cursor:default; touch-action:none;
 }
 canvas { display:block; }
 
 /* ============================================================
-   SHARED OVERLAY LAYERS
+   OVERLAY LAYERS
    ============================================================ */
 .layer {
   position:fixed; inset:0; pointer-events:none;
@@ -43,6 +43,7 @@ canvas { display:block; }
   width:280px; height:2px; background:#141a20; overflow:hidden;
 }
 #loading .lfill { height:100%; width:0%; background:#7a1f1f; transition:width .25s linear; }
+#loading .lsub { font-size:10px; letter-spacing:4px; color:#37434d; }
 @keyframes pulseSlow { 0%,100%{opacity:.35} 50%{opacity:1} }
 
 /* ============================================================
@@ -60,9 +61,10 @@ canvas { display:block; }
   opacity:.35;
 }
 #menu h1 {
-  font-size:clamp(28px, 7vw, 74px); letter-spacing:clamp(6px,2vw,20px);
+  font-size:clamp(26px, 6vw, 68px); letter-spacing:clamp(6px,2vw,20px);
   font-weight:400; color:#d7dee4; text-shadow:0 0 26px rgba(140,20,20,.55), 0 0 60px rgba(90,10,10,.35);
   animation:titleFlicker 6s infinite; margin-bottom:6px; z-index:2;
+  text-align:center; padding:0 20px;
 }
 @keyframes titleFlicker {
   0%,17%,19%,21%,55%,57%,100% { opacity:1; }
@@ -70,7 +72,7 @@ canvas { display:block; }
   70% { opacity:.75; }
 }
 #menu .sub {
-  font-size:12px; letter-spacing:6px; color:#5c6a76; margin-bottom:52px; z-index:2;
+  font-size:12px; letter-spacing:6px; color:#5c6a76; margin-bottom:40px; z-index:2;
 }
 #menu .mbtn {
   z-index:2; pointer-events:auto; cursor:pointer;
@@ -84,10 +86,11 @@ canvas { display:block; }
 #menu .mbtn:disabled:hover { color:#93a1ad; border-color:#1f2a33; background:transparent; letter-spacing:5px;}
 #menu .foot {
   position:absolute; bottom:22px; font-size:10px; letter-spacing:3px; color:#33404a; z-index:2;
+  text-align:center; padding:0 20px;
 }
 
 /* ============================================================
-   HUD
+   HUD (DESKTOP)
    ============================================================ */
 #hud { position:fixed; inset:0; pointer-events:none; z-index:20; opacity:0; transition:opacity .6s; }
 #hud.on { opacity:1; }
@@ -121,14 +124,13 @@ canvas { display:block; }
 #stamBar > i { background:#5f8fa8; }
 #battBar > i { background:#c8b45a; }
 .barlabel { font-size:9px; letter-spacing:3px; color:#5d6b77; margin-bottom:3px; }
-#sanityWrap { position:absolute; inset:0; pointer-events:none; }
+
 #sanityVig {
   position:absolute; inset:0; opacity:0;
   box-shadow: inset 0 0 240px 90px rgba(40,0,0,.95);
   transition:opacity .4s;
 }
 
-/* heartbeat pulse */
 #pulse {
   position:absolute; inset:0; pointer-events:none; opacity:0;
   box-shadow: inset 0 0 180px 40px rgba(120,0,0,.55);
@@ -148,14 +150,13 @@ canvas { display:block; }
 #subs .who { color:#a33; display:block; font-size:11px; letter-spacing:5px; margin-bottom:5px; }
 
 /* ============================================================
-   CUTSCENE LETTERBOX
+   CUTSCENE CHROME
    ============================================================ */
 #lbTop, #lbBot {
   position:fixed; left:0; width:100%; height:0; background:#000; z-index:35;
   transition:height .8s ease; pointer-events:none;
 }
 #lbTop { top:0; } #lbBot { bottom:0; }
-.cut .lb { height:12vh; }
 #skipHint {
   position:fixed; right:26px; bottom:14px; font-size:10px; letter-spacing:3px;
   color:#4d5a66; z-index:36; opacity:0; transition:opacity .5s;
@@ -163,18 +164,18 @@ canvas { display:block; }
 #skipHint.on { opacity:1; }
 
 /* ============================================================
-   PAUSE / SETTINGS / INVENTORY / DEATH
+   PANELS
    ============================================================ */
 .panel {
   position:fixed; inset:0; z-index:70; display:none;
   align-items:center; justify-content:center; flex-direction:column;
-  background:rgba(2,4,6,.9); backdrop-filter:blur(3px);
-  pointer-events:auto;
+  background:rgba(2,4,6,.92); backdrop-filter:blur(3px);
+  pointer-events:auto; padding:20px; overflow-y:auto;
 }
 .panel.on { display:flex; }
 .panel h2 {
   font-size:20px; letter-spacing:12px; font-weight:400; color:#c6d0d8;
-  margin-bottom:34px;
+  margin-bottom:30px; text-align:center;
 }
 .panel .pbtn {
   font-family:inherit; font-size:13px; letter-spacing:4px; color:#8e9ca8;
@@ -183,14 +184,15 @@ canvas { display:block; }
 }
 .panel .pbtn:hover { color:#e6edf2; border-color:#6d1a1a; background:rgba(90,15,15,.22); }
 
-/* settings rows */
 #settingsPanel .srow {
   display:flex; align-items:center; justify-content:space-between;
-  width:min(520px, 88vw); margin:9px 0; font-size:12px; letter-spacing:2px; color:#8e9ca8;
+  width:min(540px, 90vw); margin:8px 0; font-size:12px; letter-spacing:2px; color:#8e9ca8;
+  gap:10px;
 }
-#settingsPanel input[type=range] { width:230px; accent-color:#7a1f1f; cursor:pointer; }
+#settingsPanel input[type=range] { width:220px; accent-color:#7a1f1f; cursor:pointer; }
 #settingsPanel .toggle {
   width:56px; height:22px; border:1px solid #26323b; position:relative; cursor:pointer;
+  flex-shrink:0;
 }
 #settingsPanel .toggle i {
   position:absolute; top:2px; left:2px; width:16px; height:16px; background:#3a4854;
@@ -205,9 +207,8 @@ canvas { display:block; }
 }
 #settingsPanel .seg button.on { border-color:#7a1f1f; color:#e2c0c0; background:rgba(90,15,15,.3); }
 
-/* inventory */
 #invPanel .invgrid {
-  display:grid; grid-template-columns:repeat(4, 96px); gap:14px; margin-bottom:26px;
+  display:grid; grid-template-columns:repeat(4, 96px); gap:14px; margin-bottom:22px;
 }
 #invPanel .slot {
   height:96px; border:1px solid #1e2830; display:flex; flex-direction:column;
@@ -224,39 +225,85 @@ canvas { display:block; }
 #notesList div { margin-bottom:9px; }
 #notesList b { color:#b9553c; font-weight:400; }
 
-/* death / win */
 #deathPanel { background:#000; }
 #deathPanel h2 {
   font-size:clamp(26px,6vw,58px); letter-spacing:20px; color:#8b1414;
   text-shadow:0 0 40px rgba(150,0,0,.6); animation:deathPulse 3s infinite;
 }
 @keyframes deathPulse { 0%,100%{opacity:.85} 50%{opacity:.35} }
-#deathPanel .cause { font-size:11px; letter-spacing:5px; color:#4a2b2b; margin:16px 0 40px; }
+#deathPanel .cause { font-size:11px; letter-spacing:5px; color:#4a2b2b; margin:16px 0 40px; text-align:center; }
 #winPanel h2 { color:#9fb4c4; letter-spacing:16px; font-size:clamp(20px,4vw,40px); }
 #winPanel .txt { max-width:560px; text-align:center; font-size:12px; line-height:2; color:#76848f; letter-spacing:1px; margin-bottom:36px; }
 
-/* fade to black */
+/* ============================================================
+   FADE / DAMAGE / TOAST
+   ============================================================ */
 #fade {
   position:fixed; inset:0; background:#000; z-index:60; opacity:0;
   pointer-events:none; transition:opacity .7s;
 }
 #fade.on { opacity:1; }
 
-/* damage flash */
 #dmg {
   position:fixed; inset:0; z-index:55; pointer-events:none; opacity:0;
   background:radial-gradient(ellipse at center, transparent 30%, rgba(140,0,0,.85) 100%);
   transition:opacity .1s;
 }
 
-/* hint toast */
 #toast {
   position:fixed; left:50%; top:12%; transform:translateX(-50%);
   font-size:12px; letter-spacing:3px; color:#c2ccd4;
   background:rgba(0,0,0,.7); border:1px solid #2a3945; padding:9px 22px;
   opacity:0; transition:opacity .35s; z-index:40; pointer-events:none; white-space:nowrap;
+  text-align:center;
 }
 #toast.on { opacity:1; }
+
+/* ============================================================
+   VR BUTTON
+   ============================================================ */
+#vrBtn {
+  position:fixed; right:18px; bottom:18px; z-index:80;
+  font-family:inherit; font-size:11px; letter-spacing:3px;
+  color:#c6d0d8; background:rgba(10,14,18,.85);
+  border:1px solid #4a5a68; padding:10px 18px; cursor:pointer;
+  transition:all .2s;
+}
+#vrBtn:hover { color:#fff; border-color:#7a1f1f; background:rgba(90,15,15,.4); }
+#vrBtn.unsupported { opacity:.4; cursor:not-allowed; }
+
+/* ============================================================
+   VR WORLD-SPACE PROMPT (rendered in HTML overlay)
+   ============================================================ */
+#vrPrompt {
+  position:fixed; left:50%; top:60%; transform:translate(-50%, 0);
+  font-size:15px; letter-spacing:2px; color:#e8eef3;
+  background:rgba(0,0,0,.75); padding:10px 22px; border:1px solid #7a1f1f;
+  opacity:0; transition:opacity .2s; z-index:30; pointer-events:none;
+  text-align:center; white-space:nowrap; display:none;
+}
+#vrPrompt.on { opacity:1; }
+
+/* ============================================================
+   VR COMFORT VIGNETTE
+   ============================================================ */
+#vrVignette {
+  position:fixed; inset:0; pointer-events:none; opacity:0;
+  background:radial-gradient(ellipse at center, transparent 30%, #000 100%);
+  z-index:25; transition:opacity .15s;
+}
+
+/* ============================================================
+   VR WARNING
+   ============================================================ */
+#vrWarn {
+  position:fixed; left:50%; top:50%; transform:translate(-50%, -50%);
+  background:rgba(0,0,0,.9); border:1px solid #7a1f1f;
+  padding:24px 32px; z-index:95; display:none; max-width:min(520px, 90vw);
+  text-align:center; font-size:13px; line-height:1.8; letter-spacing:1px;
+}
+#vrWarn.on { display:block; }
+#vrWarn b { color:#b9553c; display:block; margin-bottom:12px; font-size:15px; letter-spacing:4px; }
 </style>
 </head>
 <body>
@@ -265,17 +312,18 @@ canvas { display:block; }
 <div id="loading">
   <div class="ltitle">BLACKWATER ASYLUM</div>
   <div class="lbar"><div class="lfill" id="loadFill"></div></div>
-  <div style="font-size:10px;letter-spacing:4px;color:#37434d" id="loadTxt">INITIALIZING</div>
+  <div class="lsub" id="loadTxt">INITIALIZING</div>
 </div>
 
 <!-- ==================== MAIN MENU ==================== -->
 <div id="menu" style="display:none">
   <h1>BLACKWATER ASYLUM</h1>
-  <div class="sub">NIGHT SHIFT &nbsp;·&nbsp; 2:47 AM</div>
+  <div class="sub">DIRECTOR'S CUT &nbsp;·&nbsp; VR READY &nbsp;·&nbsp; 2:47 AM</div>
   <button class="mbtn" id="btnNew">BEGIN NIGHT SHIFT</button>
   <button class="mbtn" id="btnContinue" disabled>CONTINUE</button>
   <button class="mbtn" id="btnSettings">SETTINGS</button>
-  <div class="foot">HEADPHONES RECOMMENDED &nbsp;·&nbsp; ESC TO PAUSE</div>
+  <button class="mbtn" id="btnVR">ENTER VR</button>
+  <div class="foot">HEADPHONES RECOMMENDED &nbsp;·&nbsp; ESC TO PAUSE &nbsp;·&nbsp; VR: LEFT STICK MOVE · RIGHT STICK TURN</div>
 </div>
 
 <!-- ==================== HUD ==================== -->
@@ -318,6 +366,14 @@ canvas { display:block; }
   <div class="srow"><span>FILM GRAIN</span><div class="toggle on" id="setGrain"><i></i></div></div>
   <div class="srow"><span>CHROMATIC ABERRATION</span><div class="toggle on" id="setAberr"><i></i></div></div>
   <div class="srow"><span>SUBTITLES</span><div class="toggle on" id="setSubs"><i></i></div></div>
+  <div class="srow"><span>VR SMOOTH TURNING</span><div class="toggle" id="setSmoothTurn"><i></i></div></div>
+  <div class="srow"><span>VR COMFORT VIGNETTE</span><div class="toggle on" id="setVignette"><i></i></div></div>
+  <div class="srow"><span>FLASHLIGHT HAND</span>
+    <div class="seg" id="setFlashHand">
+      <button data-h="head" class="on">HEAD</button>
+      <button data-h="right">RIGHT</button>
+    </div>
+  </div>
   <div class="srow"><span>DIFFICULTY</span>
     <div class="seg" id="setDiff">
       <button data-d="easy">EASY</button>
@@ -325,7 +381,7 @@ canvas { display:block; }
       <button data-d="nightmare">NIGHTMARE</button>
     </div>
   </div>
-  <button class="pbtn" id="btnSettingsBack" style="margin-top:32px">BACK</button>
+  <button class="pbtn" id="btnSettingsBack" style="margin-top:30px">BACK</button>
 </div>
 
 <!-- ==================== INVENTORY ==================== -->
@@ -360,6 +416,18 @@ canvas { display:block; }
   <button class="pbtn" id="btnWinQuit">RETURN TO MENU</button>
 </div>
 
+<!-- ==================== VR OVERLAYS ==================== -->
+<button id="vrBtn">ENTER VR</button>
+<div id="vrPrompt"></div>
+<div id="vrVignette"></div>
+<div id="vrWarn">
+  <b>VR MODE</b>
+  Left thumbstick: move · Right thumbstick: snap turn<br>
+  Left trigger: interact · Right trigger: flashlight<br>
+  Left grip: sprint · Right grip: crouch<br><br>
+  <span style="font-size:11px; color:#6d7b87;">Comfort vignette is enabled during movement.</span>
+</div>
+
 <div id="fade"></div>
 <div id="dmg"></div>
 <div id="toast"></div>
@@ -376,34 +444,41 @@ canvas { display:block; }
 
 <script type="module">
 /* ================================================================
-   BLACKWATER ASYLUM
-   A single-file first person survival horror game.
+   BLACKWATER ASYLUM — VR DIRECTOR'S CUT
    ---------------------------------------------------------------
+   A single-file VR-capable survival horror game.
+   Everything — audio, textures, shaders, level, AI — is inline.
+   ================================================================
    SECTION INDEX
      1.  CONFIG & CONSTANTS
-     2.  AUDIO ENGINE (Web Audio API, fully procedural)
-     3.  TEXTURE GENERATORS (Canvas 2D)
+     2.  AUDIO ENGINE
+     3.  TEXTURE GENERATORS
      4.  RENDERER / SCENE / POST PROCESSING
-     5.  LEVEL GRID & GEOMETRY BUILDER
-     6.  PROPS / INTERACTABLES / HIDING SPOTS
-     7.  PLAYER CONTROLLER
-     8.  ENEMY AI ("THE WARDEN")
-     9.  INTERACTION / INVENTORY / SAVE
-     10. UI MANAGER
-     11. CUTSCENE SYSTEM
-     12. GAME LOOP
-     13. BOOTSTRAP
+     5.  LEVEL GRID
+     6.  GEOMETRY BUILDER
+     7.  PROPS / INTERACTABLES / HIDING
+     8.  LIMINAL ZONES
+     9.  LORE DATABASE
+     10. PLAYER CONTROLLER
+     11. ENEMY AI (THE WARDEN)
+     12. INTERACTION / INVENTORY / SAVE
+     13. UI MANAGER
+     14. VR MANAGER
+     15. CUTSCENE SYSTEM
+     16. GAME LOOP
+     17. BOOTSTRAP
    ================================================================ */
 
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 /* ================================================================
-   1. CONFIG & CONSTANTS
+   1. CONFIG
    ================================================================ */
 const CFG = {
-  TILE: 3.0,          // world units per grid tile
-  GRID: 36,           // grid is GRID x GRID
+  TILE: 3.0,
+  GRID: 44,
   WALL_H: 4.4,
   PLAYER_HEIGHT: 1.72,
   CROUCH_HEIGHT: 1.02,
@@ -411,27 +486,30 @@ const CFG = {
   WALK_SPEED: 3.6,
   SPRINT_SPEED: 6.1,
   CROUCH_SPEED: 1.7,
-  WATER_SLOW: 0.62,   // multiplier when wading
+  WATER_SLOW: 0.62,
   JUMP_VEL: 4.2,
   GRAVITY: 16.0,
   STAMINA_MAX: 100,
-  STAMINA_DRAIN: 22,  // per second sprinting
-  STAMINA_REGEN: 14,  // per second idle
+  STAMINA_DRAIN: 22,
+  STAMINA_REGEN: 14,
   BATTERY_MAX: 100,
-  BATTERY_DRAIN: 0.85,// per second with flashlight on
+  BATTERY_DRAIN: 0.85,
   SANITY_MAX: 100,
-  INTERACT_DIST: 2.8,
+  INTERACT_DIST: 3.2,
   ENEMY_BASE_SPEED: 2.15,
   ENEMY_CHASE_SPEED: 3.05,
   ENEMY_RAGE_SPEED: 4.15,
   ENEMY_SIGHT_RANGE: 25,
-  ENEMY_SIGHT_ANGLE: Math.PI * 0.39, // ~70 degrees half-cone
+  ENEMY_SIGHT_ANGLE: Math.PI * 0.39,
   ENEMY_HEAR_WALK: 8,
   ENEMY_HEAR_SPRINT: 20,
   ENEMY_HEAR_CROUCH: 3,
   ENEMY_HEAR_WATER: 15,
   ENEMY_MEMORY: 15,
   FLASH_RANGE: 30,
+  VR_SNAP_TURN: Math.PI / 4,
+  VR_SMOOTH_TURN_SPEED: 1.6,
+  VR_MOVE_SPEED_SCALE: 1.0,
 };
 
 const SETTINGS = {
@@ -442,10 +520,12 @@ const SETTINGS = {
   grain: true,
   aberr: true,
   subtitles: true,
+  smoothTurn: false,
+  vignette: true,
+  flashHand: 'head',
   difficulty: 'normal',
 };
 
-// Difficulty modifiers applied to the enemy.
 const DIFF = {
   easy:      { speed: 0.82, sight: 0.80, hear: 0.80, sanityDrain: 0.7, aggro: 0.75 },
   normal:    { speed: 1.00, sight: 1.00, hear: 1.00, sanityDrain: 1.0, aggro: 1.00 },
@@ -453,53 +533,68 @@ const DIFF = {
 };
 
 const ZONES = {
-  ward:     { fog: 0x060a0e, fogDensity: 0.048, ambient: 0.055 },
-  surgery:  { fog: 0x070b0d, fogDensity: 0.055, ambient: 0.045 },
-  basement: { fog: 0x030507, fogDensity: 0.078, ambient: 0.028 },
+  ward:      { fog: 0x060a0e, fogDensity: 0.048, ambient: 0.055 },
+  surgery:   { fog: 0x070b0d, fogDensity: 0.055, ambient: 0.045 },
+  basement:  { fog: 0x030507, fogDensity: 0.078, ambient: 0.028 },
+  liminal:   { fog: 0x020305, fogDensity: 0.11,  ambient: 0.012 },
 };
 
 /* ================================================================
-   GLOBAL STATE
+   2. GLOBAL STATE
    ================================================================ */
 let scene, camera, renderer, controls, clock;
 let postScene, postCam, postMat, renderTarget;
 let flashlight, ambientLight, hemiLight;
+let dolly = null;
 
-let grid = [];                 // 0 = wall, 1 = floor
-let roomList = [];             // room metadata
-let interactables = [];        // pickups / doors / etc
-let hidingSpots = [];          // locker etc
-let waterAreas = [];           // {x0,z0,x1,z1, mesh, depth}
-let candleSites = [];          // safe zones {pos, light}
+let grid = [];
+let roomList = [];
+let interactables = [];
+let hidingSpots = [];
+let waterAreas = [];
+let candleSites = [];
+let doors = [];
+let liminalPortals = [];
+let liminalZones = [];
 
 let enemy = null;
 let player = null;
 
-let gameState = 'loading';     // loading | menu | cutscene | playing | paused | dead | won
+let gameState = 'loading';
 let gameTime = 0;
 let lastFrame = 0;
 let frameAccum = 0, frameCount = 0, fpsEstimate = 60;
-let qualityLevel = 1;          // 1 = 60fps target, 0 = 30fps fallback
+let qualityLevel = 1;
+let inVR = false;
 
 const tweens = [];
 const tmpV1 = new THREE.Vector3();
 const tmpV2 = new THREE.Vector3();
 const tmpV3 = new THREE.Vector3();
 
+const flags = {
+  firstSighting: false,
+  midpoint: false,
+  rageTriggered: false,
+  ended: false,
+  liminalEntered: false,
+  elevatorUsed: false,
+};
+
 /* ================================================================
-   2. AUDIO ENGINE
-   ---------------------------------------------------------------
-   Every sound in this game is synthesised at runtime. No files.
+   3. AUDIO ENGINE — expanded
    ================================================================ */
 class AudioEngine {
   constructor() {
     this.ready = false;
     this.ctx = null;
-    this.nodes = {};
     this.heartTimer = 0;
-    this.heartRate = 60;
     this.ambientStarted = false;
     this.musicState = 'calm';
+    this.whisperTimer = 0;
+    this.dripTimer = 0;
+    this.creakTimer = 0;
+    this.liminalDrone = null;
   }
 
   init() {
@@ -523,7 +618,6 @@ class AudioEngine {
     this.ambBus.gain.value = 0.5;
     this.ambBus.connect(this.master);
 
-    // Pre-baked noise buffers
     this.noiseBuf = this._makeNoise(2.0, 'white');
     this.pinkBuf = this._makeNoise(3.0, 'pink');
     this.brownBuf = this._makeNoise(3.0, 'brown');
@@ -568,7 +662,6 @@ class AudioEngine {
     return buf;
   }
 
-  // ---------- helper nodes ----------
   _noiseSource(buf) {
     const s = this.ctx.createBufferSource();
     s.buffer = buf || this.noiseBuf;
@@ -613,9 +706,10 @@ class AudioEngine {
   updateListener(cam) {
     if (!this.ctx) return;
     const l = this.ctx.listener;
-    const p = cam.position;
-    const f = tmpV1.set(0, 0, -1).applyQuaternion(cam.quaternion);
-    const u = tmpV2.set(0, 1, 0).applyQuaternion(cam.quaternion);
+    const p = new THREE.Vector3();
+    cam.getWorldPosition(p);
+    const f = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.getWorldQuaternion(new THREE.Quaternion()));
+    const u = new THREE.Vector3(0, 1, 0).applyQuaternion(cam.getWorldQuaternion(new THREE.Quaternion()));
     if (l.positionX) {
       l.positionX.value = p.x; l.positionY.value = p.y; l.positionZ.value = p.z;
       l.forwardX.value = f.x; l.forwardY.value = f.y; l.forwardZ.value = f.z;
@@ -626,13 +720,11 @@ class AudioEngine {
     }
   }
 
-  // ---------- ambient bed ----------
   _startAmbient() {
     if (this.ambientStarted) return;
     this.ambientStarted = true;
     const ctx = this.ctx, t = ctx.currentTime;
 
-    // Deep drone: two detuned sines through a lowpass
     const droneGain = ctx.createGain();
     droneGain.gain.value = 0.16;
     const droneFilter = ctx.createBiquadFilter();
@@ -649,12 +741,10 @@ class AudioEngine {
     o1.connect(droneGain); o2.connect(droneGain); o3.connect(g3); g3.connect(droneGain);
     o1.start(); o2.start(); o3.start();
 
-    // Slow LFO on the drone filter
     const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.055;
     const lfoGain = ctx.createGain(); lfoGain.gain.value = 60;
     lfo.connect(lfoGain); lfoGain.connect(droneFilter.frequency); lfo.start();
 
-    // Airy room tone
     const air = this._noiseSource(this.pinkBuf);
     const airFilt = ctx.createBiquadFilter();
     airFilt.type = 'bandpass'; airFilt.frequency.value = 420; airFilt.Q.value = 0.6;
@@ -665,17 +755,22 @@ class AudioEngine {
     this.droneFilter = droneFilter;
     this.droneGain = droneGain;
 
-    // Dripping scheduler
+    // liminal drone (extra layer)
+    const lg = ctx.createGain(); lg.gain.value = 0.0;
+    const lf = ctx.createBiquadFilter(); lf.type = 'lowpass'; lf.frequency.value = 80;
+    const lo = ctx.createOscillator(); lo.type = 'sine'; lo.frequency.value = 27.5;
+    const lo2 = ctx.createOscillator(); lo2.type = 'sine'; lo2.frequency.value = 27.9;
+    lo.connect(lg); lo2.connect(lg); lg.connect(lf); lf.connect(this.ambBus);
+    lo.start(); lo2.start();
+    this.liminalDrone = { gain: lg, filter: lf };
+
     const drip = () => {
       if (!this.ready) return;
-      if (gameState === 'playing' || gameState === 'cutscene') {
-        this.playDrip();
-      }
+      if (gameState === 'playing' || gameState === 'cutscene') this.playDrip();
       setTimeout(drip, 1400 + Math.random() * 5200);
     };
     setTimeout(drip, 1800);
 
-    // Random distant thunder / creaks
     const amb = () => {
       if (!this.ready) return;
       if (gameState === 'playing') {
@@ -683,13 +778,13 @@ class AudioEngine {
         if (r < 0.32) this.playThunder();
         else if (r < 0.55) this.playDistantCreak();
         else if (r < 0.68) this.playDistantScream();
+        else if (r < 0.74) this.playPipeGroan();
       }
       setTimeout(amb, 9000 + Math.random() * 20000);
     };
     setTimeout(amb, 12000);
   }
 
-  // ---------- music layers ----------
   _startMusic() {
     const ctx = this.ctx;
     this.musicLayers = {};
@@ -697,6 +792,7 @@ class AudioEngine {
       calm:  { freq: 55,   gain: 0.11, filt: 300 },
       tense: { freq: 82.4, gain: 0.00, filt: 620 },
       chase: { freq: 110,  gain: 0.00, filt: 1400 },
+      liminal: { freq: 33, gain: 0.00, filt: 180 },
     };
     for (const k in defs) {
       const d = defs[k];
@@ -711,26 +807,21 @@ class AudioEngine {
       o.start(); o2.start();
       this.musicLayers[k] = { gain: g, filt: f, osc: o, osc2: o2 };
     }
-    // Percussive pulse layer for chase
-    const pulseG = ctx.createGain(); pulseG.gain.value = 0.0;
-    pulseG.connect(this.musicBus);
-    this.chasePulseGain = pulseG;
   }
 
   setMusicState(state) {
     if (!this.ready || this.musicState === state) return;
     this.musicState = state;
     const t = this.ctx.currentTime;
-    const targets = { calm: 0.11, tense: 0.11, chase: 0.13 };
+    const targets = { calm: 0.11, tense: 0.11, chase: 0.13, liminal: 0.10 };
     for (const k in this.musicLayers) {
       const L = this.musicLayers[k];
       L.gain.gain.cancelScheduledValues(t);
       L.gain.gain.linearRampToValueAtTime(k === state ? targets[k] : 0.0, t + 2.6);
     }
-    this.chasePulseGain.gain.linearRampToValueAtTime(state === 'chase' ? 0.10 : 0.0, t + 1.8);
   }
 
-  // ---------- one-shot SFX ----------
+  // -------- SFX --------
   playFootstep(wet, pos) {
     if (!this.ready) return;
     const ctx = this.ctx, t = ctx.currentTime;
@@ -743,8 +834,6 @@ class AudioEngine {
     const g = this._envGain(t, 0.004, wet ? 0.22 : 0.10, wet ? 0.30 : 0.16);
     src.connect(f); f.connect(g); g.connect(dest);
     src.start(t); src.stop(t + 0.35);
-
-    // Wet squelch tail
     if (wet) {
       const s2 = this._noiseSource(this.pinkBuf);
       const f2 = ctx.createBiquadFilter();
@@ -756,11 +845,15 @@ class AudioEngine {
   }
 
   playDrip() {
+    if (!this.ready) return;
     const ctx = this.ctx, t = ctx.currentTime;
+    const cam = camera;
+    const wp = new THREE.Vector3();
+    cam.getWorldPosition(wp);
     const p = this._panner(new THREE.Vector3(
-      camera.position.x + (Math.random() - 0.5) * 22,
-      camera.position.y + (Math.random() - 0.5) * 4,
-      camera.position.z + (Math.random() - 0.5) * 22
+      wp.x + (Math.random() - 0.5) * 22,
+      wp.y + (Math.random() - 0.5) * 4,
+      wp.z + (Math.random() - 0.5) * 22
     ));
     const o = ctx.createOscillator();
     o.type = 'sine';
@@ -773,6 +866,7 @@ class AudioEngine {
   }
 
   playThunder() {
+    if (!this.ready) return;
     const ctx = this.ctx, t = ctx.currentTime;
     const src = this._noiseSource(this.brownBuf);
     const f = ctx.createBiquadFilter();
@@ -787,11 +881,14 @@ class AudioEngine {
   }
 
   playDistantScream() {
+    if (!this.ready) return;
     const ctx = this.ctx, t = ctx.currentTime;
+    const wp = new THREE.Vector3();
+    camera.getWorldPosition(wp);
     const p = this._panner(new THREE.Vector3(
-      camera.position.x + (Math.random() - 0.5) * 60,
+      wp.x + (Math.random() - 0.5) * 60,
       2,
-      camera.position.z + (Math.random() - 0.5) * 60
+      wp.z + (Math.random() - 0.5) * 60
     ));
     const o = ctx.createOscillator(); o.type = 'sawtooth';
     const base = 220 + Math.random() * 180;
@@ -809,6 +906,7 @@ class AudioEngine {
   }
 
   playDistantCreak() {
+    if (!this.ready) return;
     const ctx = this.ctx, t = ctx.currentTime;
     const o = ctx.createOscillator(); o.type = 'sawtooth';
     o.frequency.setValueAtTime(120, t);
@@ -822,6 +920,23 @@ class AudioEngine {
     g.gain.exponentialRampToValueAtTime(0.0001, t + 2.2);
     o.connect(f); f.connect(g); g.connect(this.ambBus);
     o.start(t); lfo.start(t); o.stop(t + 2.3); lfo.stop(t + 2.3);
+  }
+
+  playPipeGroan() {
+    if (!this.ready) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const o = ctx.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(48, t);
+    o.frequency.linearRampToValueAtTime(72, t + 1.5);
+    o.frequency.linearRampToValueAtTime(41, t + 3.5);
+    const f = ctx.createBiquadFilter(); f.type = 'lowpass';
+    f.frequency.value = 400; f.Q.value = 12;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.09, t + 0.8);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 3.8);
+    o.connect(f); f.connect(g); g.connect(this.ambBus);
+    o.start(t); o.stop(t + 3.9);
   }
 
   playHeartbeat(intensity) {
@@ -847,12 +962,13 @@ class AudioEngine {
   playWhisper() {
     if (!this.ready) return;
     const ctx = this.ctx, t = ctx.currentTime;
+    const wp = new THREE.Vector3();
+    camera.getWorldPosition(wp);
     const p = this._panner(new THREE.Vector3(
-      camera.position.x + (Math.random() - 0.5) * 8,
-      camera.position.y + (Math.random() - 0.5) * 2,
-      camera.position.z + (Math.random() - 0.5) * 8
+      wp.x + (Math.random() - 0.5) * 8,
+      wp.y + (Math.random() - 0.5) * 2,
+      wp.z + (Math.random() - 0.5) * 8
     ));
-    // formant synthesis: noise through three bandpass filters
     const src = this._noiseSource(this.noiseBuf);
     const formants = [500 + Math.random() * 300, 1200 + Math.random() * 500, 2400 + Math.random() * 800];
     const g = ctx.createGain();
@@ -867,8 +983,6 @@ class AudioEngine {
     });
     g.connect(p || this.sfxBus);
     src.start(t); src.stop(t + 1.6);
-
-    // pitch wobble
     const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = 3.2;
     const og = ctx.createGain(); og.gain.value = 0.25;
     o.connect(og); og.connect(g.gain);
@@ -880,7 +994,6 @@ class AudioEngine {
     const ctx = this.ctx, t = ctx.currentTime;
     const dest = pos ? this._panner(pos) : this.sfxBus;
 
-    // Layer 1: distorted saw sweep
     const o = ctx.createOscillator(); o.type = 'sawtooth';
     o.frequency.setValueAtTime(320, t);
     o.frequency.exponentialRampToValueAtTime(880, t + 0.22);
@@ -893,7 +1006,6 @@ class AudioEngine {
     o.connect(f); f.connect(g); g.connect(dest);
     o.start(t); o.stop(t + 1.3);
 
-    // Layer 2: noise burst
     const n = this._noiseSource(this.noiseBuf);
     const nf = ctx.createBiquadFilter(); nf.type = 'highpass'; nf.frequency.value = 600;
     const ng = ctx.createGain();
@@ -1021,12 +1133,52 @@ class AudioEngine {
     o.connect(g); g.connect(this.sfxBus);
     o.start(t); o.stop(t + 5.5);
   }
+
+  playLiminalHum(intensity = 1) {
+    if (!this.liminalDrone) return;
+    const g = this.liminalDrone.gain.gain;
+    const t = this.ctx.currentTime;
+    g.cancelScheduledValues(t);
+    g.linearRampToValueAtTime(0.18 * intensity, t + 2.0);
+  }
+
+  playElevatorDing() {
+    if (!this.ready) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    for (let i = 0; i < 2; i++) {
+      const o = ctx.createOscillator(); o.type = 'sine';
+      o.frequency.value = i === 0 ? 880 : 660;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t + i * 0.35);
+      g.gain.exponentialRampToValueAtTime(0.09, t + i * 0.35 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.35 + 0.6);
+      o.connect(g); g.connect(this.sfxBus);
+      o.start(t + i * 0.35); o.stop(t + i * 0.35 + 0.7);
+    }
+  }
+
+  playGlassBreak() {
+    if (!this.ready) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    for (let i = 0; i < 8; i++) {
+      const n = this._noiseSource(this.noiseBuf);
+      const f = ctx.createBiquadFilter(); f.type = 'highpass';
+      f.frequency.value = 3000 + Math.random() * 4000;
+      const g = ctx.createGain();
+      const tt = t + i * 0.008 + Math.random() * 0.02;
+      g.gain.setValueAtTime(0.0001, tt);
+      g.gain.exponentialRampToValueAtTime(0.06, tt + 0.003);
+      g.gain.exponentialRampToValueAtTime(0.0001, tt + 0.12);
+      n.connect(f); f.connect(g); g.connect(this.sfxBus);
+      n.start(tt); n.stop(tt + 0.15);
+    }
+  }
 }
 
 const Audio = new AudioEngine();
 
 /* ================================================================
-   3. TEXTURE GENERATORS (Canvas 2D)
+   4. TEXTURE GENERATORS
    ================================================================ */
 function makeCanvas(w, h) {
   const c = document.createElement('canvas');
@@ -1034,11 +1186,11 @@ function makeCanvas(w, h) {
   return c;
 }
 
-function texFromCanvas(c, repeatX = 1, repeatY = 1) {
+function texFromCanvas(c, rx = 1, ry = 1) {
   const t = new THREE.CanvasTexture(c);
   t.wrapS = THREE.RepeatWrapping;
   t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(repeatX, repeatY);
+  t.repeat.set(rx, ry);
   t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = 4;
   return t;
@@ -1048,15 +1200,12 @@ function rand(min, max) { return min + Math.random() * (max - min); }
 function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-/* ---- WALL: peeling institutional plaster ---- */
 function makeWallTexture() {
   const S = 512;
   const c = makeCanvas(S, S);
   const g = c.getContext('2d');
   g.fillStyle = '#2a3238';
   g.fillRect(0, 0, S, S);
-
-  // plaster noise
   const img = g.getImageData(0, 0, S, S);
   const d = img.data;
   for (let i = 0; i < d.length; i += 4) {
@@ -1064,8 +1213,6 @@ function makeWallTexture() {
     d[i] += n; d[i + 1] += n; d[i + 2] += n * 1.1;
   }
   g.putImageData(img, 0, 0);
-
-  // damp stains
   for (let i = 0; i < 26; i++) {
     const x = Math.random() * S, y = Math.random() * S;
     const r = rand(20, 130);
@@ -1076,8 +1223,6 @@ function makeWallTexture() {
     g.fillStyle = grad;
     g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
   }
-
-  // cracks
   g.strokeStyle = 'rgba(8,10,12,0.55)';
   for (let i = 0; i < 14; i++) {
     g.lineWidth = rand(0.5, 1.8);
@@ -1091,37 +1236,29 @@ function makeWallTexture() {
     }
     g.stroke();
   }
-
-  // tile grout line at the bottom (wainscot)
   g.fillStyle = 'rgba(12,16,20,0.85)';
   g.fillRect(0, S - 8, S, 8);
-
   return texFromCanvas(c, 1, 1);
 }
 
-/* ---- FLOOR: cracked linoleum ---- */
 function makeFloorTexture() {
   const S = 512;
   const c = makeCanvas(S, S);
   const g = c.getContext('2d');
   g.fillStyle = '#1a1f23';
   g.fillRect(0, 0, S, S);
-
   const T = 128;
   for (let y = 0; y < S; y += T) {
     for (let x = 0; x < S; x += T) {
       const v = randInt(-10, 10);
       g.fillStyle = `rgb(${30 + v},${38 + v},${42 + v})`;
       g.fillRect(x + 2, y + 2, T - 4, T - 4);
-      // speckles
       for (let i = 0; i < 90; i++) {
         g.fillStyle = `rgba(${randInt(10, 60)},${randInt(10, 60)},${randInt(10, 60)},0.35)`;
         g.fillRect(x + Math.random() * T, y + Math.random() * T, 2, 2);
       }
     }
   }
-
-  // grime overlay
   for (let i = 0; i < 40; i++) {
     const x = Math.random() * S, y = Math.random() * S, r = rand(20, 110);
     const grad = g.createRadialGradient(x, y, 0, x, y, r);
@@ -1130,11 +1267,9 @@ function makeFloorTexture() {
     g.fillStyle = grad;
     g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
   }
-
   return texFromCanvas(c, 16, 16);
 }
 
-/* ---- CEILING ---- */
 function makeCeilingTexture() {
   const S = 256;
   const c = makeCanvas(S, S);
@@ -1148,24 +1283,18 @@ function makeCeilingTexture() {
   return texFromCanvas(c, 12, 12);
 }
 
-/* ---- BLOOD SPLATTER (alpha decal) ---- */
-function makeBloodTexture(seed) {
+function makeBloodTexture() {
   const S = 256;
   const c = makeCanvas(S, S);
   const g = c.getContext('2d');
   g.clearRect(0, 0, S, S);
-
   const cx = S / 2, cy = S / 2;
-
-  // main pool
   const grad = g.createRadialGradient(cx, cy, 0, cx, cy, S * 0.36);
   grad.addColorStop(0, 'rgba(96,6,8,0.96)');
   grad.addColorStop(0.62, 'rgba(66,3,5,0.82)');
   grad.addColorStop(1, 'rgba(40,0,2,0)');
   g.fillStyle = grad;
   g.beginPath(); g.arc(cx, cy, S * 0.36, 0, Math.PI * 2); g.fill();
-
-  // droplets
   for (let i = 0; i < 70; i++) {
     const a = Math.random() * Math.PI * 2;
     const dist = rand(S * 0.18, S * 0.48);
@@ -1176,8 +1305,6 @@ function makeBloodTexture(seed) {
     g.fillStyle = `rgba(${randInt(60, 120)},${randInt(0, 10)},${randInt(0, 10)},${rand(0.4, 0.9)})`;
     g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
   }
-
-  // streaks
   for (let i = 0; i < 10; i++) {
     const x = cx + rand(-70, 70);
     const y = cy + rand(-40, 10);
@@ -1188,21 +1315,17 @@ function makeBloodTexture(seed) {
     g.lineTo(x + rand(-8, 8), y + rand(20, 80));
     g.stroke();
   }
-
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
 
-/* ---- NOTE PAPER ---- */
 function makeNoteTexture() {
   const S = 256;
   const c = makeCanvas(S, S);
   const g = c.getContext('2d');
   g.fillStyle = '#c9c2a8';
   g.fillRect(0, 0, S, S);
-
-  // aging
   for (let i = 0; i < 30; i++) {
     const x = Math.random() * S, y = Math.random() * S, r = rand(10, 70);
     const grad = g.createRadialGradient(x, y, 0, x, y, r);
@@ -1211,8 +1334,6 @@ function makeNoteTexture() {
     g.fillStyle = grad;
     g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
   }
-
-  // handwriting
   g.strokeStyle = 'rgba(28,22,18,0.86)';
   g.lineWidth = 1.5;
   let y = 34;
@@ -1227,11 +1348,9 @@ function makeNoteTexture() {
     g.stroke();
     y += 15 + rand(0, 4);
   }
-
   return texFromCanvas(c, 1, 1);
 }
 
-/* ---- METAL ---- */
 function makeMetalTexture() {
   const S = 256;
   const c = makeCanvas(S, S);
@@ -1243,7 +1362,6 @@ function makeMetalTexture() {
     g.fillStyle = `rgba(${v + 20},${v + 26},${v + 30},0.4)`;
     g.fillRect(Math.random() * S, Math.random() * S, 2, 2);
   }
-  // rust patches
   for (let i = 0; i < 24; i++) {
     const x = Math.random() * S, y = Math.random() * S, r = rand(6, 40);
     const grad = g.createRadialGradient(x, y, 0, x, y, r);
@@ -1255,14 +1373,12 @@ function makeMetalTexture() {
   return texFromCanvas(c, 1, 1);
 }
 
-/* ---- BANDAGE FACE ---- */
 function makeBandageTexture() {
   const S = 256;
   const c = makeCanvas(S, S);
   const g = c.getContext('2d');
   g.fillStyle = '#8d8574';
   g.fillRect(0, 0, S, S);
-  // wrap strips
   for (let y = 0; y < S; y += 18) {
     g.fillStyle = `rgba(${randInt(120, 160)},${randInt(115, 150)},${randInt(100, 130)},0.5)`;
     g.fillRect(0, y, S, 15);
@@ -1270,7 +1386,6 @@ function makeBandageTexture() {
     g.lineWidth = 1;
     g.beginPath(); g.moveTo(0, y + 16); g.lineTo(S, y + 16 + rand(-2, 2)); g.stroke();
   }
-  // black water seep
   for (let i = 0; i < 40; i++) {
     const x = Math.random() * S, y = Math.random() * S, r = rand(4, 30);
     const grad = g.createRadialGradient(x, y, 0, x, y, r);
@@ -1283,7 +1398,6 @@ function makeBandageTexture() {
 }
 
 let TEX = {};
-
 function buildTextures() {
   TEX.wall = makeWallTexture();
   TEX.floor = makeFloorTexture();
@@ -1291,11 +1405,11 @@ function buildTextures() {
   TEX.metal = makeMetalTexture();
   TEX.bandage = makeBandageTexture();
   TEX.note = makeNoteTexture();
-  TEX.blood = [makeBloodTexture(1), makeBloodTexture(2), makeBloodTexture(3)];
+  TEX.blood = [makeBloodTexture(), makeBloodTexture(), makeBloodTexture()];
 }
 
 /* ================================================================
-   4. RENDERER / SCENE / POST PROCESSING
+   5. RENDERER / SCENE / POST PROCESSING
    ================================================================ */
 const POST_VERT = `
 varying vec2 vUv;
@@ -1308,11 +1422,12 @@ void main() {
 const POST_FRAG = `
 uniform sampler2D tDiffuse;
 uniform float uTime;
-uniform float uSanity;    // 0 sane .. 1 insane
-uniform float uAberr;     // aberration strength
+uniform float uSanity;
+uniform float uAberr;
 uniform float uGrain;
-uniform float uRage;      // 0..1
-uniform float uPulse;     // heartbeat pulse 0..1
+uniform float uRage;
+uniform float uPulse;
+uniform float uLiminal;
 uniform vec2  uRes;
 varying vec2 vUv;
 
@@ -1322,14 +1437,11 @@ float hash(vec2 p) {
 
 void main() {
   vec2 uv = vUv;
-
-  // --- sanity warp: gentle organic distortion ---
   float w = uSanity * 0.0055 + uPulse * 0.0016;
   uv.x += sin(uv.y * 24.0 + uTime * 1.9) * w;
   uv.y += cos(uv.x * 19.0 + uTime * 1.4) * w;
   uv += vec2(sin(uTime * 0.7 + uv.y * 6.0), cos(uTime * 0.6 + uv.x * 5.0)) * uSanity * 0.0016;
 
-  // --- chromatic aberration ---
   vec2 d = uv - 0.5;
   float amt = uAberr * (0.55 + uSanity * 2.4) * length(d);
   vec3 col;
@@ -1337,23 +1449,20 @@ void main() {
   col.g = texture2D(tDiffuse, uv).g;
   col.b = texture2D(tDiffuse, uv - d * amt).b;
 
-  // --- vignette (pulses with heartbeat) ---
   float vig = smoothstep(0.98, 0.22 + uPulse * 0.10, length(d) * (1.9 + uPulse * 0.35));
   col *= mix(1.0, vig, 0.94);
 
-  // --- film grain ---
   float g = hash(uv * uRes + fract(uTime) * 133.0) - 0.5;
   col += g * uGrain * (0.055 + uSanity * 0.05);
 
-  // --- low sanity: desaturate + tint ---
   float lum = dot(col, vec3(0.299, 0.587, 0.114));
   col = mix(col, vec3(lum * 0.9, lum * 0.62, lum * 0.62), uSanity * 0.42);
 
-  // --- rage mode: red/black wash + scanline strobe ---
   col = mix(col, vec3(col.r * 1.35, col.g * 0.42, col.b * 0.42), uRage * 0.5);
   col *= 1.0 - uRage * 0.12 * (0.5 + 0.5 * sin(uTime * 14.0));
 
-  // --- subtle scanlines ---
+  // Liminal wash: slight yellow-green tint and scan lines
+  col = mix(col, vec3(col.r * 0.9, col.g * 1.0, col.b * 0.82), uLiminal * 0.25);
   col *= 0.975 + 0.025 * sin(uv.y * uRes.y * 1.2);
 
   gl_FragColor = vec4(col, 1.0);
@@ -1367,7 +1476,9 @@ function initThree() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
-  renderer.shadowMap.enabled = false; // darkness hides shadows; saves perf
+  renderer.shadowMap.enabled = false;
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType('local-floor');
   document.body.appendChild(renderer.domElement);
 
   scene = new THREE.Scene();
@@ -1380,13 +1491,11 @@ function initThree() {
   controls = new PointerLockControls(camera, document.body);
   controls.pointerSpeed = SETTINGS.sens;
 
-  // ambient
   ambientLight = new THREE.AmbientLight(0x334455, 0.35);
   scene.add(ambientLight);
   hemiLight = new THREE.HemisphereLight(0x223344, 0x000000, 0.25);
   scene.add(hemiLight);
 
-  // flashlight
   flashlight = new THREE.SpotLight(0xfff0d0, 55, CFG.FLASH_RANGE, Math.PI / 7.5, 0.45, 1.35);
   flashlight.position.set(0, 0, 0);
   flashlight.target.position.set(0, 0, -1);
@@ -1394,11 +1503,9 @@ function initThree() {
   camera.add(flashlight.target);
   scene.add(camera);
 
-  // a tiny fill light so the player can see their immediate surroundings
   const fill = new THREE.PointLight(0x8899aa, 1.2, 4.5, 2);
   camera.add(fill);
 
-  // post-processing
   const size = new THREE.Vector2();
   renderer.getSize(size);
   const dpr = renderer.getPixelRatio();
@@ -1420,6 +1527,7 @@ function initThree() {
       uGrain: { value: 0.9 },
       uRage: { value: 0 },
       uPulse: { value: 0 },
+      uLiminal: { value: 0 },
       uRes: { value: new THREE.Vector2(size.x, size.y) },
     },
     vertexShader: POST_VERT,
@@ -1435,6 +1543,7 @@ function initThree() {
 }
 
 function onResize() {
+  if (inVR) return;
   const w = window.innerWidth, h = window.innerHeight;
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
@@ -1445,7 +1554,7 @@ function onResize() {
 }
 
 /* ================================================================
-   5. LEVEL GRID & GEOMETRY
+   6. LEVEL GRID
    ================================================================ */
 const ROOMS = [
   { id: 'lobby',     x: 2,  y: 2,  w: 9, h: 6, zone: 'ward',     name: 'LOBBY',            light: 0xff5533 },
@@ -1462,9 +1571,12 @@ const ROOMS = [
   { id: 'basement1', x: 2,  y: 28, w: 10, h: 6, zone: 'basement', name: 'FLOODED WING',    light: 0x335577 },
   { id: 'basement2', x: 14, y: 28, w: 8, h: 6, zone: 'basement', name: 'LOWER CORRIDOR',   light: 0x335577 },
   { id: 'exitroom',  x: 24, y: 28, w: 10, h: 6, zone: 'basement', name: 'EXIT SHAFT',      light: 0x88bbff },
+  // Liminal rooms — reached via elevator
+  { id: 'liminal1',  x: 2,  y: 36, w: 12, h: 6, zone: 'liminal',  name: 'CORRIDOR 0',       light: 0xddddcc },
+  { id: 'liminal2',  x: 16, y: 36, w: 10, h: 6, zone: 'liminal',  name: 'POOL 0',           light: 0xccddcc },
+  { id: 'liminal3',  x: 28, y: 36, w: 12, h: 6, zone: 'liminal',  name: 'SUITE 0',          light: 0xddddcc },
 ];
 
-// Corridors: pairs of room ids
 const CONNECTIONS = [
   ['lobby', 'reception'],
   ['reception', 'surgery'],
@@ -1482,14 +1594,15 @@ const CONNECTIONS = [
   ['generator', 'exitroom'],
   ['morgue', 'generator'],
   ['wardC', 'wardB'],
+  // Elevator connections (logical, not corridors)
+  ['basement1', 'liminal1'],
+  ['liminal1', 'liminal2'],
+  ['liminal2', 'liminal3'],
 ];
 
 function roomById(id) { return ROOMS.find(r => r.id === id); }
 function roomCenter(r) {
-  return {
-    tx: r.x + Math.floor(r.w / 2),
-    ty: r.y + Math.floor(r.h / 2),
-  };
+  return { tx: r.x + Math.floor(r.w / 2), ty: r.y + Math.floor(r.h / 2) };
 }
 function tileToWorld(tx, ty) {
   return new THREE.Vector3(
@@ -1509,12 +1622,10 @@ function carveRect(x, y, w, h) {
       carveTile(i, j);
 }
 function carveCorridor(x1, y1, x2, y2, halfWidth = 1) {
-  // Horizontal leg
   const xa = Math.min(x1, x2), xb = Math.max(x1, x2);
   for (let x = xa; x <= xb; x++)
     for (let k = -halfWidth; k <= halfWidth; k++)
       carveTile(x, y1 + k);
-  // Vertical leg
   const ya = Math.min(y1, y2), yb = Math.max(y1, y2);
   for (let y = ya; y <= yb; y++)
     for (let k = -halfWidth; k <= halfWidth; k++)
@@ -1528,16 +1639,16 @@ function buildGrid() {
     for (let x = 0; x < CFG.GRID; x++) row.push(0);
     grid.push(row);
   }
-  // Carve rooms
   for (const r of ROOMS) carveRect(r.x, r.y, r.w, r.h);
-  // Carve corridors
   for (const [a, b] of CONNECTIONS) {
     const ra = roomById(a), rb = roomById(b);
     if (!ra || !rb) continue;
+    // skip corridor carving for liminal connections
+    if (ra.zone === 'liminal' && rb.zone === 'liminal') continue;
+    if (ra.zone === 'liminal' || rb.zone === 'liminal') continue;
     const ca = roomCenter(ra), cb = roomCenter(rb);
     carveCorridor(ca.tx, ca.ty, cb.tx, cb.ty, 1);
   }
-  // Guarantee a border of solid wall
   for (let i = 0; i < CFG.GRID; i++) {
     grid[0][i] = 0; grid[CFG.GRID - 1][i] = 0;
     grid[i][0] = 0; grid[i][CFG.GRID - 1] = 0;
@@ -1560,7 +1671,9 @@ function canStand(x, z, r) {
          !isSolidWorld(x + r, z + r);
 }
 
-/* ---- world geometry ---- */
+/* ================================================================
+   7. GEOMETRY BUILDER
+   ================================================================ */
 let wallMesh = null;
 
 function buildWorldGeometry() {
@@ -1572,12 +1685,10 @@ function buildWorldGeometry() {
     color: 0x9aa4ac,
   });
 
-  // Count wall faces we need
   const positions = [];
   for (let y = 0; y < CFG.GRID; y++) {
     for (let x = 0; x < CFG.GRID; x++) {
       if (grid[y][x] !== 0) continue;
-      // Only render solid tiles that touch a floor tile (interior faces)
       let touches = false;
       for (let dy = -1; dy <= 1 && !touches; dy++) {
         for (let dx = -1; dx <= 1; dx++) {
@@ -1601,7 +1712,6 @@ function buildWorldGeometry() {
   wallMesh.frustumCulled = false;
   scene.add(wallMesh);
 
-  // Floor
   const floorGeo = new THREE.PlaneGeometry(CFG.GRID * CFG.TILE, CFG.GRID * CFG.TILE);
   const floorMat = new THREE.MeshStandardMaterial({
     map: TEX.floor, roughness: 0.88, metalness: 0.06, color: 0x8b949c,
@@ -1611,7 +1721,6 @@ function buildWorldGeometry() {
   floor.position.set(CFG.GRID * CFG.TILE / 2, 0, CFG.GRID * CFG.TILE / 2);
   scene.add(floor);
 
-  // Ceiling
   const ceilMat = new THREE.MeshStandardMaterial({
     map: TEX.ceiling, roughness: 1.0, metalness: 0.0, color: 0x606a72,
   });
@@ -1621,16 +1730,13 @@ function buildWorldGeometry() {
   scene.add(ceil);
 }
 
-/* ---- room lights ---- */
 const flickerLights = [];
 
 function buildRoomLights() {
   for (const r of ROOMS) {
     const c = roomCenter(r);
     const p = tileToWorld(c.tx, c.ty);
-    const zone = ZONES[r.zone];
-    const isBasement = r.zone === 'basement';
-
+    const isBasement = r.zone === 'basement' || r.zone === 'liminal';
     const light = new THREE.PointLight(r.light, isBasement ? 6 : 9, isBasement ? 13 : 16, 2.0);
     light.position.set(p.x, CFG.WALL_H - 0.7, p.z);
     scene.add(light);
@@ -1640,11 +1746,10 @@ function buildRoomLights() {
       baseIntensity: light.intensity,
       phase: Math.random() * Math.PI * 2,
       speed: rand(0.6, 3.4),
-      mode: Math.random() < 0.45 ? 'flicker' : 'steady',
+      mode: r.zone === 'liminal' ? 'steady' : (Math.random() < 0.45 ? 'flicker' : 'steady'),
       room: r,
     });
 
-    // visible fixture
     const fixtureMat = new THREE.MeshStandardMaterial({
       color: 0x3a444c, emissive: r.light, emissiveIntensity: 0.6, roughness: 0.7,
     });
@@ -1654,7 +1759,9 @@ function buildRoomLights() {
   }
 }
 
-/* ---- water areas ---- */
+/* ================================================================
+   8. WATER
+   ================================================================ */
 const WATER_VERT = `
 varying vec3 vWorld;
 void main() {
@@ -1675,27 +1782,17 @@ varying vec3 vWorld;
 void main() {
   float t = uTime;
   vec3 P = vWorld;
-
-  // layered ripples
   float r1 = sin(P.x * 1.7 + t * 1.25) * cos(P.z * 2.1 - t * 0.95);
   float r2 = sin(P.x * 4.3 - t * 2.10) * cos(P.z * 3.7 + t * 1.65);
   float r3 = sin(P.x * 9.1 + t * 3.10) * cos(P.z * 8.3 - t * 2.70);
   float h = r1 * 0.55 + r2 * 0.30 + r3 * 0.15;
-
-  // pseudo specular glint
   float spec = pow(max(0.0, h), 6.0);
-
   vec3 col = uColor * (0.55 + h * 0.5) + vec3(spec) * 0.10;
-
-  // blood tint
   col = mix(col, vec3(0.20, 0.015, 0.02), uBlood * 0.72);
   col = mix(col, vec3(0.03, 0.03, 0.035), uRage * 0.55);
-
-  // exp2 fog
   float dist = length(vWorld - cameraPosition);
   float fogF = 1.0 - exp(-uFogDensity * uFogDensity * dist * dist);
   col = mix(col, uFogColor, clamp(fogF, 0.0, 1.0));
-
   gl_FragColor = vec4(col, 0.88);
 }
 `;
@@ -1722,11 +1819,7 @@ function addWaterArea(x0, z0, x1, z1, depth, color) {
   });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.rotation.x = -Math.PI / 2;
-  mesh.position.set(
-    x0 * CFG.TILE + w / 2,
-    depth,
-    z0 * CFG.TILE + d / 2
-  );
+  mesh.position.set(x0 * CFG.TILE + w / 2, depth, z0 * CFG.TILE + d / 2);
   mesh.renderOrder = 2;
   scene.add(mesh);
   waterMaterials.push(mat);
@@ -1738,14 +1831,14 @@ function addWaterArea(x0, z0, x1, z1, depth, color) {
 }
 
 function buildWater() {
-  // Flooded basement rooms
   addWaterArea(2, 28, 12, 34, 0.30, 0x0a1a22);
   addWaterArea(14, 28, 22, 34, 0.34, 0x081820);
   addWaterArea(24, 28, 34, 34, 0.40, 0x0a1a22);
   addWaterArea(19, 20, 25, 25, 0.22, 0x0c1a20);
   addWaterArea(27, 20, 34, 26, 0.18, 0x0c1a20);
-  // shallow water in the ward corridor
   addWaterArea(2, 26, 12, 28, 0.06, 0x0e1c22);
+  // Liminal pool
+  addWaterArea(16, 36, 26, 42, 0.50, 0x142028);
 }
 
 function waterDepthAt(x, z) {
@@ -1756,64 +1849,84 @@ function waterDepthAt(x, z) {
 }
 
 /* ================================================================
-   6. PROPS / INTERACTABLES / HIDING SPOTS
+   9. LORE DATABASE
+   ================================================================ */
+const LORE = {
+  notes: [
+    { id: 'n1', t: 'Admission Log', b: 'Patient 41 admitted 03/11. Water found in the lungs. No water in the room. Doctor insists it is "residual."' },
+    { id: 'n2', t: 'Nurse\'s Memo', b: 'Do not drain the east wing again. Whatever is in the pipes comes back through the drains. It comes back angry.' },
+    { id: 'n3', t: 'Torn Page', b: 'He walks the flooded corridors because the dry ones hurt him. Keep to the dry rooms. Keep the lights on.' },
+    { id: 'n4', t: 'Maintenance Note', b: 'Five breakers feed the west grid. They keep getting pulled. I did not pull them. I am the only one on shift.' },
+    { id: 'n5', t: 'Patient 41', b: 'It asks for my name. I gave it a false one. It said "that is not your name" — and it said it with my mother\'s voice.' },
+    { id: 'n6', t: 'Doctor\'s Recording', b: 'The subject does not sleep. It stands in the corner of the room all night. The water on the floor is always his shape.' },
+    { id: 'n7', t: 'Fire Notice', b: 'In the event of a blackout, do not use the elevators. Do not use the stairs. Do not use the halls. — Management' },
+    { id: 'n8', t: 'Child\'s Drawing', b: 'A tall grey figure with a pipe. Underneath, in crayon: HE IS NICE TO ME. Underneath that, in ink: HE IS NOT.' },
+    { id: 'n9', t: 'Basement Requisition', b: 'The generator requires all five breakers. The last one is in the boiler room. Do not go alone. Do not go at all.' },
+    { id: 'n10', t: 'Water Sample 12-B', b: 'Not water. Density inconsistent. Reacts to sound. Do not play the radio in the basement.' },
+    { id: 'n11', t: 'Final Shift Log', b: 'The lights went out at 2:47. I am writing this in the chapel. The candles are still lit. He will not come in here.' },
+    { id: 'n12', t: 'Scratched into the Wall', b: 'IT KNOWS YOUR FOOTSTEPS. IT KNOWS YOUR BREATHING. HOLD YOUR BREATH. IT CANNOT HEAR WHAT IS NOT THERE.' },
+    { id: 'n13', t: 'Elevator Log', b: 'The elevator goes down one more floor than the building has. Do not press B3 unless you want to meet the staff.' },
+    { id: 'n14', t: 'Liminal Entry 1', b: 'The corridor repeats. Same doors, same water, same lamp. I have walked it for six hours. I have not found the exit. I have not aged.' },
+    { id: 'n15', t: 'Liminal Entry 2', b: 'He does not come here. Whatever this floor is, it is older than him. When the lights hum in three parts, do not answer.' },
+    { id: 'n16', t: 'Liminal Entry 3', b: 'I found a room with my own handwriting on the walls. The ink was still wet. I have not written anything in three days.' },
+    { id: 'n17', t: 'Patient 41 — Second File', b: 'The subject\'s blood is not blood. It is a black fluid that separates into two layers under a microscope. Both layers blink.' },
+    { id: 'n18', t: 'Chaplain\'s Note', b: 'He cannot enter the chapel while the candles are lit. This is not a blessing. It is a rule. Rules are all we have.' },
+    { id: 'n19', t: 'Morgue Slip', b: 'Body 11 was admitted 03/11 and discharged 03/12. It discharged itself. It left wet footprints on the ceiling.' },
+    { id: 'n20', t: 'Flood Report', b: 'The basement has flooded 14 times. Each time, the water recedes at dawn. Each time, the water level at 2:47 AM is exactly 1.41 meters. Always the same.' },
+    { id: 'n21', t: 'Letter to Nobody', b: 'If you are reading this, you are already inside. Do not try to leave the same way you came. Do not trust the mirror in the surgery theatre.' },
+    { id: 'n22', t: 'The Warden\'s Name', b: 'His name has been scratched out on every document in this building. But his patient number remains: 41. Say it three times and he will be faster.' },
+    { id: 'n23', t: 'Candle Instructions', b: 'A candle burns for twelve hours. When it goes out, the room is no longer safe. Relight it, and the room becomes safe again for one more night.' },
+  ],
+  audio: [
+    { id: 'a1', t: 'DOCTOR VOSS — 03/12', b: 'The subject responds to light. Not with fear. With recognition. As if he and the light have met before. I am beginning to think they have.' },
+    { id: 'a2', t: 'NURSE HARLOW — 03/14', b: 'I heard him crying tonight. Not screaming. Crying. Like a child. When I opened the door he was standing in the corner with his back to me. The water on the floor was warm.' },
+    { id: 'a3', t: 'DR. VOSS — FINAL', b: 'We have decided to close the lower ward. Whatever patient 41 has become is no longer a medical matter. It is a matter of architecture. We are going to seal him inside the walls. God forgive us.' },
+    { id: 'a4', t: 'INTERCOM — 2:47 AM', b: 'All staff please report to the lobby. All staff please report to the lobby. All staff. All staff. All staff. Please. Please. Please.' },
+    { id: 'a5', t: 'THE WARDEN — 4:00 AM', b: 'When the water rises it is not a flood. It is a mouth. The building is drinking.' },
+  ],
+  inscriptions: [
+    'WE ARE ALL STILL HERE',
+    'HE COUNTS YOUR STEPS',
+    'THE DOOR WAS OPEN',
+    'TURN AROUND',
+    'THE LIGHTS ARE A LIE',
+    'PATIENT 41',
+    'DO NOT LOOK UP',
+    'THE WATER REMEMBERS',
+    'WE CAN HEAR YOU BREATHING',
+    'B3 IS NOT ON THE MAP',
+  ],
+};
+
+/* ================================================================
+   10. PROPS / INTERACTABLES
    ================================================================ */
 const MAT = {};
 function buildMaterials() {
   MAT.metal = new THREE.MeshStandardMaterial({
     map: TEX.metal, roughness: 0.62, metalness: 0.72, color: 0x8892a0,
   });
-  MAT.rust = new THREE.MeshStandardMaterial({
-    color: 0x4a3324, roughness: 0.92, metalness: 0.35,
-  });
-  MAT.wood = new THREE.MeshStandardMaterial({
-    color: 0x3a2e24, roughness: 0.9, metalness: 0.03,
-  });
-  MAT.darkWood = new THREE.MeshStandardMaterial({
-    color: 0x241c16, roughness: 0.95, metalness: 0.02,
-  });
-  MAT.fabric = new THREE.MeshStandardMaterial({
-    color: 0x38414a, roughness: 1.0, metalness: 0.0,
-  });
-  MAT.whiteFabric = new THREE.MeshStandardMaterial({
-    color: 0x8a8c84, roughness: 1.0, metalness: 0.0,
-  });
-  MAT.glass = new THREE.MeshStandardMaterial({
-    color: 0x1a2a33, roughness: 0.15, metalness: 0.4, transparent: true, opacity: 0.55,
-  });
-  MAT.blood = new THREE.MeshBasicMaterial({
-    map: TEX.blood[0], transparent: true, opacity: 0.85, depthWrite: false,
-  });
-  MAT.candle = new THREE.MeshStandardMaterial({
-    color: 0xd8cfae, emissive: 0xff9944, emissiveIntensity: 1.4, roughness: 0.8,
-  });
-  MAT.breakerBox = new THREE.MeshStandardMaterial({
-    color: 0x5a6b3a, roughness: 0.7, metalness: 0.4,
-  });
-  MAT.breaker = new THREE.MeshStandardMaterial({
-    color: 0x2a2a2a, roughness: 0.5, metalness: 0.6,
-    emissive: 0x2266aa, emissiveIntensity: 0.5,
-  });
-  MAT.battery = new THREE.MeshStandardMaterial({
-    color: 0x1c1c20, roughness: 0.5, metalness: 0.5,
-    emissive: 0xd4b13a, emissiveIntensity: 0.35,
-  });
-  MAT.note = new THREE.MeshStandardMaterial({
-    map: TEX.note, roughness: 1.0, metalness: 0.0,
-    emissive: 0x554422, emissiveIntensity: 0.25, side: THREE.DoubleSide,
-  });
-  MAT.bandage = new THREE.MeshStandardMaterial({
-    map: TEX.bandage, roughness: 1.0, metalness: 0.0, color: 0x9a9484,
-  });
-  MAT.blackWater = new THREE.MeshStandardMaterial({
-    color: 0x050708, roughness: 0.15, metalness: 0.8,
-  });
-  MAT.skin = new THREE.MeshStandardMaterial({
-    color: 0x6a6a66, roughness: 0.95, metalness: 0.0,
-  });
+  MAT.rust = new THREE.MeshStandardMaterial({ color: 0x4a3324, roughness: 0.92, metalness: 0.35 });
+  MAT.wood = new THREE.MeshStandardMaterial({ color: 0x3a2e24, roughness: 0.9, metalness: 0.03 });
+  MAT.darkWood = new THREE.MeshStandardMaterial({ color: 0x241c16, roughness: 0.95, metalness: 0.02 });
+  MAT.fabric = new THREE.MeshStandardMaterial({ color: 0x38414a, roughness: 1.0, metalness: 0.0 });
+  MAT.whiteFabric = new THREE.MeshStandardMaterial({ color: 0x8a8c84, roughness: 1.0, metalness: 0.0 });
+  MAT.glass = new THREE.MeshStandardMaterial({ color: 0x1a2a33, roughness: 0.15, metalness: 0.4, transparent: true, opacity: 0.55 });
+  MAT.blood = new THREE.MeshBasicMaterial({ map: TEX.blood[0], transparent: true, opacity: 0.85, depthWrite: false });
+  MAT.candle = new THREE.MeshStandardMaterial({ color: 0xd8cfae, emissive: 0xff9944, emissiveIntensity: 1.4, roughness: 0.8 });
+  MAT.breakerBox = new THREE.MeshStandardMaterial({ color: 0x5a6b3a, roughness: 0.7, metalness: 0.4 });
+  MAT.breaker = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.5, metalness: 0.6, emissive: 0x2266aa, emissiveIntensity: 0.5 });
+  MAT.battery = new THREE.MeshStandardMaterial({ color: 0x1c1c20, roughness: 0.5, metalness: 0.5, emissive: 0xd4b13a, emissiveIntensity: 0.35 });
+  MAT.note = new THREE.MeshStandardMaterial({ map: TEX.note, roughness: 1.0, metalness: 0.0, emissive: 0x554422, emissiveIntensity: 0.25, side: THREE.DoubleSide });
+  MAT.bandage = new THREE.MeshStandardMaterial({ map: TEX.bandage, roughness: 1.0, metalness: 0.0, color: 0x9a9484 });
+  MAT.blackWater = new THREE.MeshStandardMaterial({ color: 0x050708, roughness: 0.15, metalness: 0.8 });
+  MAT.skin = new THREE.MeshStandardMaterial({ color: 0x6a6a66, roughness: 0.95, metalness: 0.0 });
+  MAT.liminalWall = new THREE.MeshStandardMaterial({ color: 0xbdb5a0, roughness: 0.95, metalness: 0.02 });
+  MAT.liminalFloor = new THREE.MeshStandardMaterial({ color: 0x7d7666, roughness: 0.9, metalness: 0.03 });
+  MAT.liminalCeil = new THREE.MeshStandardMaterial({ color: 0xd8d2c0, roughness: 1.0, metalness: 0.0 });
+  MAT.amber = new THREE.MeshBasicMaterial({ color: 0xffcc66, transparent: true, opacity: 0.6 });
 }
 
-/* ---- generic prop helpers ---- */
 function addBox(w, h, d, mat, x, y, z, ry = 0) {
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
   m.position.set(x, y, z);
@@ -1830,44 +1943,33 @@ function addCyl(rt, rb, h, seg, mat, x, y, z, ry = 0) {
   return m;
 }
 
-/* ---- Hiding spot ---- */
 function createLocker(x, z, ry, kind = 'locker') {
   const g = new THREE.Group();
-  const bodyMat = MAT.metal;
-  const body = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.25, 0.72), bodyMat);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.25, 0.72), MAT.metal);
   body.position.y = 1.125;
   g.add(body);
-
-  // door slats
   for (let i = 0; i < 5; i++) {
     const slat = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.05, 0.04), MAT.darkWood);
     slat.position.set(0, 1.62 + i * 0.10, 0.37);
     g.add(slat);
   }
-  // handle
   const handle = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.26, 0.05), MAT.rust);
   handle.position.set(0.36, 1.15, 0.38);
   g.add(handle);
-
   g.position.set(x, 0, z);
   g.rotation.y = ry;
   scene.add(g);
-
   const spot = {
-    kind,
-    object: g,
+    kind, object: g,
     pos: new THREE.Vector3(x, 0, z),
     lookDir: new THREE.Vector3(Math.sin(ry), 0, Math.cos(ry)),
-    occupied: false,
-    witness: false,
-    witnessTimer: 0,
+    occupied: false, witness: false, witnessTimer: 0,
   };
   hidingSpots.push(spot);
   return spot;
 }
 
 function createBedHide(x, z, ry) {
-  // a bed you can crouch under
   const g = new THREE.Group();
   const frame = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.18, 2.1), MAT.metal);
   frame.position.y = 0.68;
@@ -1883,10 +1985,8 @@ function createBedHide(x, z, ry) {
   g.position.set(x, 0, z);
   g.rotation.y = ry;
   scene.add(g);
-
   const spot = {
-    kind: 'bed',
-    object: g,
+    kind: 'bed', object: g,
     pos: new THREE.Vector3(x, 0, z),
     lookDir: new THREE.Vector3(Math.sin(ry), 0, Math.cos(ry)),
     occupied: false, witness: false, witnessTimer: 0,
@@ -1910,10 +2010,8 @@ function createCurtainHide(x, z, ry) {
   g.position.set(x, 0, z);
   g.rotation.y = ry;
   scene.add(g);
-
   const spot = {
-    kind: 'curtain',
-    object: g,
+    kind: 'curtain', object: g,
     pos: new THREE.Vector3(x, 0, z),
     lookDir: new THREE.Vector3(Math.sin(ry), 0, Math.cos(ry)),
     occupied: false, witness: false, witnessTimer: 0,
@@ -1922,12 +2020,10 @@ function createCurtainHide(x, z, ry) {
   return spot;
 }
 
-/* ---- Interactable factory ---- */
 function addInteractable(type, mesh, pos, data = {}) {
   const it = {
     type, mesh, pos: pos.clone(),
-    data,
-    taken: false,
+    data, taken: false,
     label: data.label || 'Interact',
   };
   interactables.push(it);
@@ -1945,16 +2041,9 @@ function makeBreaker(x, z) {
   const glow = new THREE.PointLight(0x3388ff, 1.6, 4.0, 2);
   glow.position.set(0, 1.5, 0.4);
   g.add(glow);
-
   g.position.set(x, 0, z);
   scene.add(g);
-
-  const it = addInteractable('breaker', g, new THREE.Vector3(x, 1.35, z), {
-    label: 'Take circuit breaker',
-    glow,
-  });
-  it.baseRot = 0;
-  return it;
+  return addInteractable('breaker', g, new THREE.Vector3(x, 1.35, z), { label: 'Take circuit breaker', glow });
 }
 
 function makeBattery(x, z) {
@@ -1968,28 +2057,12 @@ function makeBattery(x, z) {
   const halo = new THREE.PointLight(0xd4b13a, 0.9, 2.4, 2);
   halo.position.y = 0.25;
   g.add(halo);
-
   g.position.set(x, 0, z);
   scene.add(g);
   return addInteractable('battery', g, new THREE.Vector3(x, 0.2, z), { label: 'Pick up battery' });
 }
 
 let noteIndex = 0;
-const NOTE_TEXTS = [
-  { t: 'Admission Log', b: 'Patient 41 admitted 03/11. Water found in the lungs. No water in the room. Doctor insists it is "residual."' },
-  { t: 'Nurse\'s Memo', b: 'Do not drain the east wing again. Whatever is in the pipes comes back through the drains. It comes back angry.' },
-  { t: 'Torn Page', b: 'He walks the flooded corridors because the dry ones hurt him. Keep to the dry rooms. Keep the lights on.' },
-  { t: 'Maintenance Note', b: 'Five breakers feed the west grid. They keep getting pulled. I did not pull them. I am the only one on shift.' },
-  { t: 'Patient 41', b: 'It asks for my name. I gave it a false one. It said "that is not your name" and it said it with my mother\'s voice.' },
-  { t: 'Doctor\'s Recording (transcript)', b: 'The subject does not sleep. It stands in the corner of the room all night. The water on the floor is always his shape.' },
-  { t: 'Fire Notice', b: 'In the event of a blackout, do not use the elevators. Do not use the stairs. Do not use the halls. — Management' },
-  { t: 'Child\'s Drawing', b: 'A tall grey figure with a pipe. Underneath, in crayon: HE IS NICE TO ME. Underneath that, in ink: HE IS NOT.' },
-  { t: 'Basement Requisition', b: 'The generator requires all five breakers. The last one is in the boiler room. Do not go alone. Do not go at all.' },
-  { t: 'Water Sample Report', b: 'Sample 12-B: not water. Density inconsistent. Reacts to sound. Do not play the radio in the basement.' },
-  { t: 'Final Shift Log', b: 'The lights went out at 2:47. I am writing this in the chapel. The candles are still lit. He will not come in here.' },
-  { t: 'Scratched into the wall', b: 'IT KNOWS YOUR FOOTSTEPS. IT KNOWS YOUR BREATHING. HOLD YOUR BREATH. IT CANNOT HEAR WHAT IS NOT THERE.' },
-];
-
 function makeNote(x, y, z, ry = 0) {
   const g = new THREE.Group();
   const plane = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.42), MAT.note);
@@ -1999,16 +2072,36 @@ function makeNote(x, y, z, ry = 0) {
   const halo = new THREE.PointLight(0x886633, 0.55, 1.8, 2);
   halo.position.y = 0.15;
   g.add(halo);
-
   g.position.set(x, y, z);
   g.rotation.y = ry;
   scene.add(g);
-
-  const idx = noteIndex % NOTE_TEXTS.length;
+  const idx = noteIndex % LORE.notes.length;
   noteIndex++;
   return addInteractable('note', g, new THREE.Vector3(x, y + 0.2, z), {
     label: 'Read note',
-    note: NOTE_TEXTS[idx],
+    note: LORE.notes[idx],
+    index: idx,
+  });
+}
+
+function makeAudioLog(x, y, z) {
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.05, 0.24), MAT.darkWood);
+  body.position.y = 0.025;
+  g.add(body);
+  const spool = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.04, 8), MAT.rust);
+  spool.rotation.z = Math.PI / 2;
+  spool.position.y = 0.05;
+  g.add(spool);
+  const halo = new THREE.PointLight(0x884422, 0.6, 1.6, 2);
+  halo.position.y = 0.15;
+  g.add(halo);
+  g.position.set(x, y, z);
+  scene.add(g);
+  const idx = randInt(0, LORE.audio.length - 1);
+  return addInteractable('audio', g, new THREE.Vector3(x, y + 0.15, z), {
+    label: 'Play tape',
+    audio: LORE.audio[idx],
     index: idx,
   });
 }
@@ -2024,13 +2117,10 @@ function makeCandleSite(x, z, name) {
   const flame = new THREE.PointLight(0xffaa44, 9, 11, 2);
   flame.position.y = 0.55;
   g.add(flame);
-
   g.position.set(x, 0, z);
   scene.add(g);
-
   const site = { pos: new THREE.Vector3(x, 0, z), light: flame, name };
   candleSites.push(site);
-
   const it = addInteractable('candle', g, new THREE.Vector3(x, 0.5, z), {
     label: 'Save at candle (' + player.inv.candles + ' left)',
     site,
@@ -2038,7 +2128,6 @@ function makeCandleSite(x, z, name) {
   return it;
 }
 
-/* ---- decorative props ---- */
 function makeDesk(x, z, ry) {
   const g = new THREE.Group();
   const top = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.08, 0.85), MAT.wood);
@@ -2138,12 +2227,36 @@ function makeTV(x, z, ry) {
   return { group: g, screen, glow };
 }
 
+function makeElevator(x, z, targetRoomId) {
+  const g = new THREE.Group();
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.6, 0.4), MAT.metal);
+  frame.position.y = 1.3;
+  g.add(frame);
+  const doors = new THREE.Mesh(new THREE.BoxGeometry(2.0, 2.2, 0.1), MAT.rust);
+  doors.position.y = 1.2;
+  doors.position.z = 0.22;
+  g.add(doors);
+  const buttonPanel = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.35, 0.08), MAT.breaker);
+  buttonPanel.position.set(1.35, 1.3, 0.3);
+  g.add(buttonPanel);
+  const glow = new THREE.PointLight(0xffaa44, 1.2, 4, 2);
+  glow.position.set(1.35, 1.35, 0.5);
+  g.add(glow);
+  g.position.set(x, 0, z);
+  scene.add(g);
+  return addInteractable('elevator', g, new THREE.Vector3(x, 1.2, z + 0.4), {
+    label: 'Use elevator',
+    target: targetRoomId,
+    doors,
+  });
+}
+
 /* ================================================================
-   POPULATE THE WORLD WITH PROPS
+   11. POPULATE WORLD
    ================================================================ */
 const tvs = [];
 const rockingChairs = [];
-const doors = [];
+const animatedProps = [];
 
 function populateWorld() {
   // --- LOBBY ---
@@ -2153,14 +2266,11 @@ function populateWorld() {
     makeDesk(c.x, c.z, 0);
     makeChair(c.x - 1.2, c.z + 1.4, 0.4);
     makeCandleSite(tileToWorld(r.x + Math.floor(r.w / 2), r.y + r.h - 1).x,
-                   tileToWorld(r.x + Math.floor(r.w / 2), r.y + r.h - 1).z,
-                   'LOBBY');
+                   tileToWorld(r.x + Math.floor(r.w / 2), r.y + r.h - 1).z, 'LOBBY');
     makeBloodDecal(tileToWorld(r.x + 4, r.y + 2).x, tileToWorld(r.x + 4, r.y + 2).z, 3.2, 0.7);
-    // reception counter
     const cb = tileToWorld(r.x + 6, r.y + 3);
     addBox(4.4, 1.1, 0.9, MAT.wood, cb.x, 0.55, cb.z, 0);
     makeNote(tileToWorld(r.x + 6, r.y + 4).x, 1.13, tileToWorld(r.x + 6, r.y + 4).z, 0.2);
-    // doors (decorative)
     createLocker(tileToWorld(r.x + 1, r.y + 4).x, tileToWorld(r.x + 1, r.y + 4).z, Math.PI / 2);
   }
 
@@ -2171,7 +2281,6 @@ function populateWorld() {
     makeDesk(tileToWorld(r.x + 4, r.y + 2).x, tileToWorld(r.x + 4, r.y + 2).z, Math.PI);
     const tv = makeTV(tileToWorld(r.x + 4, r.y + 4).x, tileToWorld(r.x + 4, r.y + 4).z, -Math.PI / 2);
     tvs.push(tv);
-    // BREAKER 1
     const bp = tileToWorld(r.x + r.w - 1, r.y + 1);
     makeBreaker(bp.x, bp.z);
     makeBattery(tileToWorld(r.x + 2, r.y + 4).x, tileToWorld(r.x + 2, r.y + 4).z);
@@ -2182,14 +2291,12 @@ function populateWorld() {
   {
     const r = roomById('surgery');
     const center = tileToWorld(r.x + Math.floor(r.w / 2), r.y + Math.floor(r.h / 2));
-    // operating table
     addBox(1.1, 0.12, 2.6, MAT.metal, center.x, 1.0, center.z, 0);
     for (const [ox, oz] of [[-0.42, -1.1], [0.42, -1.1], [-0.42, 1.1], [0.42, 1.1]]) {
       addCyl(0.05, 0.05, 1.0, 6, MAT.metal, center.x + ox, 0.5, center.z + oz);
     }
     makeBloodDecal(center.x, center.z + 1.5, 3.6, 0);
     makeBloodDecal(tileToWorld(r.x + 2, r.y + 2).x, tileToWorld(r.x + 2, r.y + 2).z, 2.4, 1.3);
-    // surgical lamp
     const lampMat = new THREE.MeshStandardMaterial({
       color: 0xaab4bc, emissive: 0xddffdd, emissiveIntensity: 0.4, roughness: 0.3, metalness: 0.8,
     });
@@ -2198,16 +2305,14 @@ function populateWorld() {
     lampLight.position.set(center.x, 3.2, center.z);
     scene.add(lampLight);
     flickerLights.push({ light: lampLight, baseIntensity: 12, phase: 0, speed: 5.5, mode: 'flicker' });
-
-    // BREAKER 3
     const bp = tileToWorld(r.x + r.w - 1, r.y + r.h - 1);
     makeBreaker(bp.x, bp.z);
     makeCabinet(tileToWorld(r.x + 1, r.y + r.h - 1).x, tileToWorld(r.x + 1, r.y + r.h - 1).z, Math.PI / 2);
     makeNote(tileToWorld(r.x + 2, r.y + 1).x, 1.0, tileToWorld(r.x + 2, r.y + 1).z, 0);
-    makeBattery(tileToWorld(r.x + r.w - 2, r.y + 1).x, tileToWorld(r.x + r.w - 2, r.y + 1).z);
+    makeAudioLog(tileToWorld(r.x + r.w - 2, r.y + 1).x, 0.9, tileToWorld(r.x + r.w - 2, r.y + 1).z);
   }
 
-  // --- WARD A ---
+  // --- WARDS A/B/C ---
   {
     const r = roomById('wardA');
     createBedHide(tileToWorld(r.x + 1, r.y + 1).x, tileToWorld(r.x + 1, r.y + 1).z, 0);
@@ -2218,24 +2323,21 @@ function populateWorld() {
     makeBloodDecal(tileToWorld(r.x + 2, r.y + 2).x, tileToWorld(r.x + 2, r.y + 2).z, 2.0, 0.4);
     const rc = makeRockingChair(tileToWorld(r.x + 2, r.y + 5).x, tileToWorld(r.x + 2, r.y + 5).z, 2.1);
     rockingChairs.push(rc);
+    animatedProps.push({ obj: rc, type: 'rock', speed: 1.4, phase: rand(0, 6) });
     makeBattery(tileToWorld(r.x + 5, r.y + 5).x, tileToWorld(r.x + 5, r.y + 5).z);
   }
-
-  // --- WARD B ---
   {
     const r = roomById('wardB');
     createBedHide(tileToWorld(r.x + 1, r.y + 1).x, tileToWorld(r.x + 1, r.y + 1).z, 0);
     createBedHide(tileToWorld(r.x + 4, r.y + 1).x, tileToWorld(r.x + 4, r.y + 1).z, 0);
     createLocker(tileToWorld(r.x + 1, r.y + 4).x, tileToWorld(r.x + 1, r.y + 4).z, -Math.PI / 2);
     createLocker(tileToWorld(r.x + 4, r.y + 4).x, tileToWorld(r.x + 4, r.y + 4).z, Math.PI / 2);
-    // BREAKER 2
     const bp = tileToWorld(r.x + r.w - 1, r.y + r.h - 1);
     makeBreaker(bp.x, bp.z);
     makeNote(tileToWorld(r.x + 3, r.y + 3).x, 0.95, tileToWorld(r.x + 3, r.y + 3).z, 1.1);
     makeBloodDecal(tileToWorld(r.x + 2, r.y + 5).x, tileToWorld(r.x + 2, r.y + 5).z, 2.6, 2.4);
+    makeAudioLog(tileToWorld(r.x + 5, r.y + 1).x, 0.9, tileToWorld(r.x + 5, r.y + 1).z);
   }
-
-  // --- WARD C ---
   {
     const r = roomById('wardC');
     createBedHide(tileToWorld(r.x + 1, r.y + 1).x, tileToWorld(r.x + 1, r.y + 1).z, 0);
@@ -2243,6 +2345,7 @@ function populateWorld() {
     createLocker(tileToWorld(r.x + 2, r.y + 4).x, tileToWorld(r.x + 2, r.y + 4).z, Math.PI);
     const rc = makeRockingChair(tileToWorld(r.x + 4, r.y + 4).x, tileToWorld(r.x + 4, r.y + 4).z, 1.2);
     rockingChairs.push(rc);
+    animatedProps.push({ obj: rc, type: 'rock', speed: 0.9, phase: rand(0, 6) });
     makeNote(tileToWorld(r.x + 1, r.y + 5).x, 0.95, tileToWorld(r.x + 1, r.y + 5).z, 0.3);
     makeBattery(tileToWorld(r.x + 5, r.y + 1).x, tileToWorld(r.x + 5, r.y + 1).z);
     makeBloodDecal(tileToWorld(r.x + 3, r.y + 1).x, tileToWorld(r.x + 3, r.y + 1).z, 3.0, 0.9);
@@ -2251,13 +2354,11 @@ function populateWorld() {
   // --- MORGUE ---
   {
     const r = roomById('morgue');
-    // body drawers on the wall
     for (let i = 0; i < 4; i++) {
       const p = tileToWorld(r.x + 1 + i * 1.4, r.y + 1);
       addBox(2.0, 0.6, 0.9, MAT.metal, p.x, 0.9 + (i % 2) * 0.9, p.z, 0);
     }
     makeBloodDecal(tileToWorld(r.x + 3, r.y + 3).x, tileToWorld(r.x + 3, r.y + 3).z, 4.0, 0.2);
-    // BREAKER 4
     const bp = tileToWorld(r.x + r.w - 1, r.y + r.h - 1);
     makeBreaker(bp.x, bp.z);
     makeNote(tileToWorld(r.x + 5, r.y + 4).x, 0.95, tileToWorld(r.x + 5, r.y + 4).z, 0);
@@ -2278,15 +2379,14 @@ function populateWorld() {
     makeCandleSite(cp.x, cp.z, 'NURSES STATION');
     makeNote(tileToWorld(r.x + 2, r.y + 2).x, 1.0, tileToWorld(r.x + 2, r.y + 2).z, 0);
     makeBattery(tileToWorld(r.x + 6, r.y + 1).x, tileToWorld(r.x + 6, r.y + 1).z);
+    makeAudioLog(tileToWorld(r.x + 4, r.y + 1).x, 0.9, tileToWorld(r.x + 4, r.y + 1).z);
   }
 
   // --- CHAPEL ---
   {
     const r = roomById('chapel');
     const c = tileToWorld(r.x + Math.floor(r.w / 2), r.y + 1);
-    // altar
     addBox(2.2, 0.9, 0.7, MAT.wood, c.x, 0.45, c.z, 0);
-    // candles on the altar
     for (let i = 0; i < 5; i++) {
       const cx = c.x - 0.8 + i * 0.4;
       const candle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.045, 0.3, 6), MAT.candle);
@@ -2300,8 +2400,6 @@ function populateWorld() {
     addInteractable('candle', new THREE.Group(), new THREE.Vector3(c.x, 0.5, c.z + 1.2), {
       label: 'Save at candle', site: candleSites[candleSites.length - 1],
     }).mesh.position.set(c.x, 0, c.z + 1.2);
-
-    // pews
     for (let i = 0; i < 3; i++) {
       const p = tileToWorld(r.x + 1, r.y + 3 + i * 0.7);
       addBox(2.6, 0.5, 0.4, MAT.darkWood, p.x, 0.25, p.z, 0);
@@ -2313,7 +2411,6 @@ function populateWorld() {
   // --- BOILER ROOM ---
   {
     const r = roomById('boiler');
-    // boiler tank
     const c = tileToWorld(r.x + 2, r.y + 2);
     addCyl(1.0, 1.0, 2.6, 14, MAT.rust, c.x, 1.3, c.z);
     addCyl(0.22, 0.22, 3.0, 8, MAT.metal, c.x + 1.1, 1.5, c.z);
@@ -2321,8 +2418,6 @@ function populateWorld() {
     fireLight.position.set(c.x, 0.6, c.z + 1.0);
     scene.add(fireLight);
     flickerLights.push({ light: fireLight, baseIntensity: 9, phase: 0, speed: 8.5, mode: 'flicker' });
-
-    // BREAKER 5
     const bp = tileToWorld(r.x + r.w - 1, r.y + 1);
     makeBreaker(bp.x, bp.z);
     makeNote(tileToWorld(r.x + 4, r.y + 3).x, 0.95, tileToWorld(r.x + 4, r.y + 3).z, 0.6);
@@ -2335,15 +2430,12 @@ function populateWorld() {
   {
     const r = roomById('generator');
     const c = tileToWorld(r.x + Math.floor(r.w / 2), r.y + Math.floor(r.h / 2));
-    // big generator
     addBox(3.0, 2.0, 2.0, MAT.metal, c.x, 1.0, c.z, 0);
     addCyl(0.5, 0.5, 1.2, 10, MAT.rust, c.x - 1.0, 2.5, c.z);
     addCyl(0.5, 0.5, 1.2, 10, MAT.rust, c.x + 1.0, 2.5, c.z);
     const genLight = new THREE.PointLight(0xffee66, 5, 10, 2);
     genLight.position.set(c.x, 2.6, c.z);
     scene.add(genLight);
-
-    // generator control panel (main power)
     const pp = tileToWorld(r.x + 1, r.y + r.h - 1);
     const panel = addBox(1.4, 1.6, 0.35, MAT.breakerBox, pp.x, 1.0, pp.z, 0);
     const lever = addBox(0.14, 0.5, 0.14, MAT.breaker, pp.x, 1.3, pp.z + 0.24, 0);
@@ -2352,12 +2444,11 @@ function populateWorld() {
     });
     it.lever = lever;
     it.light = genLight;
-
     makeNote(tileToWorld(r.x + 5, r.y + 1).x, 0.95, tileToWorld(r.x + 5, r.y + 1).z, 0);
     makeBattery(tileToWorld(r.x + r.w - 1, r.y + r.h - 1).x, tileToWorld(r.x + r.w - 1, r.y + r.h - 1).z);
   }
 
-  // --- FLOODED WING ---
+  // --- FLOODED WING / LOWER CORRIDOR ---
   {
     const r = roomById('basement1');
     for (let i = 0; i < 4; i++) {
@@ -2368,8 +2459,6 @@ function populateWorld() {
     makeNote(tileToWorld(r.x + 8, r.y + 1).x, 0.95, tileToWorld(r.x + 8, r.y + 1).z, 0.4);
     makeBattery(tileToWorld(r.x + 1, r.y + 4).x, tileToWorld(r.x + 1, r.y + 4).z);
   }
-
-  // --- LOWER CORRIDOR ---
   {
     const r = roomById('basement2');
     makeBloodDecal(tileToWorld(r.x + 4, r.y + 3).x, tileToWorld(r.x + 4, r.y + 3).z, 4.2, 2.1);
@@ -2382,7 +2471,6 @@ function populateWorld() {
   {
     const r = roomById('exitroom');
     const c = tileToWorld(r.x + Math.floor(r.w / 2), r.y + 2);
-    // exit hatch
     const hatchMat = new THREE.MeshStandardMaterial({
       color: 0x334450, emissive: 0x224466, emissiveIntensity: 0.4,
       roughness: 0.6, metalness: 0.7,
@@ -2400,10 +2488,71 @@ function populateWorld() {
     makeBattery(tileToWorld(r.x + r.w - 1, r.y + 4).x, tileToWorld(r.x + r.w - 1, r.y + 4).z);
   }
 
-  // --- Global scatter: blood trails & batteries ---
-  const scatterRooms = ROOMS.filter(r => r.id !== 'lobby');
-  for (let i = 0; i < 26; i++) {
-    const r = pick(scatterRooms);
+  // --- ELEVATORS ---
+  {
+    const bp = tileToWorld(11, 32);
+    makeElevator(bp.x, bp.z, 'liminal1');
+    const bp2 = tileToWorld(4, 39);
+    makeElevator(bp2.x, bp2.z, 'basement1');
+  }
+
+  // --- LIMINAL ZONES ---
+  {
+    // CORRIDOR 0 — endless corridor with repeated doors
+    const r = roomById('liminal1');
+    for (let i = 0; i < 8; i++) {
+      const p = tileToWorld(r.x + 1 + i * 1.4, r.y + 1);
+      const doorMat = new THREE.MeshStandardMaterial({
+        color: 0x8a8270, roughness: 0.9, metalness: 0.05,
+      });
+      addBox(0.9, 2.0, 0.1, doorMat, p.x, 1.0, p.z, 0);
+      addBox(0.05, 0.1, 0.12, MAT.rust, p.x + 0.35, 1.0, p.z + 0.05, 0);
+    }
+    // ceiling fluorescent strip
+    for (let i = 0; i < 6; i++) {
+      const p = tileToWorld(r.x + 1 + i * 2, r.y + 3);
+      const strip = new THREE.Mesh(
+        new THREE.BoxGeometry(1.6, 0.05, 0.3),
+        new THREE.MeshBasicMaterial({ color: 0xffffee, transparent: true, opacity: 0.7 })
+      );
+      strip.position.set(p.x, CFG.WALL_H - 0.2, p.z);
+      scene.add(strip);
+    }
+    const l1c = tileToWorld(r.x + 5, r.y + 3);
+    const l1light = new THREE.PointLight(0xfff8e0, 3, 12, 2);
+    l1light.position.set(l1c.x, 3.5, l1c.z);
+    scene.add(l1light);
+    flickerLights.push({ light: l1light, baseIntensity: 3, phase: 0, speed: 0.7, mode: 'steady' });
+
+    // POOL 0 — impossible swimming pool
+    const r2 = roomById('liminal2');
+    const pc = tileToWorld(r2.x + 5, r2.y + 2);
+    const pool = addBox(6.0, 0.1, 5.0, MAT.liminalFloor, pc.x, 0.05, pc.z, 0);
+    const poolLight = new THREE.PointLight(0xaaddcc, 4, 14, 2);
+    poolLight.position.set(pc.x, 2.5, pc.z);
+    scene.add(poolLight);
+    flickerLights.push({ light: poolLight, baseIntensity: 4, phase: 1.2, speed: 0.4, mode: 'steady' });
+    createLocker(tileToWorld(r2.x + 1, r2.y + 1).x, tileToWorld(r2.x + 1, r2.y + 1).z, 0);
+
+    // SUITE 0 — a room that should not exist
+    const r3 = roomById('liminal3');
+    const sc = tileToWorld(r3.x + 6, r3.y + 3);
+    addBox(2.0, 0.8, 0.7, MAT.liminalWall, sc.x, 0.4, sc.z, 0);
+    const suiteNote = makeNote(tileToWorld(r3.x + 3, r3.y + 3).x, 0.9, tileToWorld(r3.x + 3, r3.y + 3).z, 0);
+    // Override note index to point at liminal notes
+    suiteNote.data.note = LORE.notes[13 + randInt(0, 2)];
+    const suiteLight = new THREE.PointLight(0xffeedd, 5, 14, 2);
+    suiteLight.position.set(sc.x, 2.5, sc.z);
+    scene.add(suiteLight);
+    flickerLights.push({ light: suiteLight, baseIntensity: 5, phase: 2.1, speed: 0.3, mode: 'steady' });
+
+    // carve liminal markers so enemy pathfinding can navigate
+    // (grid already carved for these rooms)
+  }
+
+  // --- Scatter blood, batteries, notes in liminal areas ---
+  for (let i = 0; i < 20; i++) {
+    const r = pick(ROOMS);
     const tx = r.x + randInt(1, r.w - 2);
     const ty = r.y + randInt(1, r.h - 2);
     const p = tileToWorld(tx, ty);
@@ -2412,16 +2561,13 @@ function populateWorld() {
 }
 
 /* ================================================================
-   A* PATHFINDING
+   12. PATHFINDING
    ================================================================ */
-function heuristic(a, b) {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-}
+function heuristic(a, b) { return Math.abs(a.x - b.x) + Math.abs(a.y - b.y); }
 
 function findPath(sx, sy, ex, ey) {
   if (sx === ex && sy === ey) return [];
   if (isSolidTile(ex, ey)) {
-    // find nearest walkable tile
     let best = null, bestD = 1e9;
     for (let dy = -3; dy <= 3; dy++) {
       for (let dx = -3; dx <= 3; dx++) {
@@ -2469,7 +2615,6 @@ function findPath(sx, sy, ex, ey) {
   let iter = 0;
   while (open.length > 0 && iter < 8000) {
     iter++;
-    // pop lowest f
     let bi = 0;
     for (let i = 1; i < open.length; i++) if (open[i].f < open[bi].f) bi = i;
     const cur = open.splice(bi, 1)[0];
@@ -2478,7 +2623,6 @@ function findPath(sx, sy, ex, ey) {
     closed[cIdx] = 1;
 
     if (cIdx === goalIdx) {
-      // reconstruct
       const path = [];
       let i = cIdx;
       while (i !== -1 && i !== startIdx) {
@@ -2492,7 +2636,6 @@ function findPath(sx, sy, ex, ey) {
     for (const [dx, dy, cost] of dirs) {
       const nx = cur.x + dx, ny = cur.y + dy;
       if (isSolidTile(nx, ny)) continue;
-      // prevent cutting corners diagonally
       if (dx !== 0 && dy !== 0) {
         if (isSolidTile(cur.x + dx, cur.y) || isSolidTile(cur.x, cur.y + dy)) continue;
       }
@@ -2510,18 +2653,21 @@ function findPath(sx, sy, ex, ey) {
 }
 
 /* ================================================================
-   7. PLAYER CONTROLLER
+   13. PLAYER CONTROLLER
    ================================================================ */
 const keys = {};
 const input = {
   forward: false, back: false, left: false, right: false,
   sprint: false, crouch: false, jump: false,
   leanLeft: false, leanRight: false, breath: false,
+  vrMoveX: 0, vrMoveY: 0,
+  vrSprint: false, vrCrouch: false,
+  vrInteract: false, vrFlash: false,
 };
 
 function createPlayer() {
   player = {
-    pos: new THREE.Vector3(0, 0, 0),
+    pos: new THREE.Vector3(),
     vel: new THREE.Vector3(),
     onGround: true,
     eyeHeight: CFG.PLAYER_HEIGHT,
@@ -2536,23 +2682,22 @@ function createPlayer() {
     breathHold: 1.0,
     breakers: 0,
     notesFound: [],
+    audioFound: [],
     inv: { breakers: 0, batteries: 0, candles: 3, notes: 0 },
     inWater: 0,
     noiseRadius: 0,
     pantTimer: 0,
-    footstepTimer: 0,
     stepDistance: 0,
-    lean: 0,
-    leanTarget: 0,
+    lean: 0, leanTarget: 0,
     heartIntensity: 0,
     sanityFx: 0,
     hasPower: false,
     dead: false,
     killedBy: '',
-    spawnPoint: new THREE.Vector3(0, 0, 0),
+    spawnPoint: new THREE.Vector3(),
     checkpoint: null,
+    inLiminal: false,
   };
-  // spawn in the lobby
   const r = roomById('lobby');
   const c = tileToWorld(r.x + 2, r.y + Math.floor(r.h / 2));
   player.pos.set(c.x, 0, c.z);
@@ -2563,7 +2708,6 @@ function createPlayer() {
 function updatePlayer(dt) {
   if (!player || player.dead) return;
 
-  // --- flashlight battery ---
   if (player.flashOn) {
     player.battery -= CFG.BATTERY_DRAIN * dt;
     if (player.battery <= 0) {
@@ -2578,19 +2722,18 @@ function updatePlayer(dt) {
     : 0;
   flashlight.visible = player.flashOn && player.battery > 0;
 
-  // --- water ---
   const depth = waterDepthAt(player.pos.x, player.pos.z);
   player.inWater = depth;
 
-  // --- hidden handling ---
-  if (player.hidden) {
-    updateHidden(dt);
-    return;
-  }
+  if (player.hidden) { updateHidden(dt); return; }
 
-  // --- input direction ---
+  // determine movement direction from camera (desktop) or rig yaw (VR)
   const forward = new THREE.Vector3();
-  camera.getWorldDirection(forward);
+  if (inVR) {
+    camera.getWorldDirection(forward);
+  } else {
+    camera.getWorldDirection(forward);
+  }
   forward.y = 0;
   forward.normalize();
   const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
@@ -2600,16 +2743,19 @@ function updatePlayer(dt) {
   if (input.back)    { moveX -= forward.x; moveZ -= forward.z; }
   if (input.right)   { moveX += right.x;   moveZ += right.z; }
   if (input.left)    { moveX -= right.x;   moveZ -= right.z; }
+  if (inVR && (input.vrMoveX !== 0 || input.vrMoveY !== 0)) {
+    moveX += forward.x * (-input.vrMoveY) + right.x * input.vrMoveX;
+    moveZ += forward.z * (-input.vrMoveY) + right.z * input.vrMoveX;
+  }
   const inputLen = Math.hypot(moveX, moveZ);
   if (inputLen > 0) { moveX /= inputLen; moveZ /= inputLen; }
 
-  // --- crouch ---
-  player.targetEyeHeight = input.crouch ? CFG.CROUCH_HEIGHT : CFG.PLAYER_HEIGHT;
+  const wantCrouch = input.crouch || input.vrCrouch;
+  player.targetEyeHeight = wantCrouch ? CFG.CROUCH_HEIGHT : CFG.PLAYER_HEIGHT;
   player.eyeHeight += (player.targetEyeHeight - player.eyeHeight) * Math.min(1, dt * 12);
 
-  // --- sprint & stamina ---
   const moving = inputLen > 0;
-  const wantsSprint = input.sprint && moving && !input.crouch && player.stamina > 3;
+  const wantsSprint = (input.sprint || input.vrSprint) && moving && !wantCrouch && player.stamina > 3;
   if (wantsSprint) {
     player.stamina -= CFG.STAMINA_DRAIN * dt;
     if (player.stamina < 0) player.stamina = 0;
@@ -2618,7 +2764,6 @@ function updatePlayer(dt) {
     player.stamina = Math.min(CFG.STAMINA_MAX, player.stamina + regen * dt);
   }
 
-  // panting
   if (player.stamina < 30 && moving) {
     player.pantTimer -= dt;
     if (player.pantTimer <= 0) {
@@ -2627,14 +2772,12 @@ function updatePlayer(dt) {
     }
   }
 
-  // --- speed ---
   let speed = CFG.WALK_SPEED;
-  if (input.crouch) speed = CFG.CROUCH_SPEED;
+  if (wantCrouch) speed = CFG.CROUCH_SPEED;
   else if (wantsSprint) speed = CFG.SPRINT_SPEED;
   if (depth > 0.12) speed *= CFG.WATER_SLOW;
   if (player.sanity < 25) speed *= 0.92;
 
-  // --- movement with collision ---
   const dx = moveX * speed * dt;
   const dz = moveZ * speed * dt;
   const r = CFG.PLAYER_RADIUS;
@@ -2642,70 +2785,69 @@ function updatePlayer(dt) {
   if (canStand(player.pos.x + dx, player.pos.z, r)) player.pos.x += dx;
   if (canStand(player.pos.x, player.pos.z + dz, r)) player.pos.z += dz;
 
-  // --- jumping / gravity ---
-  if (input.jump && player.onGround && !input.crouch) {
+  if (input.jump && player.onGround && !wantCrouch) {
     player.vel.y = CFG.JUMP_VEL;
     player.onGround = false;
     input.jump = false;
   }
   player.vel.y -= CFG.GRAVITY * dt;
   player.pos.y += player.vel.y * dt;
-  if (player.pos.y <= 0) {
-    player.pos.y = 0;
-    player.vel.y = 0;
-    player.onGround = true;
-  }
+  if (player.pos.y <= 0) { player.pos.y = 0; player.vel.y = 0; player.onGround = true; }
 
-  // --- footsteps ---
   const horizontalSpeed = Math.hypot(dx, dz) / Math.max(dt, 0.0001);
   if (horizontalSpeed > 0.2) {
     player.stepDistance += horizontalSpeed * dt;
-    const stride = input.crouch ? 1.5 : (wantsSprint ? 1.05 : 1.3);
+    const stride = wantCrouch ? 1.5 : (wantsSprint ? 1.05 : 1.3);
     if (player.stepDistance > stride) {
       player.stepDistance = 0;
       const wet = depth > 0.05;
       Audio.playFootstep(wet, null);
       if (wet && depth > 0.2) Audio.playSplash(null, 0.5);
-      // blood decal when wading through rage water
-      if (wet && gameState === 'playing') {
-        spawnRipple(player.pos, 1.0);
-      }
+      if (wet) spawnRipple(player.pos, 1.0);
     }
   }
 
-  // --- noise radius (used by enemy hearing) ---
   let noise = 0;
   if (horizontalSpeed > 0.2) {
-    if (input.crouch) noise = CFG.ENEMY_HEAR_CROUCH;
+    if (wantCrouch) noise = CFG.ENEMY_HEAR_CROUCH;
     else if (wantsSprint) noise = CFG.ENEMY_HEAR_SPRINT;
     else noise = CFG.ENEMY_HEAR_WALK;
     if (depth > 0.2) noise = Math.max(noise, CFG.ENEMY_HEAR_WATER);
   }
   player.noiseRadius = noise;
 
-  // --- camera ---
-  camera.position.set(
-    player.pos.x,
-    player.pos.y + player.eyeHeight + (depth > 0.1 ? -depth * 0.25 : 0),
-    player.pos.z
-  );
+  if (!inVR) {
+    camera.position.set(
+      player.pos.x,
+      player.pos.y + player.eyeHeight + (depth > 0.1 ? -depth * 0.25 : 0),
+      player.pos.z
+    );
+    player.leanTarget = 0;
+    if (input.leanLeft) player.leanTarget = -1;
+    if (input.leanRight) player.leanTarget = 1;
+    player.lean += (player.leanTarget - player.lean) * Math.min(1, dt * 7);
+    camera.position.x += right.x * player.lean * 0.55;
+    camera.position.z += right.z * player.lean * 0.55;
+    camera.rotation.z = -player.lean * 0.10;
+  } else {
+    updateDollyPosition(dt);
+  }
 
-  // lean
-  player.leanTarget = 0;
-  if (input.leanLeft) player.leanTarget = -1;
-  if (input.leanRight) player.leanTarget = 1;
-  player.lean += (player.leanTarget - player.lean) * Math.min(1, dt * 7);
-  camera.position.x += right.x * player.lean * 0.55;
-  camera.position.z += right.z * player.lean * 0.55;
-  camera.rotation.z = -player.lean * 0.10;
-
-  // --- sanity ---
   updateSanity(dt);
+}
+
+function updateDollyPosition(dt) {
+  if (!dolly) return;
+  const depth = player.inWater;
+  const rigFloorY = player.pos.y + (depth > 0.1 ? -depth * 0.25 : 0);
+  dolly.position.x = player.pos.x;
+  dolly.position.z = player.pos.z;
+  dolly.position.y += (rigFloorY - dolly.position.y) * Math.min(1, dt * 14);
 }
 
 let ripplePool = [];
 function spawnRipple(pos, strength) {
-  if (ripplePool.length > 60) return;
+  if (ripplePool.length > 80) return;
   const geo = new THREE.RingGeometry(0.1, 0.18, 16);
   const mat = new THREE.MeshBasicMaterial({
     color: 0x88aacc, transparent: true, opacity: 0.5, side: THREE.DoubleSide, depthWrite: false,
@@ -2738,23 +2880,17 @@ function updateRipples(dt) {
 function updateSanity(dt) {
   const d = DIFF[SETTINGS.difficulty];
   let drain = 0;
-
-  // darkness
   if (!player.flashOn || player.battery <= 0) drain += 0.35;
-  // flooded basement
   if (player.inWater > 0.15) drain += 0.22;
-  // enemy proximity
   if (enemy) {
     const dist = player.pos.distanceTo(enemy.pos);
     if (dist < 20) drain += (1 - dist / 20) * 1.6;
     if (enemy.state === 'CHASE') drain += 0.9;
   }
-  // near candle = regenerate
   let nearCandle = false;
   for (const c of candleSites) {
     if (player.pos.distanceTo(c.pos) < 4.0) { nearCandle = true; break; }
   }
-
   if (nearCandle) {
     player.sanity = Math.min(CFG.SANITY_MAX, player.sanity + 9 * dt);
   } else {
@@ -2762,34 +2898,21 @@ function updateSanity(dt) {
     if (player.sanity < 0) player.sanity = 0;
   }
 
-  // sanity effects
   const insanity = 1 - player.sanity / CFG.SANITY_MAX;
   player.sanityFx = insanity;
 
   if (insanity > 0.35 && Math.random() < dt * 0.35) {
     Audio.playWhisper();
-    if (Math.random() < 0.5) showSubtitle('', pick([
-      'you left the door open',
-      'it is already inside',
-      'do not turn around',
-      'we are all still here',
-      'the water is warm now',
-      'stay very still',
-    ]), 2.2);
+    if (Math.random() < 0.5) showSubtitle('', pick(LORE.inscriptions), 2.2);
   }
+  if (insanity > 0.6 && Math.random() < dt * 0.10) spawnHallucination();
 
-  if (insanity > 0.6 && Math.random() < dt * 0.10) {
-    spawnHallucination();
-  }
-
-  // heartbeat
   if (enemy) {
     const dist = player.pos.distanceTo(enemy.pos);
     let target = 0;
     if (dist < 26) target = 1 - dist / 26;
     if (enemy.state === 'CHASE') target = Math.max(target, 0.85);
     player.heartIntensity += (target - player.heartIntensity) * Math.min(1, dt * 2.5);
-
     if (player.heartIntensity > 0.08) {
       Audio.heartTimer -= dt;
       if (Audio.heartTimer <= 0) {
@@ -2799,15 +2922,22 @@ function updateSanity(dt) {
     }
   }
 
-  // pulse overlay
   const pulseEl = document.getElementById('pulse');
-  pulseEl.style.opacity = (player.heartIntensity * 0.75).toFixed(3);
-
-  // sanity vignette
+  if (pulseEl) pulseEl.style.opacity = (player.heartIntensity * 0.75).toFixed(3);
   const sv = document.getElementById('sanityVig');
-  sv.style.opacity = Math.max(0, insanity - 0.25).toFixed(3);
+  if (sv) sv.style.opacity = Math.max(0, insanity - 0.25).toFixed(3);
+
+  // VR vignette
+  if (inVR && SETTINGS.vignette) {
+    const vig = document.getElementById('vrVignette');
+    const movingFast = (input.forward || input.back || input.left || input.right ||
+      Math.hypot(input.vrMoveX, input.vrMoveY) > 0.2);
+    const targetVig = movingFast ? 0.55 : 0;
+    vig.style.opacity = targetVig.toFixed(2);
+  }
 }
 
+const hallucinations = [];
 function spawnHallucination() {
   const group = new THREE.Group();
   const mat = new THREE.MeshBasicMaterial({ color: 0x0a0a0c, transparent: true, opacity: 0.85 });
@@ -2818,7 +2948,6 @@ function spawnHallucination() {
   head.position.y = 2.05;
   group.add(head);
 
-  // place in front of the player, out of reach
   const fwd = new THREE.Vector3();
   camera.getWorldDirection(fwd);
   const dist = rand(6, 11);
@@ -2846,23 +2975,22 @@ function spawnHallucination() {
   Audio.playWhisper();
 }
 
-const hallucinations = [];
-
 /* ================================================================
-   HIDING SYSTEM
+   HIDING
    ================================================================ */
 function enterHiding(spot) {
   player.hidden = spot;
   spot.occupied = true;
   player.savedPos = player.pos.clone();
-  // snap player to the hiding spot
   player.pos.copy(spot.pos);
   const dir = spot.lookDir.clone().multiplyScalar(-1.0);
   player.pos.addScaledVector(dir, 0.15);
-  // face outward
   const yaw = Math.atan2(spot.lookDir.x, spot.lookDir.z);
-  camera.rotation.set(0, yaw, 0, 'YXZ');
-  // if the Warden watched us enter, it knows
+  if (!inVR) camera.rotation.set(0, yaw, 0, 'YXZ');
+  else {
+    // In VR, snap the dolly yaw so the headset faces outward
+    if (dolly) dolly.rotation.y = yaw;
+  }
   if (enemy && enemy.canSeePlayer()) {
     spot.witness = true;
     spot.witnessTimer = 0;
@@ -2881,13 +3009,16 @@ function exitHiding() {
 
 function updateHidden(dt) {
   const spot = player.hidden;
-  camera.position.set(
-    player.pos.x,
-    spot.kind === 'bed' ? 0.55 : (spot.kind === 'curtain' ? 1.2 : 1.25),
-    player.pos.z
-  );
+  if (!inVR) {
+    camera.position.set(
+      player.pos.x,
+      spot.kind === 'bed' ? 0.55 : (spot.kind === 'curtain' ? 1.2 : 1.25),
+      player.pos.z
+    );
+  } else {
+    updateDollyPosition(dt);
+  }
 
-  // holding breath
   player.holdingBreath = input.breath;
   if (player.holdingBreath) {
     player.breathHold -= dt * 0.16;
@@ -2904,22 +3035,18 @@ function updateHidden(dt) {
     if (Math.random() < dt * 0.5) Audio.playBreath(0.4);
   }
 
-  // sanity drain while hidden
   player.sanity -= dt * 0.5 * DIFF[SETTINGS.difficulty].sanityDrain;
   if (player.sanity < 0) player.sanity = 0;
   player.sanityFx = 1 - player.sanity / CFG.SANITY_MAX;
 
-  // witness timer
-  if (spot.witness) {
-    spot.witnessTimer += dt;
-  }
+  if (spot.witness) spot.witnessTimer += dt;
 
   const pulseEl = document.getElementById('pulse');
   if (enemy) {
     const dist = player.pos.distanceTo(enemy.pos);
     const target = dist < 22 ? (1 - dist / 22) : 0;
     player.heartIntensity += (target - player.heartIntensity) * Math.min(1, dt * 3);
-    pulseEl.style.opacity = (player.heartIntensity * 0.8).toFixed(3);
+    if (pulseEl) pulseEl.style.opacity = (player.heartIntensity * 0.8).toFixed(3);
     Audio.heartTimer -= dt;
     if (Audio.heartTimer <= 0 && player.heartIntensity > 0.1) {
       Audio.playHeartbeat(player.heartIntensity);
@@ -2929,7 +3056,7 @@ function updateHidden(dt) {
 }
 
 /* ================================================================
-   8. ENEMY AI — "THE WARDEN"
+   14. ENEMY AI
    ================================================================ */
 class Warden {
   constructor() {
@@ -2957,39 +3084,32 @@ class Warden {
     this.idleLookTimer = 0;
     this.hunting = false;
     this.spawnPoint = new THREE.Vector3();
+    this.twitchTimer = 0;
+    this.attackAnimTimer = 0;
     this.buildModel();
     scene.add(this.group);
   }
 
   buildModel() {
     const g = this.group;
-
-    // Torso — hunched, elongated
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.34, 1.35, 4, 10), MAT.skin);
     torso.position.y = 1.65;
     torso.rotation.x = 0.18;
     g.add(torso);
-
-    // Ribcage bulge
     const ribs = new THREE.Mesh(new THREE.SphereGeometry(0.40, 10, 8), MAT.skin);
     ribs.position.set(0, 1.95, 0.06);
     ribs.scale.set(1.0, 0.9, 0.75);
     g.add(ribs);
-
-    // Head with wet bandages
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.26, 12, 12), MAT.bandage);
     head.position.set(0, 2.62, 0.06);
     head.scale.set(0.92, 1.12, 0.92);
     g.add(head);
     this.head = head;
-
-    // Face slit (black)
     const slit = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 0.06),
       new THREE.MeshBasicMaterial({ color: 0x000000 }));
     slit.position.set(0, 2.63, 0.30);
     g.add(slit);
 
-    // Long arms
     this.arms = [];
     for (const side of [-1, 1]) {
       const shoulder = new THREE.Vector3(side * 0.40, 2.28, 0);
@@ -3010,13 +3130,11 @@ class Warden {
       this.arms.push(arm);
     }
 
-    // The rusted pipe
     const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 1.9, 8), MAT.rust);
     pipe.position.set(0, -0.6, 0.1);
     pipe.rotation.x = 0.35;
     this.arms[1].add(pipe);
 
-    // Legs
     this.legs = [];
     for (const side of [-1, 1]) {
       const leg = new THREE.Group();
@@ -3031,7 +3149,6 @@ class Warden {
       this.legs.push(leg);
     }
 
-    // Black water dripping effect
     this.drips = [];
     for (let i = 0; i < 10; i++) {
       const d = new THREE.Mesh(new THREE.SphereGeometry(0.035, 5, 5), MAT.blackWater);
@@ -3041,7 +3158,6 @@ class Warden {
       this.drips.push(d);
     }
 
-    // Subtle ghost-distortion shell
     const shellMat = new THREE.MeshBasicMaterial({
       color: 0x101820, transparent: true, opacity: 0.10,
       blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.BackSide,
@@ -3049,9 +3165,6 @@ class Warden {
     this.shell = new THREE.Mesh(new THREE.CapsuleGeometry(0.55, 2.4, 4, 10), shellMat);
     this.shell.position.y = 1.7;
     g.add(this.shell);
-
-    // Positional audio anchor
-    this.audioPos = new THREE.Vector3();
   }
 
   spawnAt(x, z) {
@@ -3063,15 +3176,9 @@ class Warden {
     this.pickWanderTarget();
   }
 
-  tilePos() {
-    return {
-      x: Math.floor(this.pos.x / CFG.TILE),
-      y: Math.floor(this.pos.z / CFG.TILE),
-    };
-  }
+  tilePos() { return { x: Math.floor(this.pos.x / CFG.TILE), y: Math.floor(this.pos.z / CFG.TILE) }; }
 
   pickWanderTarget() {
-    // Prefer rooms far from the player
     let best = null, bestScore = -1e9;
     for (let i = 0; i < 8; i++) {
       const r = pick(ROOMS);
@@ -3096,7 +3203,6 @@ class Warden {
   canSeePlayer() {
     if (!player || player.dead) return false;
     if (player.hidden) {
-      // hidden players are invisible unless the Warden witnessed entry
       if (!player.hidden.witness) return false;
     }
     const dist = this.pos.distanceTo(player.pos);
@@ -3105,15 +3211,11 @@ class Warden {
     if (player.flashOn && player.battery > 0) range += 10;
     if (player.inWater > 0.2) range += 4;
     if (dist > range) return false;
-
-    // field of view
     const toPlayer = new THREE.Vector3().subVectors(player.pos, this.pos);
     toPlayer.y = 0;
     const fwd = new THREE.Vector3(Math.sin(this.facing), 0, Math.cos(this.facing));
     const ang = toPlayer.clone().normalize().angleTo(fwd);
     if (ang > CFG.ENEMY_SIGHT_ANGLE) return false;
-
-    // line of sight through the grid
     return this.hasLineOfSight(this.pos, player.pos);
   }
 
@@ -3154,15 +3256,12 @@ class Warden {
     const d = DIFF[SETTINGS.difficulty];
     const distToPlayer = this.pos.distanceTo(player.pos);
 
-    // ---- Speed scaling with breakers ----
     let baseSpeed = CFG.ENEMY_BASE_SPEED + player.breakers * 0.22;
     if (this.rage) baseSpeed = CFG.ENEMY_RAGE_SPEED;
-    if (this.pos && waterDepthAt(this.pos.x, this.pos.z) > 0.15) baseSpeed *= 1.22; // water affinity
+    if (waterDepthAt(this.pos.x, this.pos.z) > 0.15) baseSpeed *= 1.22;
     baseSpeed *= d.speed;
-
     this.aggression = 1.0 + player.breakers * 0.18;
 
-    // ---- Perception ----
     const sees = this.canSeePlayer();
     if (sees) {
       this.lastSeen.copy(player.pos);
@@ -3180,7 +3279,6 @@ class Warden {
       this.lastSeenTimer -= dt;
     }
 
-    // ---- Hearing ----
     if (player.noiseRadius > 0 && !player.hidden) {
       const hearR = player.noiseRadius * d.hear;
       if (distToPlayer < hearR) {
@@ -3195,7 +3293,6 @@ class Warden {
       }
     }
 
-    // ---- State machine ----
     this.stateTimer += dt;
 
     switch (this.state) {
@@ -3207,7 +3304,6 @@ class Warden {
         }
         break;
       }
-
       case 'WANDER': {
         this.speed = baseSpeed * 0.55;
         this.moveAlongPath(dt);
@@ -3217,7 +3313,6 @@ class Warden {
         }
         break;
       }
-
       case 'INVESTIGATE': {
         this.speed = baseSpeed * 0.92;
         this.moveAlongPath(dt);
@@ -3228,25 +3323,17 @@ class Warden {
         }
         break;
       }
-
       case 'CHASE': {
         this.speed = baseSpeed * 1.02;
         this.target.copy(player.pos);
         this.repathTimer -= dt;
-        if (this.repathTimer <= 0) {
-          this.repath();
-          this.repathTimer = 0.35;
-        }
+        if (this.repathTimer <= 0) { this.repath(); this.repathTimer = 0.35; }
         this.moveAlongPath(dt);
         Audio.setMusicState('chase');
-
-        // attack
         if (distToPlayer < 1.9 && !player.hidden) {
           this.state = 'ATTACK';
           this.stateTimer = 0;
         }
-
-        // lost the player
         if (!sees && this.lastSeenTimer <= 0) {
           this.state = 'SEARCH';
           this.stateTimer = 0;
@@ -3254,8 +3341,6 @@ class Warden {
           this.repath();
           Audio.setMusicState('tense');
         }
-
-        // breaking into a hiding spot
         if (player.hidden && player.hidden.witness) {
           const spot = player.hidden;
           spot.witnessTimer += dt;
@@ -3268,12 +3353,10 @@ class Warden {
         }
         break;
       }
-
       case 'SEARCH': {
         this.speed = baseSpeed * 0.85;
         this.moveAlongPath(dt);
         if (this.pathIndex >= this.path.length) {
-          // search nearby tiles
           if (this.stateTimer < 15) {
             const t = this.tilePos();
             const nx = t.x + randInt(-4, 4);
@@ -3294,10 +3377,8 @@ class Warden {
         }
         break;
       }
-
       case 'STALK': {
         this.speed = baseSpeed * 0.62;
-        // Keep ~12m away, approach from behind
         const toPlayer = new THREE.Vector3().subVectors(player.pos, this.pos);
         const dist = toPlayer.length();
         if (dist > 16) {
@@ -3306,41 +3387,31 @@ class Warden {
           if (this.repathTimer <= 0) { this.repath(); this.repathTimer = 0.8; }
           this.moveAlongPath(dt);
         } else if (dist < 8) {
-          // back off
           toPlayer.normalize().multiplyScalar(-6);
           this.target.copy(this.pos).add(toPlayer);
           this.repathTimer -= dt;
           if (this.repathTimer <= 0) { this.repath(); this.repathTimer = 0.8; }
           this.moveAlongPath(dt);
         }
-
-        // teleport when unobserved
         this.teleportTimer -= dt;
         if (this.teleportTimer <= 0) {
           this.teleportTimer = 6 + Math.random() * 8;
           this.tryTeleportNearPlayer();
         }
-
         if (this.stateTimer > 20) {
           this.state = 'WANDER';
           this.stateTimer = 0;
           this.pickWanderTarget();
         }
-        if (sees) {
-          this.state = 'CHASE';
-          this.stateTimer = 0;
-        }
+        if (sees) { this.state = 'CHASE'; this.stateTimer = 0; }
         break;
       }
-
       case 'ATTACK': {
-        // kill sequence
         if (!player.dead) killPlayer('THE WARDEN FOUND YOU');
         break;
       }
     }
 
-    // ---- Ambient stinger sounds ----
     this.stepTimer -= dt;
     if (this.stepTimer <= 0) {
       const speedNow = this.pathIndex < this.path.length ? this.speed : 0;
@@ -3352,16 +3423,12 @@ class Warden {
         this.stepTimer = 1.2;
       }
     }
+    if (Math.random() < dt * 0.22) Audio.playChains(this.pos);
 
-    if (Math.random() < dt * 0.22) {
-      Audio.playChains(this.pos);
-    }
-
-    // ---- Visual update ----
+    // ---- visual update ----
     this.group.position.copy(this.pos);
     this.group.rotation.y = this.facing;
 
-    // walk animation
     if (this.pathIndex < this.path.length) {
       this.walkPhase += dt * (this.speed * 2.4);
       const sw = Math.sin(this.walkPhase);
@@ -3371,7 +3438,6 @@ class Warden {
       this.arms[1].rotation.x = 0.12 + sw * 0.32;
       this.group.position.y = Math.abs(Math.sin(this.walkPhase)) * 0.06;
     } else {
-      // idle sway
       this.walkPhase += dt * 0.9;
       const sw = Math.sin(this.walkPhase);
       this.arms[0].rotation.x = 0.12 + sw * 0.05;
@@ -3381,13 +3447,27 @@ class Warden {
       this.group.position.y = 0;
     }
 
-    // head twitch
-    if (Math.random() < dt * 2.5) {
+    if (this.state === 'ATTACK') {
+      this.attackAnimTimer += dt;
+      this.arms[0].rotation.x = -2.0 + Math.sin(this.attackAnimTimer * 18) * 0.4;
+      this.arms[1].rotation.x = -2.0 + Math.cos(this.attackAnimTimer * 18) * 0.4;
+      this.group.position.y = Math.sin(this.attackAnimTimer * 14) * 0.08;
+    }
+
+    this.twitchTimer -= dt;
+    if (this.twitchTimer <= 0) {
+      this.twitchTimer = rand(0.4, 1.6);
       this.head.rotation.z = rand(-0.22, 0.22);
       this.head.rotation.x = rand(-0.15, 0.15);
     }
 
-    // drips
+    // head faces player
+    if (player) {
+      const toP = new THREE.Vector3().subVectors(player.pos, this.pos);
+      const yaw = Math.atan2(toP.x, toP.z) - this.facing;
+      this.head.rotation.y += (yaw - this.head.rotation.y) * Math.min(1, dt * 3);
+    }
+
     for (const dr of this.drips) {
       dr.position.y -= dr.userData.vy * dt;
       if (dr.position.y < 0.05) {
@@ -3397,7 +3477,6 @@ class Warden {
       }
     }
 
-    // shell pulse
     this.shell.material.opacity = 0.06 + Math.sin(gameTime * 2.4) * 0.035 + (this.rage ? 0.05 : 0);
     this.shell.scale.setScalar(1.0 + Math.sin(gameTime * 1.7) * 0.03);
   }
@@ -3409,13 +3488,9 @@ class Warden {
     const to = new THREE.Vector3().subVectors(targetPos, this.pos);
     to.y = 0;
     const dist = to.length();
-    if (dist < 0.35) {
-      this.pathIndex++;
-      return;
-    }
+    if (dist < 0.35) { this.pathIndex++; return; }
     to.normalize();
 
-    // smooth facing
     const desiredFacing = Math.atan2(to.x, to.z);
     let diff = desiredFacing - this.facing;
     while (diff > Math.PI) diff -= Math.PI * 2;
@@ -3426,32 +3501,26 @@ class Warden {
     const nx = this.pos.x + to.x * step;
     const nz = this.pos.z + to.z * step;
     if (canStand(nx, nz, 0.35)) {
-      this.pos.x = nx;
-      this.pos.z = nz;
+      this.pos.x = nx; this.pos.z = nz;
     } else {
-      // slide along the wall
       if (canStand(nx, this.pos.z, 0.35)) this.pos.x = nx;
       else if (canStand(this.pos.x, nz, 0.35)) this.pos.z = nz;
     }
   }
 
   tryTeleportNearPlayer() {
-    // Only teleport when the player cannot see us
     const toEnemy = new THREE.Vector3().subVectors(this.pos, player.pos).normalize();
     const fwd = new THREE.Vector3();
     camera.getWorldDirection(fwd);
     const dot = toEnemy.dot(fwd);
-    if (dot > 0.15) return; // player is looking at us
+    if (dot > 0.15) return;
     if (player.pos.distanceTo(this.pos) < 12) return;
-
-    // find a floor tile ~10-14m from the player, behind them
     for (let i = 0; i < 30; i++) {
       const ang = Math.atan2(toEnemy.x, toEnemy.z) + rand(-0.8, 0.8);
       const r = rand(10, 14);
       const px = player.pos.x + Math.sin(ang) * r;
       const pz = player.pos.z + Math.cos(ang) * r;
       if (isSolidWorld(px, pz)) continue;
-      // make sure it's not in the player's view cone
       const dirToNew = new THREE.Vector3(px - player.pos.x, 0, pz - player.pos.z).normalize();
       if (dirToNew.dot(fwd) > 0.2) continue;
       this.pos.set(px, 0, pz);
@@ -3463,19 +3532,26 @@ class Warden {
 }
 
 /* ================================================================
-   9. INTERACTION / INVENTORY / SAVE
+   15. INTERACTION / INVENTORY / SAVE
    ================================================================ */
 let currentInteractable = null;
 
 function findInteractable() {
   if (!player || player.hidden) return null;
+  const origin = new THREE.Vector3();
   const fwd = new THREE.Vector3();
-  camera.getWorldDirection(fwd);
+  if (inVR) {
+    camera.getWorldPosition(origin);
+    camera.getWorldDirection(fwd);
+  } else {
+    origin.copy(camera.position);
+    camera.getWorldDirection(fwd);
+  }
   let best = null, bestScore = -1;
 
   for (const it of interactables) {
     if (it.taken) continue;
-    const to = new THREE.Vector3().subVectors(it.pos, camera.position);
+    const to = new THREE.Vector3().subVectors(it.pos, origin);
     const dist = to.length();
     if (dist > CFG.INTERACT_DIST) continue;
     to.normalize();
@@ -3484,11 +3560,9 @@ function findInteractable() {
     const score = dot - dist * 0.1;
     if (score > bestScore) { bestScore = score; best = it; }
   }
-
-  // hiding spots
   for (const sp of hidingSpots) {
     if (sp.occupied) continue;
-    const to = new THREE.Vector3().subVectors(sp.pos, camera.position);
+    const to = new THREE.Vector3().subVectors(sp.pos, origin);
     const dist = to.length();
     if (dist > CFG.INTERACT_DIST + 0.6) continue;
     to.normalize();
@@ -3515,15 +3589,14 @@ function updateInteraction() {
   if (it) {
     let label = it.label || 'Interact';
     if (it.type === 'candle') label = `Save at candle (${player.inv.candles} left)`;
-    if (it.type === 'generator') {
-      label = player.breakers >= 5 ? 'Restore main power' : `Main power — breakers ${player.breakers}/5`;
-    }
-    if (it.type === 'exit') {
-      label = player.hasPower ? 'Escape through the shaft' : 'Sealed — power required';
-    }
+    if (it.type === 'generator') label = player.breakers >= 5 ? 'Restore main power' : `Main power — breakers ${player.breakers}/5`;
+    if (it.type === 'exit') label = player.hasPower ? 'Escape through the shaft' : 'Sealed — power required';
+    if (it.type === 'elevator') label = 'Call elevator';
     showPrompt(`[E] ${label}`);
+    if (inVR) showVRPrompt(`[TRIGGER] ${label}`);
   } else {
     hidePrompt();
+    if (inVR) hideVRPrompt();
   }
 }
 
@@ -3532,15 +3605,8 @@ function doInteract() {
   const it = currentInteractable;
   if (!it) return;
 
-  if (it.type === 'exitHide') {
-    exitHiding();
-    return;
-  }
-
-  if (it.type === 'hide') {
-    enterHiding(it.spot);
-    return;
-  }
+  if (it.type === 'exitHide') { exitHiding(); return; }
+  if (it.type === 'hide') { enterHiding(it.spot); return; }
 
   switch (it.type) {
     case 'breaker': {
@@ -3553,19 +3619,15 @@ function doInteract() {
       showToast(`CIRCUIT BREAKER RECOVERED (${player.breakers}/5)`);
       updateObjective();
       autosave();
-      // FIRST SIGHTING triggers after the 2nd breaker
       if (player.breakers === 2 && !flags.firstSighting) {
         flags.firstSighting = true;
         setTimeout(() => { if (gameState === 'playing') playFirstSighting(); }, 900);
       }
-      // MIDPOINT triggers after the 3rd breaker
       if (player.breakers === 3 && !flags.midpoint) {
         flags.midpoint = true;
         setTimeout(() => { if (gameState === 'playing') playMidpoint(); }, 1200);
       }
-      if (player.breakers >= 5) {
-        showToast('ALL BREAKERS FOUND — RESTORE MAIN POWER IN THE GENERATOR ROOM');
-      }
+      if (player.breakers >= 5) showToast('ALL BREAKERS FOUND — RESTORE MAIN POWER IN THE GENERATOR ROOM');
       break;
     }
     case 'battery': {
@@ -3587,12 +3649,16 @@ function doInteract() {
       updateObjective();
       break;
     }
+    case 'audio': {
+      it.taken = true;
+      scene.remove(it.mesh);
+      if (!player.audioFound.includes(it.data.index)) player.audioFound.push(it.data.index);
+      Audio.playPickup();
+      showSubtitle(it.data.audio.t, it.data.audio.b, 7.5);
+      break;
+    }
     case 'candle': {
-      if (player.inv.candles <= 0) {
-        showToast('NO CANDLES LEFT');
-        break;
-      }
-      // standing near the candle already saves automatically; manual save also heals sanity
+      if (player.inv.candles <= 0) { showToast('NO CANDLES LEFT'); break; }
       player.sanity = Math.min(CFG.SANITY_MAX, player.sanity + 35);
       saveGame();
       showToast('GAME SAVED');
@@ -3605,10 +3671,7 @@ function doInteract() {
         Audio.playClick();
         break;
       }
-      if (player.hasPower) {
-        showToast('POWER ALREADY RESTORED');
-        break;
-      }
+      if (player.hasPower) { showToast('POWER ALREADY RESTORED'); break; }
       player.hasPower = true;
       it.lever.rotation.x = -0.9;
       it.light.color.setHex(0x66ff66);
@@ -3627,55 +3690,71 @@ function doInteract() {
       playEnding();
       break;
     }
+    case 'elevator': {
+      Audio.playElevatorDing();
+      // teleport player to the target room
+      const tr = roomById(it.data.target);
+      if (tr) {
+        const tc = tileToWorld(tr.x + Math.floor(tr.w / 2), tr.y + Math.floor(tr.h / 2));
+        player.pos.set(tc.x, 0, tc.z);
+        if (inVR && dolly) {
+          dolly.position.set(tc.x, 0, tc.z);
+        } else {
+          camera.position.set(tc.x, CFG.PLAYER_HEIGHT, tc.z);
+        }
+        showToast('ELEVATOR — ' + tr.name);
+        if (tr.zone === 'liminal') {
+          player.inLiminal = true;
+          Audio.playLiminalHum(1.0);
+          Audio.setMusicState('liminal');
+          if (!flags.liminalEntered) {
+            flags.liminalEntered = true;
+            setTimeout(() => {
+              if (gameState === 'playing') {
+                showSubtitle('', 'This floor does not exist on the map. The air is wrong. The corridor repeats.', 5);
+              }
+            }, 800);
+          }
+        } else {
+          player.inLiminal = false;
+          Audio.playLiminalHum(0);
+          Audio.setMusicState('calm');
+        }
+      }
+      break;
+    }
   }
   updateInventoryUI();
 }
 
-/* ---- Rage mode ---- */
 function startRageMode() {
   if (!enemy) return;
   enemy.rage = true;
   enemy.state = 'CHASE';
   enemy.stateTimer = 0;
-  // Teleport the Warden to a distant spot so the chase starts dramatically
   const far = tileToWorld(2, 2);
   enemy.pos.copy(far);
   enemy.group.position.copy(far);
   Audio.setMusicState('chase');
-
-  // Water turns black / blood
   for (const m of waterMaterials) {
     m.uniforms.uBlood.value = 0.85;
     m.uniforms.uRage.value = 1.0;
   }
-  // Flicker all lights aggressively
   for (const f of flickerLights) f.mode = 'rage';
-  document.getElementById('toast').textContent = '';
   showSubtitle('THE POWER COMES BACK', 'Every light in the asylum screams at once. The water at your feet turns black. Somewhere below, something starts running.', 6);
   playRageCutscene();
 }
 
-/* ---- Save / Load ---- */
-const SAVE_KEY = 'blackwater_asylum_save_v1';
-const flags = {
-  firstSighting: false,
-  midpoint: false,
-  rageTriggered: false,
-  ended: false,
-};
+const SAVE_KEY = 'blackwater_asylum_vr_save_v1';
 
 function saveGame() {
   try {
     const data = {
       pos: [player.pos.x, player.pos.y, player.pos.z],
-      cameraYaw: camera.rotation.y,
-      stamina: player.stamina,
-      battery: player.battery,
-      sanity: player.sanity,
-      breakers: player.breakers,
-      hasPower: player.hasPower,
-      inv: player.inv,
-      notesFound: player.notesFound,
+      cameraYaw: inVR ? (dolly ? dolly.rotation.y : 0) : camera.rotation.y,
+      stamina: player.stamina, battery: player.battery, sanity: player.sanity,
+      breakers: player.breakers, hasPower: player.hasPower,
+      inv: player.inv, notesFound: player.notesFound, audioFound: player.audioFound,
       flags: { ...flags },
       taken: interactables.map(i => i.taken),
       difficulty: SETTINGS.difficulty,
@@ -3683,21 +3762,16 @@ function saveGame() {
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     return true;
-  } catch (e) {
-    console.warn('Save failed', e);
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
 function autosave() {
-  // Only save at safe points — we quietly snapshot progress here for checkpoints
   player.checkpoint = {
     pos: player.pos.clone(),
-    breakers: player.breakers,
-    battery: player.battery,
-    sanity: player.sanity,
+    breakers: player.breakers, battery: player.battery, sanity: player.sanity,
     inv: { ...player.inv },
     notesFound: [...player.notesFound],
+    audioFound: [...player.audioFound],
   };
 }
 
@@ -3707,7 +3781,8 @@ function loadGame() {
     if (!raw) return false;
     const data = JSON.parse(raw);
     player.pos.set(data.pos[0], data.pos[1], data.pos[2]);
-    camera.rotation.set(0, data.cameraYaw || 0, 0, 'YXZ');
+    if (!inVR) camera.rotation.set(0, data.cameraYaw || 0, 0, 'YXZ');
+    else if (dolly) dolly.rotation.y = data.cameraYaw || 0;
     player.stamina = data.stamina;
     player.battery = data.battery;
     player.sanity = data.sanity;
@@ -3715,6 +3790,7 @@ function loadGame() {
     player.hasPower = data.hasPower || false;
     player.inv = data.inv || { breakers: 0, batteries: 0, candles: 3, notes: 0 };
     player.notesFound = data.notesFound || [];
+    player.audioFound = data.audioFound || [];
     Object.assign(flags, data.flags || {});
     if (data.taken) {
       data.taken.forEach((t, i) => {
@@ -3724,16 +3800,11 @@ function loadGame() {
         }
       });
     }
-    if (data.difficulty) {
-      SETTINGS.difficulty = data.difficulty;
-      syncDifficultyUI();
-    }
+    if (data.difficulty) { SETTINGS.difficulty = data.difficulty; syncDifficultyUI(); }
     camera.position.set(player.pos.x, player.pos.y + CFG.PLAYER_HEIGHT, player.pos.z);
+    if (dolly) dolly.position.set(player.pos.x, 0, player.pos.z);
     return true;
-  } catch (e) {
-    console.warn('Load failed', e);
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
 function hasSave() {
@@ -3741,7 +3812,7 @@ function hasSave() {
 }
 
 /* ================================================================
-   10. UI MANAGER
+   16. UI MANAGER
    ================================================================ */
 const UI = {
   hud: document.getElementById('hud'),
@@ -3752,6 +3823,7 @@ const UI = {
   subs: document.getElementById('subs'),
   toast: document.getElementById('toast'),
   crosshair: document.getElementById('crosshair'),
+  vrPrompt: document.getElementById('vrPrompt'),
 };
 
 let toastTimer = null;
@@ -3770,24 +3842,16 @@ function showSubtitle(who, text, seconds = 4) {
   clearTimeout(subTimer);
   subTimer = setTimeout(() => UI.subs.classList.remove('on'), seconds * 1000);
 }
-
-function hideSubtitle() {
-  UI.subs.classList.remove('on');
-}
-
-function showPrompt(text) {
-  UI.prompt.textContent = text;
-  UI.prompt.classList.add('on');
-}
+function hideSubtitle() { UI.subs.classList.remove('on'); }
+function showPrompt(text) { UI.prompt.textContent = text; UI.prompt.classList.add('on'); }
 function hidePrompt() { UI.prompt.classList.remove('on'); }
+function showVRPrompt(text) { UI.vrPrompt.textContent = text; UI.vrPrompt.classList.add('on'); UI.vrPrompt.style.display = 'block'; }
+function hideVRPrompt() { UI.vrPrompt.classList.remove('on'); }
 
 function updateObjective() {
   if (!player) return;
-  if (!player.hasPower) {
-    UI.objective.textContent = `Find the circuit breakers (${player.breakers}/5)`;
-  } else {
-    UI.objective.textContent = 'Escape through the flooded shaft';
-  }
+  if (!player.hasPower) UI.objective.textContent = `Find the circuit breakers (${player.breakers}/5)`;
+  else UI.objective.textContent = 'Escape through the flooded shaft';
 }
 
 function updateHUD() {
@@ -3809,41 +3873,230 @@ function updateInventoryUI() {
 
   const list = document.getElementById('notesList');
   list.innerHTML = '';
-  if (player.notesFound.length === 0) {
+  if (player.notesFound.length === 0 && player.audioFound.length === 0) {
     list.innerHTML = '<div style="opacity:.5">No notes collected.</div>';
   } else {
     player.notesFound.forEach(i => {
-      const n = NOTE_TEXTS[i];
+      const n = LORE.notes[i];
       if (!n) return;
       const d = document.createElement('div');
       d.innerHTML = `<b>${n.t}</b><br>${n.b}`;
+      list.appendChild(d);
+    });
+    player.audioFound.forEach(i => {
+      const a = LORE.audio[i];
+      if (!a) return;
+      const d = document.createElement('div');
+      d.innerHTML = `<b>♫ ${a.t}</b><br>${a.b}`;
       list.appendChild(d);
     });
   }
 }
 
 /* ================================================================
-   11. CUTSCENE SYSTEM
+   17. VR MANAGER
+   ================================================================ */
+class VRManager {
+  constructor() {
+    this.controllers = [];
+    this.leftStick = new THREE.Vector2();
+    this.rightStick = new THREE.Vector2();
+    this.snapTurnArmed = true;
+    this.buttons = { left: {}, right: {} };
+    this.raycaster = new THREE.Raycaster();
+    this.flashOffset = new THREE.Vector3(0, -0.05, 0);
+  }
+
+  async isSupported() {
+    if (!navigator.xr) return false;
+    try { return await navigator.xr.isSessionSupported('immersive-vr'); }
+    catch (e) { return false; }
+  }
+
+  setupDolly() {
+    dolly = new THREE.Group();
+    scene.add(dolly);
+    dolly.add(camera);
+    camera.position.set(0, 0, 0);
+  }
+
+  setupControllers() {
+    for (let i = 0; i < 2; i++) {
+      const controller = renderer.xr.getController(i);
+      const grip = renderer.xr.getControllerGrip(i);
+      const lineGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)
+      ]);
+      const lineMat = new THREE.LineBasicMaterial({
+        color: 0xffaaaa, transparent: true, opacity: 0.35,
+      });
+      const line = new THREE.Line(lineGeo, lineMat);
+      line.scale.z = 3;
+      controller.add(line);
+
+      controller.addEventListener('connected', (e) => {
+        controller.userData.handedness = e.data.handedness;
+        controller.userData.gamepad = e.data.gamepad;
+      });
+      controller.addEventListener('disconnected', () => {
+        controller.userData.handedness = null;
+        controller.userData.gamepad = null;
+      });
+      controller.addEventListener('selectstart', () => {
+        this.onSelectStart(controller);
+      });
+      controller.addEventListener('squeezestart', () => {
+        this.onSqueezeStart(controller);
+      });
+      controller.addEventListener('squeezeend', () => {
+        this.onSqueezeEnd(controller);
+      });
+
+      dolly.add(controller);
+      dolly.add(grip);
+      this.controllers.push({ controller, grip, line, index: i });
+    }
+  }
+
+  onSelectStart(controller) {
+    const hand = controller.userData.handedness;
+    if (hand === 'left') {
+      // Interact
+      doInteract();
+    } else if (hand === 'right') {
+      // Flashlight toggle
+      toggleFlashlight();
+    }
+  }
+
+  onSqueezeStart(controller) {
+    const hand = controller.userData.handedness;
+    if (hand === 'left') input.vrSprint = true;
+    else if (hand === 'right') input.vrCrouch = true;
+  }
+
+  onSqueezeEnd(controller) {
+    const hand = controller.userData.handedness;
+    if (hand === 'left') input.vrSprint = false;
+    else if (hand === 'right') input.vrCrouch = false;
+  }
+
+  updateInput(dt) {
+    const session = renderer.xr.getSession();
+    if (!session) return;
+    let leftAxes = null, rightAxes = null;
+    let leftTrigger = 0, rightTrigger = 0;
+
+    for (const src of session.inputSources) {
+      if (!src.gamepad) continue;
+      const hand = src.handedness;
+      const axes = src.gamepad.axes;
+      if (axes.length >= 4) {
+        if (hand === 'left') leftAxes = { x: axes[2], y: axes[3] };
+        if (hand === 'right') rightAxes = { x: axes[2], y: axes[3] };
+      } else if (axes.length >= 2) {
+        if (hand === 'left') leftAxes = { x: axes[0], y: axes[1] };
+        if (hand === 'right') rightAxes = { x: axes[0], y: axes[1] };
+      }
+    }
+
+    if (leftAxes) {
+      this.leftStick.set(leftAxes.x, leftAxes.y);
+      const dead = 0.18;
+      const mx = Math.abs(leftAxes.x) < dead ? 0 : leftAxes.x;
+      const my = Math.abs(leftAxes.y) < dead ? 0 : leftAxes.y;
+      input.vrMoveX = mx;
+      input.vrMoveY = my;
+    } else {
+      this.leftStick.set(0, 0);
+      input.vrMoveX = 0;
+      input.vrMoveY = 0;
+    }
+
+    if (rightAxes) {
+      this.rightStick.set(rightAxes.x, rightAxes.y);
+      const dead = 0.5;
+      if (SETTINGS.smoothTurn) {
+        if (Math.abs(rightAxes.x) > 0.2) {
+          dolly.rotation.y -= rightAxes.x * CFG.VR_SMOOTH_TURN_SPEED * dt;
+        }
+      } else {
+        // Snap turn
+        if (Math.abs(rightAxes.x) > dead && this.snapTurnArmed) {
+          this.snapTurnArmed = false;
+          const dir = rightAxes.x > 0 ? -1 : 1;
+          dolly.rotation.y += dir * CFG.VR_SNAP_TURN;
+        }
+        if (Math.abs(rightAxes.x) < 0.2) this.snapTurnArmed = true;
+      }
+    }
+  }
+
+  // Get world position of right controller (for flashlight)
+  getRightControllerWorldPos(out) {
+    for (const c of this.controllers) {
+      if (c.controller.userData.handedness === 'right') {
+        c.controller.getWorldPosition(out);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Get world quaternion of right controller
+  getRightControllerWorldQuat(out) {
+    for (const c of this.controllers) {
+      if (c.controller.userData.handedness === 'right') {
+        c.controller.getWorldQuaternion(out);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Attach flashlight to right controller
+  updateFlashlight() {
+    if (!inVR) return;
+    if (SETTINGS.flashHand === 'right') {
+      const p = new THREE.Vector3();
+      const q = new THREE.Quaternion();
+      if (this.getRightControllerWorldPos(p) && this.getRightControllerWorldQuat(q)) {
+        if (flashlight.parent !== scene) scene.add(flashlight);
+        flashlight.position.copy(p);
+        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+        flashlight.target.position.copy(p).add(forward.multiplyScalar(5));
+        flashlight.target.updateMatrixWorld();
+      }
+    } else {
+      // head-mounted
+      if (flashlight.parent !== camera) {
+        camera.add(flashlight);
+        flashlight.position.set(0, 0, 0);
+        flashlight.target.position.set(0, 0, -1);
+      }
+    }
+  }
+}
+
+const VR = new VRManager();
+
+/* ================================================================
+   18. CUTSCENES
    ================================================================ */
 function tween(duration, fn) {
   return new Promise(resolve => {
     tweens.push({ t: 0, dur: duration, fn, resolve });
   });
 }
-
 function updateTweens(dt) {
   for (let i = tweens.length - 1; i >= 0; i--) {
     const tw = tweens[i];
     tw.t += dt;
     const k = Math.min(1, tw.t / tw.dur);
     tw.fn(k);
-    if (k >= 1) {
-      tweens.splice(i, 1);
-      tw.resolve();
-    }
+    if (k >= 1) { tweens.splice(i, 1); tw.resolve(); }
   }
 }
-
 function wait(sec) { return tween(sec, () => {}); }
 
 function setLetterbox(on) {
@@ -3851,10 +4104,7 @@ function setLetterbox(on) {
   document.getElementById('lbBot').style.height = on ? '12vh' : '0';
   document.getElementById('skipHint').classList.toggle('on', on);
 }
-
-function setFade(on) {
-  document.getElementById('fade').classList.toggle('on', on);
-}
+function setFade(on) { document.getElementById('fade').classList.toggle('on', on); }
 
 let skipRequested = false;
 window.addEventListener('keydown', (e) => {
@@ -3863,7 +4113,6 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-/* ---- 1. INTRO ---- */
 async function playIntro() {
   gameState = 'cutscene';
   setLetterbox(true);
@@ -3871,11 +4120,15 @@ async function playIntro() {
   skipRequested = false;
   UI.hud.classList.add('on');
 
-  // Camera starts at the lobby entrance looking down the hall
   const startRoom = roomById('lobby');
   const startPos = tileToWorld(startRoom.x + 1, startRoom.y + 1);
-  camera.position.set(startPos.x, 1.75, startPos.z);
-  camera.rotation.set(0, -Math.PI * 0.75, 0, 'YXZ');
+  if (inVR && dolly) {
+    dolly.position.set(startPos.x, 0, startPos.z);
+    dolly.rotation.y = -Math.PI * 0.75;
+  } else {
+    camera.position.set(startPos.x, 1.75, startPos.z);
+    camera.rotation.set(0, -Math.PI * 0.75, 0, 'YXZ');
+  }
 
   showSubtitle('', 'October 14th, 1994. 2:47 AM.', 3.4);
   await wait(3.0);
@@ -3885,18 +4138,20 @@ async function playIntro() {
   await wait(4.4);
   if (skipRequested) return finishIntro();
 
-  // Slow pan + push forward
-  const from = camera.position.clone();
-  const to = tileToWorld(startRoom.x + 4, startRoom.y + Math.floor(startRoom.h / 2));
-  to.y = 1.75;
-  await tween(5.5, (k) => {
-    const e = k * k * (3 - 2 * k);
-    camera.position.lerpVectors(from, to, e);
-    camera.rotation.y = -Math.PI * 0.75 + e * 0.55;
-  });
+  if (!inVR) {
+    const from = camera.position.clone();
+    const to = tileToWorld(startRoom.x + 4, startRoom.y + Math.floor(startRoom.h / 2));
+    to.y = 1.75;
+    await tween(5.5, (k) => {
+      const e = k * k * (3 - 2 * k);
+      camera.position.lerpVectors(from, to, e);
+      camera.rotation.y = -Math.PI * 0.75 + e * 0.55;
+    });
+  } else {
+    await wait(5.5);
+  }
   if (skipRequested) return finishIntro();
 
-  // Lights die
   Audio.playElectricHum();
   for (const f of flickerLights) f.mode = 'blackout';
   await wait(0.8);
@@ -3904,7 +4159,6 @@ async function playIntro() {
   setFade(true);
   await wait(1.1);
 
-  // Door slam behind
   Audio.playDoorCreak(camera.position);
   document.getElementById('dmg').style.opacity = '0.55';
   setTimeout(() => { document.getElementById('dmg').style.opacity = '0'; }, 160);
@@ -3912,7 +4166,6 @@ async function playIntro() {
   showSubtitle('', 'The power just died. The door behind you will not open.', 4.5);
   await wait(1.6);
   if (skipRequested) return finishIntro();
-
   await wait(2.0);
 
   finishIntro();
@@ -3926,7 +4179,6 @@ function finishIntro() {
   startGameplay();
 }
 
-/* ---- 2. FIRST SIGHTING ---- */
 async function playFirstSighting() {
   if (gameState !== 'playing') return;
   const prevState = gameState;
@@ -3935,17 +4187,10 @@ async function playFirstSighting() {
   skipRequested = false;
   hidePrompt();
 
-  // Freeze enemy
   if (enemy) { enemy.state = 'IDLE'; enemy.stateTimer = -99; }
 
-  // Find a corridor position near the player
-  const pTile = {
-    x: Math.floor(player.pos.x / CFG.TILE),
-    y: Math.floor(player.pos.z / CFG.TILE),
-  };
+  const pTile = { x: Math.floor(player.pos.x / CFG.TILE), y: Math.floor(player.pos.z / CFG.TILE) };
   const crossPos = tileToWorld(pTile.x + 4, pTile.y + 1);
-
-  // Place the Warden across the corridor, facing the player
   const w = enemy;
   w.pos.copy(crossPos);
   w.pos.x += 0.5;
@@ -3955,10 +4200,8 @@ async function playFirstSighting() {
   Audio.setMusicState('tense');
   Audio.playChains(w.pos);
 
-  // Flicker lights violently
   const origModes = flickerLights.map(f => f.mode);
   flickerLights.forEach(f => f.mode = 'blackout');
-
   await wait(0.7);
   flickerLights.forEach(f => f.mode = 'flicker');
   await wait(0.35);
@@ -3968,11 +4211,10 @@ async function playFirstSighting() {
 
   Audio.playScream(w.pos, 1.0);
   showSubtitle('', 'It stands in the corridor. It is not walking. It is waiting.', 3.2);
-
   await wait(1.4);
+
   if (skipRequested) { flickerLights.forEach((f, i) => f.mode = origModes[i]); return endFirstSighting(); }
 
-  // It vanishes
   w.pos.set(w.pos.x, -50, w.pos.z);
   flickerLights.forEach(f => f.mode = 'blackout');
   Audio.playSplash(player.pos, 1.6);
@@ -3981,7 +4223,6 @@ async function playFirstSighting() {
   setLetterbox(false);
   hideSubtitle();
 
-  // Re-place the Warden far away
   const far = tileToWorld(30, 30);
   w.pos.copy(far);
   w.group.position.copy(far);
@@ -4002,13 +4243,11 @@ function endFirstSighting() {
   gameState = 'playing';
 }
 
-/* ---- 3. MIDPOINT: mirror vision ---- */
 async function playMidpoint() {
   if (gameState !== 'playing') return;
   gameState = 'cutscene';
   setLetterbox(true);
   skipRequested = false;
-
   const origModes = flickerLights.map(f => f.mode);
   flickerLights.forEach(f => f.mode = 'blackout');
 
@@ -4021,10 +4260,8 @@ async function playMidpoint() {
     Audio.playBreath(1.8);
     await wait(1.5);
 
-    // Push sanity to the floor for the vision
     player.sanity = Math.max(4, player.sanity - 55);
 
-    // Spawn a Warden "ghost" directly behind the player in view
     const ghost = new THREE.Group();
     const mat = new THREE.MeshBasicMaterial({ color: 0x121418, transparent: true, opacity: 0.95 });
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.34, 1.35, 4, 10), mat);
@@ -4036,11 +4273,7 @@ async function playMidpoint() {
 
     const fwd = new THREE.Vector3();
     camera.getWorldDirection(fwd);
-    ghost.position.set(
-      player.pos.x - fwd.x * 2.2,
-      0,
-      player.pos.z - fwd.z * 2.2
-    );
+    ghost.position.set(player.pos.x - fwd.x * 2.2, 0, player.pos.z - fwd.z * 2.2);
     ghost.lookAt(player.pos.x, 0, player.pos.z);
     scene.add(ghost);
 
@@ -4059,10 +4292,8 @@ async function playMidpoint() {
   gameState = 'playing';
 }
 
-/* ---- 4. RAGE CUTSCENE ---- */
 async function playRageCutscene() {
   if (!enemy) return;
-  const prev = gameState;
   gameState = 'cutscene';
   setLetterbox(true);
   skipRequested = false;
@@ -4077,11 +4308,9 @@ async function playRageCutscene() {
 
   setLetterbox(false);
   hideSubtitle();
-  gameState = prev === 'cutscene' ? 'playing' : prev;
   gameState = 'playing';
 }
 
-/* ---- 5. ENDING: escape ---- */
 async function playEnding() {
   gameState = 'cutscene';
   setLetterbox(true);
@@ -4089,18 +4318,21 @@ async function playEnding() {
   hidePrompt();
   Audio.setMusicState('calm');
 
-  // Kill the Warden's threat
-  if (enemy) {
-    enemy.state = 'IDLE';
-    enemy.stateTimer = -999;
-  }
+  if (enemy) { enemy.state = 'IDLE'; enemy.stateTimer = -999; }
 
   showSubtitle('', 'You drop into the shaft. Cold black water closes over your shoulders.', 4.0);
   Audio.playSplash(player.pos, 2.0);
-  await tween(2.4, (k) => {
-    camera.position.y = 1.75 - k * 1.3;
-    camera.rotation.z = k * 0.12;
-  });
+
+  if (!inVR) {
+    await tween(2.4, (k) => {
+      camera.position.y = 1.75 - k * 1.3;
+      camera.rotation.z = k * 0.12;
+    });
+  } else {
+    await tween(2.4, (k) => {
+      if (dolly) dolly.position.y = -k * 1.3;
+    });
+  }
   await wait(1.2);
 
   showSubtitle('', 'Something grabs your ankle.', 3.0);
@@ -4109,24 +4341,25 @@ async function playEnding() {
   document.getElementById('dmg').style.opacity = '0.8';
   setTimeout(() => { document.getElementById('dmg').style.opacity = '0'; }, 300);
 
-  await tween(0.5, (k) => {
-    camera.rotation.z = 0.12 + k * 0.4;
-    camera.position.y = 0.45 - k * 0.3;
-  });
+  if (!inVR) {
+    await tween(0.5, (k) => { camera.rotation.z = 0.12 + k * 0.4; camera.position.y = 0.45 - k * 0.3; });
+  } else {
+    await tween(0.5, (k) => { if (dolly) dolly.position.y = -1.3 - k * 0.3; });
+  }
   await wait(0.8);
 
   showSubtitle('', 'You kick. You kick again. The grip gives way.', 3.0);
   Audio.playScream(player.pos, 1.6);
 
-  await tween(1.6, (k) => {
-    camera.position.y = 0.15 + k * 2.2;
-    camera.rotation.z = 0.52 - k * 0.5;
-  });
+  if (!inVR) {
+    await tween(1.6, (k) => { camera.position.y = 0.15 + k * 2.2; camera.rotation.z = 0.52 - k * 0.5; });
+  } else {
+    await tween(1.6, (k) => { if (dolly) dolly.position.y = -1.6 + k * 2.2; });
+  }
 
   setFade(true);
   await wait(1.4);
 
-  // Final shot: the asylum from outside
   gameState = 'won';
   setLetterbox(false);
   hideSubtitle();
@@ -4138,15 +4371,12 @@ async function playEnding() {
   try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
 }
 
-/* ---- DEATH ---- */
 function killPlayer(cause) {
   if (player.dead || gameState === 'dead') return;
   player.dead = true;
   gameState = 'dead';
 
-  // Jump scare close-up
   const scare = new THREE.Group();
-  const mat = new THREE.MeshBasicMaterial({ color: 0x1a1410 });
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.9, 12, 12), MAT.bandage);
   scare.add(head);
   const slit = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.12),
@@ -4167,7 +4397,7 @@ function killPlayer(cause) {
   let t = 0;
   const shake = () => {
     t += 0.016;
-    camera.rotation.z = Math.sin(t * 40) * 0.06;
+    if (!inVR) camera.rotation.z = Math.sin(t * 40) * 0.06;
     scare.position.copy(camera.position);
     const f = new THREE.Vector3();
     camera.getWorldDirection(f);
@@ -4190,16 +4420,12 @@ function killPlayer(cause) {
 }
 
 /* ================================================================
-   12. GAME LOOP
+   19. GAME LOOP
    ================================================================ */
 function updateFlickerLights(dt) {
   for (const f of flickerLights) {
-    if (f.mode === 'blackout') {
-      f.light.intensity = 0;
-      continue;
-    }
+    if (f.mode === 'blackout') { f.light.intensity = 0; continue; }
     if (f.mode === 'rage') {
-      // violent strobing
       const s = Math.sin(gameTime * 22 + f.phase) > 0.1 ? 1 : 0.05;
       f.light.intensity = f.baseIntensity * s * 1.4;
       continue;
@@ -4218,7 +4444,6 @@ function updateZoneAtmosphere(dt) {
   if (!player) return;
   const px = Math.floor(player.pos.x / CFG.TILE);
   const pz = Math.floor(player.pos.z / CFG.TILE);
-
   let zone = 'ward';
   for (const r of ROOMS) {
     if (px >= r.x && px < r.x + r.w && pz >= r.y && pz < r.y + r.h) {
@@ -4226,7 +4451,6 @@ function updateZoneAtmosphere(dt) {
       break;
     }
   }
-  // approximate corridors by Y position
   if (zone === 'ward' && pz >= 26) zone = 'basement';
 
   const z = ZONES[zone];
@@ -4239,10 +4463,12 @@ function updateZoneAtmosphere(dt) {
     m.uniforms.uFogDensity.value = scene.fog.density;
     m.uniforms.uFogColor.value.copy(scene.fog.color);
   }
+
+  // Update liminal state
+  player.inLiminal = (zone === 'liminal');
 }
 
 function updateDecor(dt) {
-  // TVs
   for (const tv of tvs) {
     if (Math.random() < dt * 3) {
       const on = Math.random() > 0.35;
@@ -4250,11 +4476,11 @@ function updateDecor(dt) {
       tv.glow.intensity = on ? rand(1.0, 4.0) : 0.1;
     }
   }
-  // Rocking chairs
-  for (const rc of rockingChairs) {
-    rc.rotation.z = Math.sin(gameTime * 1.6 + rc.id) * 0.05;
+  for (const a of animatedProps) {
+    if (a.type === 'rock') {
+      a.obj.rotation.z = Math.sin(gameTime * a.speed + a.phase) * 0.05;
+    }
   }
-  // Hallucination updates
   for (let i = hallucinations.length - 1; i >= 0; i--) {
     hallucinations[i](dt);
   }
@@ -4269,26 +4495,27 @@ function updatePostUniforms() {
   postMat.uniforms.uGrain.value = SETTINGS.grain ? 0.9 : 0.0;
   postMat.uniforms.uRage.value = (enemy && enemy.rage) ? 1.0 : 0.0;
   postMat.uniforms.uPulse.value = player ? player.heartIntensity : 0;
+  postMat.uniforms.uLiminal.value = (player && player.inLiminal) ? 1.0 : 0.0;
 }
 
 function animate(now) {
-  requestAnimationFrame(animate);
   const rawDt = Math.min(0.05, (now - lastFrame) / 1000 || 0.016);
   lastFrame = now;
 
-  // fps estimation & quality fallback
-  frameAccum += rawDt; frameCount++;
-  if (frameAccum > 1.0) {
-    fpsEstimate = frameCount / frameAccum;
-    frameAccum = 0; frameCount = 0;
-    if (fpsEstimate < 42 && qualityLevel === 1) {
-      qualityLevel = 0;
-      renderer.setPixelRatio(1);
-      onResize();
-    } else if (fpsEstimate > 57 && qualityLevel === 0) {
-      qualityLevel = 1;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-      onResize();
+  if (!inVR) {
+    frameAccum += rawDt; frameCount++;
+    if (frameAccum > 1.0) {
+      fpsEstimate = frameCount / frameAccum;
+      frameAccum = 0; frameCount = 0;
+      if (fpsEstimate < 42 && qualityLevel === 1) {
+        qualityLevel = 0;
+        renderer.setPixelRatio(1);
+        onResize();
+      } else if (fpsEstimate > 57 && qualityLevel === 0) {
+        qualityLevel = 1;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        onResize();
+      }
     }
   }
 
@@ -4298,45 +4525,42 @@ function animate(now) {
   updateTweens(dt);
 
   if (gameState === 'playing') {
+    if (inVR) VR.updateInput(dt);
     updatePlayer(dt);
     if (enemy) enemy.update(dt);
     updateInteraction();
     updateHUD();
     updateZoneAtmosphere(dt);
-  } else if (gameState === 'paused') {
-    // frozen
+    if (inVR) VR.updateFlashlight();
   } else if (gameState === 'cutscene') {
-    if (enemy) {
-      enemy.group.position.copy(enemy.pos);
-    }
+    if (enemy) enemy.group.position.copy(enemy.pos);
   }
 
   updateFlickerLights(dt);
   updateRipples(dt);
   updateDecor(dt);
-
-  // water shader time
   for (const m of waterMaterials) m.uniforms.uTime.value = gameTime;
-
   updatePostUniforms();
-
-  // audio listener follows camera
   Audio.updateListener(camera);
 
-  // ---- Render with post-processing ----
-  renderer.setRenderTarget(renderTarget);
-  renderer.render(scene, camera);
-  renderer.setRenderTarget(null);
-  renderer.render(postScene, postCam);
+  // Render
+  if (inVR) {
+    // Direct render — no post-processing in VR for performance & compatibility
+    renderer.render(scene, camera);
+  } else {
+    renderer.setRenderTarget(renderTarget);
+    renderer.render(scene, camera);
+    renderer.setRenderTarget(null);
+    renderer.render(postScene, postCam);
+  }
 }
 
 /* ================================================================
-   INPUT HANDLING
+   20. INPUT
    ================================================================ */
 function bindInput() {
   window.addEventListener('keydown', (e) => {
     if (e.repeat) return;
-
     switch (e.code) {
       case 'KeyW': input.forward = true; break;
       case 'KeyS': input.back = true; break;
@@ -4350,16 +4574,10 @@ function bindInput() {
       case 'KeyQ': input.breath = true; break;
       case 'KeyE': doInteract(); break;
       case 'KeyF': toggleFlashlight(); break;
-      case 'Tab':
-        e.preventDefault();
-        toggleInventory();
-        break;
-      case 'Escape':
-        if (gameState === 'playing') pauseGame();
-        break;
+      case 'Tab': e.preventDefault(); toggleInventory(); break;
+      case 'Escape': if (gameState === 'playing') pauseGame(); break;
     }
   });
-
   window.addEventListener('keyup', (e) => {
     switch (e.code) {
       case 'KeyW': input.forward = false; break;
@@ -4373,30 +4591,24 @@ function bindInput() {
       case 'KeyQ': input.breath = false; break;
     }
   });
-
-  // Pointer lock
   document.addEventListener('pointerlockchange', () => {
-    if (!document.pointerLockElement && gameState === 'playing') {
-      pauseGame();
-    }
+    if (!document.pointerLockElement && gameState === 'playing' && !inVR) pauseGame();
   });
 }
 
 function toggleFlashlight() {
   if (!player || player.dead) return;
-  if (player.battery <= 0) {
-    showToast('BATTERY DEAD');
-    return;
-  }
+  if (player.battery <= 0) { showToast('BATTERY DEAD'); return; }
   player.flashOn = !player.flashOn;
   Audio.playClick();
+  if (inVR) showToast(player.flashOn ? 'FLASHLIGHT ON' : 'FLASHLIGHT OFF');
 }
 
 function toggleInventory() {
   const p = document.getElementById('invPanel');
   if (p.classList.contains('on')) {
     p.classList.remove('on');
-    if (gameState === 'playing') controls.lock();
+    if (gameState === 'playing' && !inVR) controls.lock();
   } else {
     updateInventoryUI();
     p.classList.add('on');
@@ -4405,17 +4617,18 @@ function toggleInventory() {
 }
 
 /* ================================================================
-   GAME STATE TRANSITIONS
+   21. STATE TRANSITIONS
    ================================================================ */
 function startGameplay() {
   gameState = 'playing';
   UI.hud.classList.add('on');
   updateObjective();
   updateHUD();
-  controls.lock();
+  if (!inVR) controls.lock();
   Audio.resume();
   Audio.setMusicState('calm');
-  showToast('WASD MOVE  ·  SHIFT SPRINT  ·  CTRL CROUCH  ·  E INTERACT  ·  F LIGHT  ·  TAB INVENTORY', 6000);
+  if (!inVR) showToast('WASD MOVE · SHIFT SPRINT · CTRL CROUCH · E INTERACT · F LIGHT · TAB INVENTORY', 6000);
+  else showVRPrompt('LEFT STICK MOVE · RIGHT STICK TURN · TRIGGER INTERACT · SQUEEZE SPRINT/CROUCH');
   if (!enemy) {
     enemy = new Warden();
     const far = tileToWorld(30, 30);
@@ -4435,7 +4648,7 @@ function resumeGame() {
   document.getElementById('settingsPanel').classList.remove('on');
   document.getElementById('invPanel').classList.remove('on');
   gameState = 'playing';
-  controls.lock();
+  if (!inVR) controls.lock();
   Audio.resume();
 }
 
@@ -4453,10 +4666,14 @@ function quitToMenu() {
   setFade(false);
   setLetterbox(false);
   hideSubtitle();
+  hideVRPrompt();
+  if (inVR && renderer.xr.isPresenting) {
+    // Don't exit XR here — let the user do that
+  }
 }
 
 /* ================================================================
-   SETTINGS BINDING
+   22. SETTINGS
    ================================================================ */
 function syncDifficultyUI() {
   document.querySelectorAll('#setDiff button').forEach(b => {
@@ -4476,8 +4693,10 @@ function bindSettings() {
   });
   fov.addEventListener('input', () => {
     SETTINGS.fov = parseFloat(fov.value);
-    camera.fov = SETTINGS.fov;
-    camera.updateProjectionMatrix();
+    if (!inVR) {
+      camera.fov = SETTINGS.fov;
+      camera.updateProjectionMatrix();
+    }
   });
   master.addEventListener('input', () => {
     SETTINGS.master = master.value / 100;
@@ -4504,7 +4723,23 @@ function bindSettings() {
     subsToggle.classList.toggle('on', SETTINGS.subtitles);
     if (!SETTINGS.subtitles) hideSubtitle();
   });
-
+  const smoothToggle = document.getElementById('setSmoothTurn');
+  smoothToggle.addEventListener('click', () => {
+    SETTINGS.smoothTurn = !SETTINGS.smoothTurn;
+    smoothToggle.classList.toggle('on', SETTINGS.smoothTurn);
+  });
+  const vigToggle = document.getElementById('setVignette');
+  vigToggle.addEventListener('click', () => {
+    SETTINGS.vignette = !SETTINGS.vignette;
+    vigToggle.classList.toggle('on', SETTINGS.vignette);
+    if (!SETTINGS.vignette) document.getElementById('vrVignette').style.opacity = '0';
+  });
+  document.querySelectorAll('#setFlashHand button').forEach(b => {
+    b.addEventListener('click', () => {
+      SETTINGS.flashHand = b.dataset.h;
+      document.querySelectorAll('#setFlashHand button').forEach(x => x.classList.toggle('on', x === b));
+    });
+  });
   document.querySelectorAll('#setDiff button').forEach(b => {
     b.addEventListener('click', () => {
       SETTINGS.difficulty = b.dataset.d;
@@ -4514,7 +4749,7 @@ function bindSettings() {
 }
 
 /* ================================================================
-   BOOTSTRAP
+   23. BOOTSTRAP
    ================================================================ */
 async function boot() {
   const fill = document.getElementById('loadFill');
@@ -4528,53 +4763,62 @@ async function boot() {
   await step(8, 'GENERATING TEXTURES', 220);
   buildTextures();
 
-  await step(22, 'CARVING THE WARD', 200);
+  await step(20, 'CARVING THE WARD', 200);
   buildGrid();
 
-  await step(36, 'RAISING WALLS', 220);
+  await step(34, 'RAISING WALLS', 220);
   initThree();
   buildMaterials();
   buildWorldGeometry();
 
-  await step(52, 'PLACING FIXTURES', 200);
+  await step(48, 'PLACING FIXTURES', 200);
   buildRoomLights();
   buildWater();
 
-  await step(68, 'POPULATING ASYLUM', 260);
+  await step(60, 'POPULATING ASYLUM', 260);
   createPlayer();
   populateWorld();
 
-  await step(82, 'WAKING THE WARDEN', 220);
-  // Enemy is created lazily on gameplay start, but pre-warm its geometry
+  await step(72, 'WAKING THE WARDEN', 220);
   enemy = new Warden();
   const far = tileToWorld(30, 30);
   enemy.spawnAt(far.x, far.z);
-  enemy.group.visible = true;
 
-  await step(94, 'TUNING THE DARK', 200);
+  await step(84, 'TUNING THE DARK', 200);
   bindInput();
   bindSettings();
   syncDifficultyUI();
 
+  await step(92, 'CHECKING VR', 300);
+  const vrSupported = await VR.isSupported();
+  const vrBtn = document.getElementById('vrBtn');
+  if (vrSupported) {
+    vrBtn.textContent = 'ENTER VR';
+    vrBtn.classList.remove('unsupported');
+  } else {
+    vrBtn.textContent = 'VR NOT AVAILABLE';
+    vrBtn.classList.add('unsupported');
+  }
+
   await step(100, 'READY', 180);
 
-  // Hide loading, show menu
   document.getElementById('loading').style.display = 'none';
   document.getElementById('menu').style.display = 'flex';
   document.getElementById('btnContinue').disabled = !hasSave();
 
   gameState = 'menu';
   lastFrame = performance.now();
-  requestAnimationFrame(animate);
+  renderer.setAnimationLoop(animate);
 }
 
-/* ---- Menu button wiring ---- */
+/* ================================================================
+   MENU BUTTON WIRING
+   ================================================================ */
 document.getElementById('btnNew').addEventListener('click', () => {
   Audio.init();
   Audio.resume();
   document.getElementById('menu').style.display = 'none';
   try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
-  // Reset world state
   resetWorld();
   setTimeout(() => playIntro(), 200);
 });
@@ -4585,9 +4829,7 @@ document.getElementById('btnContinue').addEventListener('click', () => {
   document.getElementById('menu').style.display = 'none';
   resetWorld();
   const ok = loadGame();
-  if (!ok) {
-    player.spawnPoint.copy(player.pos);
-  }
+  if (!ok) player.spawnPoint.copy(player.pos);
   startGameplay();
   showToast('CHECKPOINT RESTORED');
 });
@@ -4603,22 +4845,84 @@ document.getElementById('btnSettingsBack').addEventListener('click', () => {
   else resumeGame();
 });
 
+document.getElementById('btnVR').addEventListener('click', async () => {
+  if (!(await VR.isSupported())) {
+    showToast('WEBXR NOT AVAILABLE — USE A VR-COMPATIBLE BROWSER');
+    return;
+  }
+  Audio.init();
+  Audio.resume();
+  document.getElementById('menu').style.display = 'none';
+  document.getElementById('vrWarn').classList.add('on');
+  setTimeout(async () => {
+    document.getElementById('vrWarn').classList.remove('on');
+    await enterVR();
+  }, 2600);
+});
+
+async function enterVR() {
+  try {
+    // Set up the dolly before entering VR
+    if (!dolly) VR.setupDolly();
+    VR.setupControllers();
+    const session = await navigator.xr.requestSession('immersive-vr', {
+      requiredFeatures: ['local-floor'],
+      optionalFeatures: ['bounded-floor'],
+    });
+    renderer.xr.setSession(session);
+    inVR = true;
+
+    // Hide desktop HUD, show VR prompt
+    UI.hud.style.display = 'none';
+    document.getElementById('crosshair').style.display = 'none';
+    document.getElementById('vrPrompt').style.display = 'block';
+
+    // Position the dolly at the player's spawn
+    const startRoom = roomById('lobby');
+    const startPos = tileToWorld(startRoom.x + 2, startRoom.y + Math.floor(startRoom.h / 2));
+    dolly.position.set(startPos.x, 0, startPos.z);
+    dolly.rotation.y = -Math.PI * 0.75;
+
+    session.addEventListener('end', () => {
+      inVR = false;
+      UI.hud.style.display = '';
+      document.getElementById('vrPrompt').style.display = 'none';
+      document.getElementById('crosshair').style.display = '';
+      if (dolly) {
+        // Reattach camera to scene
+        scene.add(camera);
+        camera.position.set(player.pos.x, player.pos.y + CFG.PLAYER_HEIGHT, player.pos.z);
+        if (flashlight.parent !== camera) {
+          camera.add(flashlight);
+          flashlight.position.set(0, 0, 0);
+          flashlight.target.position.set(0, 0, -1);
+        }
+      }
+      quitToMenu();
+    });
+
+    resetWorld();
+    setTimeout(() => playIntro(), 300);
+  } catch (e) {
+    console.error('VR entry failed', e);
+    showToast('VR ENTRY FAILED: ' + (e.message || 'UNKNOWN'));
+    document.getElementById('menu').style.display = 'flex';
+  }
+}
+
 document.getElementById('btnResume').addEventListener('click', resumeGame);
 document.getElementById('btnSettings2').addEventListener('click', () => {
   document.getElementById('pausePanel').classList.remove('on');
   document.getElementById('settingsPanel').classList.add('on');
 });
 document.getElementById('btnSaveGame').addEventListener('click', () => {
-  // Manual save requires a candle
   if (player.inv.candles > 0) {
     player.inv.candles--;
     player.sanity = Math.min(CFG.SANITY_MAX, player.sanity + 20);
     saveGame();
     showToast('GAME SAVED — CANDLE CONSUMED');
     updateInventoryUI();
-  } else {
-    showToast('NO CANDLES LEFT — FIND A SAFE ROOM');
-  }
+  } else showToast('NO CANDLES LEFT — FIND A SAFE ROOM');
 });
 document.getElementById('btnQuit').addEventListener('click', quitToMenu);
 document.getElementById('btnInvBack').addEventListener('click', toggleInventory);
@@ -4628,7 +4932,6 @@ document.getElementById('btnRetry').addEventListener('click', () => {
   resetWorld();
   const ok = loadGame();
   if (!ok) {
-    // Restart from the last in-memory checkpoint
     const cp = player.checkpoint;
     if (cp) {
       player.pos.copy(cp.pos);
@@ -4637,16 +4940,16 @@ document.getElementById('btnRetry').addEventListener('click', () => {
       player.sanity = cp.sanity;
       player.inv = { ...cp.inv };
       player.notesFound = [...cp.notesFound];
-    } else {
-      player.pos.copy(player.spawnPoint);
-    }
+      player.audioFound = [...cp.audioFound];
+    } else player.pos.copy(player.spawnPoint);
   }
   player.dead = false;
   player.stamina = CFG.STAMINA_MAX;
   player.battery = Math.max(player.battery, 40);
   player.sanity = Math.max(player.sanity, 55);
-  camera.rotation.set(0, 0, 0, 'YXZ');
+  if (!inVR) camera.rotation.set(0, 0, 0, 'YXZ');
   camera.position.set(player.pos.x, player.pos.y + CFG.PLAYER_HEIGHT, player.pos.z);
+  if (dolly) dolly.position.set(player.pos.x, 0, player.pos.z);
   updateObjective();
   updateInventoryUI();
   startGameplay();
@@ -4654,14 +4957,11 @@ document.getElementById('btnRetry').addEventListener('click', () => {
 document.getElementById('btnDeathQuit').addEventListener('click', quitToMenu);
 document.getElementById('btnWinQuit').addEventListener('click', quitToMenu);
 
-/* ---- Reset world for a new run ---- */
+/* ================================================================
+   WORLD RESET
+   ================================================================ */
 function resetWorld() {
-  // Remove old enemy
-  if (enemy) {
-    scene.remove(enemy.group);
-    enemy = null;
-  }
-  // Remove all interactables' meshes that were taken
+  if (enemy) { scene.remove(enemy.group); enemy = null; }
   for (const it of interactables) {
     if (it.mesh && it.mesh.parent) it.mesh.parent.remove(it.mesh);
   }
@@ -4673,24 +4973,23 @@ function resetWorld() {
   flickerLights.length = 0;
   tvs.length = 0;
   rockingChairs.length = 0;
+  animatedProps.length = 0;
   ripplePool.forEach(r => { if (r.mesh.parent) r.mesh.parent.remove(r.mesh); });
   ripplePool = [];
   hallucinations.length = 0;
   noteIndex = 0;
 
-  // Remove every child of the scene except lights/camera we recreate
   while (scene.children.length) {
     const c = scene.children.pop();
     scene.remove(c);
   }
 
-  // Reset flags
   flags.firstSighting = false;
   flags.midpoint = false;
   flags.rageTriggered = false;
   flags.ended = false;
+  flags.liminalEntered = false;
 
-  // Rebuild
   initThreeLite();
   buildWorldGeometry();
   buildRoomLights();
@@ -4705,7 +5004,6 @@ function resetWorld() {
   gameState = 'menu';
 }
 
-/* initThree but re-adding lights without recreating the renderer */
 function initThreeLite() {
   scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x05080b, 0.05);
@@ -4725,9 +5023,20 @@ function initThreeLite() {
 
   const fill = new THREE.PointLight(0x8899aa, 1.2, 4.5, 2);
   camera.add(fill);
+
+  // Rebuild dolly in VR
+  if (inVR) {
+    dolly = new THREE.Group();
+    scene.add(dolly);
+    dolly.add(camera);
+    camera.position.set(0, 0, 0);
+    VR.setupControllers();
+  }
 }
 
-/* ---- Kick off ---- */
+/* ================================================================
+   KICK OFF
+   ================================================================ */
 boot();
 
 </script>
