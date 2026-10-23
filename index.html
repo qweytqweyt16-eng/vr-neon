@@ -55,93 +55,19 @@
     color: #6b5d55; margin: 26px 22px 34px; letter-spacing: 0.06em;
   }
   .btn {
-    display: block; width: min(320px, 76vw); padding: 15px 22px; margin: 9px 0;
+    display: block; width: min(340px, 78vw); padding: 18px 22px; margin: 9px 0;
     background: #0a0505; border: 1px solid #3a1a1a; color: #b08070;
-    font-family: inherit; font-size: 13px; letter-spacing: 0.26em;
+    font-family: inherit; font-size: 14px; letter-spacing: 0.26em;
     cursor: pointer; transition: all 0.25s ease; text-transform: uppercase;
   }
   .btn:hover, .btn:active {
     background: #1c0808; border-color: #b02020; color: #ff6a5a;
     box-shadow: 0 0 26px rgba(180,20,20,0.45), inset 0 0 18px rgba(120,0,0,0.35);
   }
-  .btn.small { font-size: 10.5px; padding: 11px; opacity: 0.7; }
-  .hint { position: absolute; bottom: 16px; font-size: 10px; letter-spacing: 0.2em; color: #38302e; text-align: center; padding: 0 20px; }
-
-  /* ---------- CUTSCENE ---------- */
-  #cutscene { background: #000; cursor: pointer; }
-  #cutscene .line {
-    position: absolute; width: min(680px, 84vw); text-align: center;
-    font-size: clamp(13px, 2.3vw, 19px); line-height: 2.05; letter-spacing: 0.12em;
-    color: #9a8c80; opacity: 0; transition: opacity 1.4s ease;
+  .hint {
+    position: absolute; bottom: 16px; font-size: 10px;
+    letter-spacing: 0.2em; color: #38302e; text-align: center; padding: 0 20px;
   }
-  #cutscene .line.show { opacity: 1; }
-  #cutscene .line.red { color: #c83030; text-shadow: 0 0 22px #600; }
-  #cutscene .line.whisper { color: #4a4440; font-size: 12px; letter-spacing: 0.3em; }
-  #cutscene .skip {
-    position: absolute; bottom: 26px; right: 30px; font-size: 10px;
-    letter-spacing: 0.28em; color: #332a28;
-  }
-
-  /* ---------- HUD ---------- */
-  #hud { position: fixed; inset: 0; z-index: 50; pointer-events: none; display: none; }
-  #hud.on { display: block; }
-  #vignette {
-    position: absolute; inset: 0; opacity: 0.85; transition: opacity 0.5s;
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 32%, rgba(0,0,0,0.82) 100%);
-  }
-  #blood {
-    position: absolute; inset: 0; opacity: 0; transition: opacity 0.25s;
-    background: radial-gradient(ellipse at center, rgba(90,0,0,0) 20%, rgba(110,0,0,0.7) 100%);
-  }
-  #crosshair {
-    position: absolute; left: 50%; top: 50%; width: 5px; height: 5px;
-    margin: -2.5px 0 0 -2.5px; border-radius: 50%;
-    background: rgba(220,200,180,0.5); box-shadow: 0 0 6px rgba(255,180,180,0.5);
-  }
-  #inv {
-    position: absolute; left: 20px; bottom: 20px; font-size: 12px;
-    letter-spacing: 0.2em; color: #7a6a60; line-height: 1.9;
-    text-shadow: 0 0 8px #000;
-  }
-  #inv .lit { color: #d8b070; }
-  #objective {
-    position: absolute; right: 20px; top: 20px; font-size: 11px;
-    letter-spacing: 0.16em; color: #5a4a44; text-align: right; line-height: 1.8;
-    max-width: 45vw; text-shadow: 0 0 8px #000;
-  }
-  #desksub {
-    position: absolute; left: 50%; bottom: 12%; transform: translateX(-50%);
-    width: min(760px, 88vw); text-align: center; font-size: 14px;
-    letter-spacing: 0.08em; color: #d8c8b8; line-height: 1.7;
-    text-shadow: 0 0 14px #000, 0 0 4px #000; opacity: 0; transition: opacity 0.4s;
-  }
-  #desksub.on { opacity: 1; }
-
-  /* ---------- JUMPSCARE ---------- */
-  #jumpscare {
-    position: fixed; inset: 0; z-index: 200; background: #000;
-    display: none; align-items: center; justify-content: center; overflow: hidden;
-  }
-  #jumpscare.on { display: flex; animation: shake 0.09s infinite; }
-  #jumpscare canvas { width: 100%; height: 100%; object-fit: cover; }
-  @keyframes shake {
-    0%{transform:translate(0,0)} 25%{transform:translate(-14px,9px)}
-    50%{transform:translate(11px,-13px)} 75%{transform:translate(-8px,-6px)}
-    100%{transform:translate(0,0)}
-  }
-
-  /* ---------- DEATH / WIN ---------- */
-  #endscreen { background: #000; z-index: 150; display: none; }
-  #endscreen.on { display: flex; }
-  #endscreen h2 {
-    font-size: clamp(22px, 5vw, 44px); letter-spacing: 0.3em; margin: 0 0 22px;
-    color: #b01818; text-shadow: 0 0 34px #600;
-  }
-  #endscreen p {
-    max-width: 520px; text-align: center; font-size: 13px; line-height: 2;
-    color: #6a5c54; margin: 0 22px 30px; letter-spacing: 0.1em;
-  }
-  #endscreen.win h2 { color: #b8a878; text-shadow: 0 0 34px #a80; }
 
   a-scene { position: fixed !important; inset: 0; }
   .a-enter-vr, .a-enter-ar, .a-loader-title { display: none !important; }
@@ -166,61 +92,36 @@
     Three weeks ago the Hallowate Asylum went silent. You found the door open.<br>
     You should not have gone inside.
   </div>
-  <button class="btn" id="btn-vr">START — ENTER VR</button>
-  <button class="btn" id="btn-desktop">START — DESKTOP</button>
-  <button class="btn small" id="btn-audio">ENABLE AUDIO</button>
-  <div class="hint">WASD + MOUSE on desktop · THUMBSTICK + TRIGGER in VR<br>Headphones strongly recommended</div>
-</div>
-
-<!-- ================= CUTSCENE ================= -->
-<div id="cutscene" class="overlay hidden gone">
-  <div class="line" id="cs0"></div>
-  <div class="line" id="cs1"></div>
-  <div class="line" id="cs2"></div>
-  <div class="skip">TAP / CLICK TO SKIP</div>
-</div>
-
-<!-- ================= HUD ================= -->
-<div id="hud">
-  <div id="vignette"></div>
-  <div id="blood"></div>
-  <div id="crosshair"></div>
-  <div id="inv"></div>
-  <div id="objective"></div>
-  <div id="desksub"></div>
-</div>
-
-<!-- ================= JUMPSCARE ================= -->
-<div id="jumpscare"><canvas id="jscanvas" width="1024" height="1024"></canvas></div>
-
-<!-- ================= END SCREEN ================= -->
-<div id="endscreen" class="overlay">
-  <h2 id="endtitle"></h2>
-  <p id="endtext"></p>
-  <button class="btn" id="btn-restart">RETURN TO THE HOLLOW</button>
+  <button class="btn" id="btn-start">ENTER THE HOLLOW</button>
+  <div class="hint">QUEST 2 — LEFT THUMBSTICK: WALK · RIGHT THUMBSTICK: TURN<br>TRIGGER: INTERACT · GRIP: FLASHLIGHT · Y: STATUS<br>Headphones strongly recommended</div>
 </div>
 
 <!-- ================= SCENE ================= -->
 <a-scene id="scene"
   background="color: #000000"
   fog="type: exponential; color: #000000; density: 0.082"
-  renderer="antialias: true; colorManagement: true; precision: mediump; logarithmicDepthBuffer: false"
+  renderer="antialias: true; colorManagement: true; precision: mediump"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false">
 
   <a-entity id="rig" position="0 0 0">
     <a-entity id="cam"
       camera="fov: 78; near: 0.05; far: 120"
-      look-controls="pointerLockEnabled: false; reverseMouseDrag: false"
       position="0 1.65 0">
+
+      <!-- Flashlight -->
       <a-entity id="flashlight"
         position="0.14 -0.12 0"
         light="type: spot; color: #ffeacd; intensity: 1.9; distance: 26; angle: 33; penumbra: 0.65; decay: 1.0">
       </a-entity>
+
+      <!-- 3D Subtitle -->
       <a-entity id="subtitle"
         position="0 -0.30 -1.15"
         text="value: ; align: center; width: 1.15; color: #e8d8c8; opacity: 0.95; wrap-count: 46; baseline: center">
       </a-entity>
+
+      <!-- Note reading panel -->
       <a-entity id="notePanel" visible="false" position="0 0 -0.85">
         <a-plane width="0.62" height="0.80" color="#cfc6ad"
           material="shader: flat; opacity: 0.98; side: double"></a-plane>
@@ -229,22 +130,49 @@
         <a-text id="noteText" position="0 0 0.006" value="" align="center"
           color="#1c1208" width="0.54" wrap-count="32" baseline="center"></a-text>
       </a-entity>
+
+      <!-- 3D Cutscene -->
+      <a-entity id="cutscene3d" visible="false" position="0 0 -1.5">
+        <a-plane width="1.8" height="1.0" color="#000"
+          material="shader: flat; opacity: 0.9; transparent: true"></a-plane>
+        <a-text id="csText3d" value="" align="center" width="1.55" wrap-count="42"
+          baseline="center" color="#9a8c80" position="0 0 0.01"></a-text>
+      </a-entity>
+
+      <!-- 3D End Screen -->
+      <a-entity id="end3d" visible="false" position="0 0 -1.2">
+        <a-plane width="2.0" height="1.3" color="#000"
+          material="shader: flat; opacity: 0.94; transparent: true"></a-plane>
+        <a-text id="endTitle3d" value="" align="center" width="1.8" baseline="center"
+          color="#b01818" position="0 0.38 0.01" wrap-count="30"></a-text>
+        <a-text id="endBody3d" value="" align="center" width="1.8" baseline="center"
+          color="#8a7a70" position="0 -0.05 0.01" wrap-count="50"></a-text>
+        <a-text value="PRESS TRIGGER TO RETURN" align="center" width="1.8" baseline="center"
+          color="#a08070" position="0 -0.48 0.01"></a-text>
+      </a-entity>
     </a-entity>
 
-    <a-entity id="handL" oculus-touch-controls="hand: left"
-      raycaster="far: 4; objects: .interactable; lineColor: #551414; showLine: true"></a-entity>
-    <a-entity id="handR" oculus-touch-controls="hand: right"
-      raycaster="far: 4; objects: .interactable; lineColor: #551414; showLine: true"></a-entity>
+    <!-- Controllers -->
+    <a-entity id="handL"
+      oculus-touch-controls="hand: left"
+      raycaster="far: 4; lineColor: #551414; showLine: true">
+    </a-entity>
+    <a-entity id="handR"
+      oculus-touch-controls="hand: right"
+      raycaster="far: 4; lineColor: #551414; showLine: true">
+    </a-entity>
   </a-entity>
 
+  <!-- World root -->
   <a-entity id="world"></a-entity>
 
-  <a-entity id="ambient" light="type: ambient; color: #1a1826; intensity: 0.30"></a-entity>
-  <a-entity id="hemi" light="type: hemisphere; color: #100c14; groundColor: #000000; intensity: 0.18"></a-entity>
+  <!-- Base lighting -->
+  <a-entity light="type: ambient; color: #1a1826; intensity: 0.30"></a-entity>
+  <a-entity light="type: hemisphere; color: #100c14; groundColor: #000000; intensity: 0.18"></a-entity>
 </a-scene>
 
 <!-- ============================================================
-     ================  GAME SCRIPT  ============================
+     ====================== GAME SCRIPT =========================
      ============================================================ -->
 <script>
 "use strict";
@@ -260,20 +188,18 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, t) => a + (b - a) * t;
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const TAU = Math.PI * 2;
+const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
 
-const MW = 21, MH = 21;        // maze cells
-const CELL = 3.0;              // metres per cell
+const MW = 21, MH = 21;
+const CELL = 3.0;
 const WALL_H = 3.2;
 const PLAYER_R = 0.30;
 
-const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
-
 /* =========================================================
-   1. AUDIO ENGINE  (100% procedural — no external files)
+   1. AUDIO ENGINE (procedural)
    ========================================================= */
 const SFX = {
-  ctx: null, master: null, noiseBuf: null,
-  started: false, muted: false,
+  ctx: null, master: null, noiseBuf: null, started: false,
 
   init() {
     if (this.ctx) return;
@@ -309,7 +235,6 @@ const SFX = {
     g.exponentialRampToValueAtTime(0.0001, t + attack + decay);
   },
 
-  /* --- persistent ambience --- */
   _ambient() {
     const c = this.ctx;
     const bus = c.createGain();
@@ -318,7 +243,6 @@ const SFX = {
     this.ambBus = bus;
     bus.gain.linearRampToValueAtTime(0.22, c.currentTime + 5);
 
-    // sub drone
     const lp = c.createBiquadFilter();
     lp.type = 'lowpass'; lp.frequency.value = 170; lp.Q.value = 1.2;
     const dg = c.createGain(); dg.gain.value = 0.55;
@@ -332,7 +256,6 @@ const SFX = {
       o.connect(og); og.connect(lp); o.start();
     });
 
-    // wind / air
     const src = c.createBufferSource();
     src.buffer = this.noiseBuf; src.loop = true;
     const bp = c.createBiquadFilter();
@@ -346,13 +269,12 @@ const SFX = {
     this.droneBus = dg;
   },
 
-  setTension(v) { // 0..1 — swells the drone
+  setTension(v) {
     if (!this.droneBus) return;
     const t = this.ctx.currentTime;
     this.droneBus.gain.linearRampToValueAtTime(0.55 + v * 1.6, t + 0.6);
   },
 
-  /* --- one-shots --- */
   footstep(low) {
     if (!this.ctx) return;
     const c = this.ctx, t = c.currentTime;
@@ -395,7 +317,6 @@ const SFX = {
     g.gain.setValueAtTime(0.0001, t);
     g.gain.linearRampToValueAtTime(0.055, t + 0.35);
     g.gain.linearRampToValueAtTime(0.0001, t + 1.9);
-    // wavering
     const lfo = c.createOscillator(); lfo.frequency.value = rand(3, 9);
     const lg = c.createGain(); lg.gain.value = 500;
     lfo.connect(lg); lg.connect(bp.frequency); lfo.start(t); lfo.stop(t + 2);
@@ -420,7 +341,6 @@ const SFX = {
       o.connect(f); f.connect(g); g.connect(this.master);
       o.start(t); o.stop(t + 1.4);
     }
-    // noise blast
     const s = c.createBufferSource(); s.buffer = this.noiseBuf;
     const g2 = c.createGain();
     g2.gain.setValueAtTime(0.18, t);
@@ -482,11 +402,6 @@ const SFX = {
     g.gain.linearRampToValueAtTime(0.0001, t + 2.6);
     o.connect(f); f.connect(g); g.connect(this.master);
     o.start(t); o.stop(t + 2.7);
-  },
-
-  setMuted(m) {
-    if (!this.master) return;
-    this.master.gain.linearRampToValueAtTime(m ? 0 : 0.85, this.ctx.currentTime + 0.2);
   }
 };
 
@@ -502,13 +417,11 @@ function makeCanvas(w, h) {
 function texWall() {
   const c = makeCanvas(256, 256), x = c.getContext('2d');
   x.fillStyle = '#37342c'; x.fillRect(0, 0, 256, 256);
-  // grime speckle
   for (let i = 0; i < 9000; i++) {
     const g = 20 + Math.random() * 55;
     x.fillStyle = `rgba(${g},${g * 0.96},${g * 0.8},${Math.random() * 0.55})`;
     x.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
   }
-  // damp stains
   for (let i = 0; i < 16; i++) {
     const px = Math.random() * 256, py = Math.random() * 256, r = rand(14, 62);
     const g = x.createRadialGradient(px, py, 0, px, py, r);
@@ -516,7 +429,6 @@ function texWall() {
     g.addColorStop(1, 'rgba(18,14,10,0)');
     x.fillStyle = g; x.beginPath(); x.arc(px, py, r, 0, TAU); x.fill();
   }
-  // cracks
   x.strokeStyle = 'rgba(10,8,6,0.75)'; x.lineWidth = 1.4;
   for (let i = 0; i < 7; i++) {
     x.beginPath();
@@ -528,7 +440,6 @@ function texWall() {
     }
     x.stroke();
   }
-  // horizontal seam
   x.fillStyle = 'rgba(8,6,5,0.6)';
   x.fillRect(0, 126, 256, 3);
   const t = new THREE.CanvasTexture(c);
@@ -540,7 +451,6 @@ function texWall() {
 function texFloor() {
   const c = makeCanvas(256, 256), x = c.getContext('2d');
   x.fillStyle = '#1c1a17'; x.fillRect(0, 0, 256, 256);
-  // tiles
   const T = 64;
   for (let ty = 0; ty < 256; ty += T) {
     for (let tx = 0; tx < 256; tx += T) {
@@ -549,13 +459,11 @@ function texFloor() {
       x.fillRect(tx + 1, ty + 1, T - 2, T - 2);
     }
   }
-  // grout
   x.strokeStyle = 'rgba(6,5,4,0.85)'; x.lineWidth = 2;
   for (let i = 0; i <= 256; i += T) {
     x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 256); x.stroke();
     x.beginPath(); x.moveTo(0, i); x.lineTo(256, i); x.stroke();
   }
-  // dark grime blotches
   for (let i = 0; i < 30; i++) {
     const px = Math.random() * 256, py = Math.random() * 256, r = rand(8, 40);
     const g = x.createRadialGradient(px, py, 0, px, py, r);
@@ -589,10 +497,8 @@ let openCells = [];
 
 function genMaze() {
   maze = [];
-  for (let y = 0; y < MH; y++) {
-    maze.push(new Array(MW).fill(1));
-  }
-  // recursive backtracker
+  for (let y = 0; y < MH; y++) maze.push(new Array(MW).fill(1));
+
   const stack = [[1, 1]];
   maze[1][1] = 0;
   while (stack.length) {
@@ -611,18 +517,14 @@ function genMaze() {
     maze[y + dy][x + dx] = 0;
     stack.push([x + dx, y + dy]);
   }
-  // carve rooms for atmosphere
   for (let i = 0; i < 5; i++) {
     const rx = 1 + 2 * randi(0, 8);
     const ry = 1 + 2 * randi(0, 8);
     const rw = randi(2, 3), rh = randi(2, 3);
     for (let y = ry; y < ry + rh && y < MH - 1; y++) {
-      for (let x = rx; x < rx + rw && x < MW - 1; x++) {
-        maze[y][x] = 0;
-      }
+      for (let x = rx; x < rx + rw && x < MW - 1; x++) maze[y][x] = 0;
     }
   }
-  // collect open cells
   openCells = [];
   for (let y = 1; y < MH - 1; y++) {
     for (let x = 1; x < MW - 1; x++) {
@@ -632,30 +534,25 @@ function genMaze() {
 }
 
 function cellToWorld(cx, cy) {
-  return {
-    x: (cx - MW / 2 + 0.5) * CELL,
-    z: (cy - MH / 2 + 0.5) * CELL
-  };
+  return { x: (cx - MW / 2 + 0.5) * CELL, z: (cy - MH / 2 + 0.5) * CELL };
 }
-
 function worldToCell(x, z) {
-  return {
-    cx: Math.floor(x / CELL + MW / 2),
-    cy: Math.floor(z / CELL + MH / 2)
-  };
+  return { cx: Math.floor(x / CELL + MW / 2), cy: Math.floor(z / CELL + MH / 2) };
 }
-
 function isWallCell(cx, cy) {
   if (cx < 0 || cx >= MW || cy < 0 || cy >= MH) return true;
   return maze[cy][cx] === 1;
 }
-
 function isFreeAt(x, z, r) {
   r = r || PLAYER_R;
-  return !isWallCell(...Object.values(worldToCell(x + r, z)).slice(0, 1).concat([worldToCell(x + r, z).cy]))
-      && !isWallCell(worldToCell(x - r, z).cx, worldToCell(x - r, z).cy)
-      && !isWallCell(worldToCell(x, z + r).cx, worldToCell(x, z + r).cy)
-      && !isWallCell(worldToCell(x, z - r).cx, worldToCell(x, z - r).cy);
+  const c1 = worldToCell(x + r, z);
+  const c2 = worldToCell(x - r, z);
+  const c3 = worldToCell(x, z + r);
+  const c4 = worldToCell(x, z - r);
+  return !isWallCell(c1.cx, c1.cy)
+      && !isWallCell(c2.cx, c2.cy)
+      && !isWallCell(c3.cx, c3.cy)
+      && !isWallCell(c4.cx, c4.cy);
 }
 
 /* =========================================================
@@ -687,56 +584,51 @@ function mergeGeoms(geoms) {
 }
 
 /* =========================================================
-   5. GLOBAL GAME STATE
+   5. GAME STATE
    ========================================================= */
 const G = {
   running: false,
   inVR: false,
-  phase: 'loading',        // loading | menu | cutscene | playing | dead | won
+  phase: 'loading',
 
-  player: { x: 0, z: 0, yaw: 0, height: 1.65 },
+  player: { x: 0, z: 0 },
   stickL: { x: 0, y: 0 },
   stickR: { x: 0, y: 0 },
-  keys: {},
 
   stepTimer: 0,
   heartTimer: 0,
   whisperTimer: 12,
-  sanity: 1.0,             // 1 = calm, 0 = terror
+  sanity: 1.0,
   tension: 0,
 
   flashlightOn: true,
   battery: 100,
 
   fuses: 0,
-  fusesNeeded: 3,
   notesRead: 0,
   notesTotal: 6,
-  hasKey: false,
 
   powerOn: false,
 
   entities: [],
   interactables: [],
-  lootableItems: [],
   worldLights: [],
 
   noteOpen: false,
   subTimer: 0,
-
   clock: 0,
   deathCount: 0,
-  deathReason: ''
+
+  cutsceneSkip: null
 };
 
 /* =========================================================
-   6. DOM CACHE
+   6. CACHED ELEMENTS
    ========================================================= */
 let sceneEl, camEl, rigEl, handL, handR, flashEl, subEl, notePanel, noteTextEl, worldEl;
-let hudEl, vignetteEl, bloodEl, invEl, objectiveEl, desksubEl;
 
 /* =========================================================
-   7. BUILD THE LEVEL
+   7. BUILD LEVEL
    ========================================================= */
 function buildLevel() {
   worldEl = $('#world');
@@ -756,64 +648,53 @@ function buildLevel() {
     for (let x = 0; x < MW; x++) {
       if (maze[y][x] !== 1) continue;
       const g = baseBox.clone();
-      g.translate(
-        (x - MW / 2 + 0.5) * CELL,
-        WALL_H / 2,
-        (y - MH / 2 + 0.5) * CELL
-      );
+      g.translate((x - MW / 2 + 0.5) * CELL, WALL_H / 2, (y - MH / 2 + 0.5) * CELL);
       wallGeoms.push(g);
     }
   }
   const wallGeo = mergeGeoms(wallGeoms);
   const wallMat = new THREE.MeshLambertMaterial({ map: wallTex, color: 0x9a958a });
-  const wallMesh = new THREE.Mesh(wallGeo, wallMat);
-  wallMesh.name = 'walls';
-  root.add(wallMesh);
+  root.add(new THREE.Mesh(wallGeo, wallMat));
   baseBox.dispose();
 
   /* ---- floor ---- */
   const floorGeo = new THREE.PlaneGeometry(MW * CELL, MH * CELL);
-  const floorMat = new THREE.MeshLambertMaterial({ map: floorTex, color: 0x8a8680 });
-  const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+  const floorMesh = new THREE.Mesh(floorGeo,
+    new THREE.MeshLambertMaterial({ map: floorTex, color: 0x8a8680 }));
   floorMesh.rotation.x = -Math.PI / 2;
-  floorMesh.position.y = 0;
   root.add(floorMesh);
 
   /* ---- ceiling ---- */
-  const ceilMat = new THREE.MeshLambertMaterial({ map: ceilTex, color: 0x6a6660 });
-  const ceilMesh = new THREE.Mesh(floorGeo.clone(), ceilMat);
+  const ceilMesh = new THREE.Mesh(floorGeo.clone(),
+    new THREE.MeshLambertMaterial({ map: ceilTex, color: 0x6a6660 }));
   ceilMesh.rotation.x = Math.PI / 2;
   ceilMesh.position.y = WALL_H;
   root.add(ceilMesh);
 
-  /* ---- scattered flickering ceiling lamps ---- */
-  const lampCount = 12;
+  /* ---- flickering ceiling lamps ---- */
   const usedCells = new Set();
-  for (let i = 0; i < lampCount; i++) {
+  for (let i = 0; i < 12; i++) {
     const c = pick(openCells);
     const key = c[0] + ',' + c[1];
     if (usedCells.has(key)) continue;
     usedCells.add(key);
     const w = cellToWorld(c[0], c[1]);
 
-    // fixture
-    const fixGeo = new THREE.BoxGeometry(0.55, 0.06, 0.55);
-    const fixMat = new THREE.MeshLambertMaterial({ color: 0x3a3832 });
-    const fix = new THREE.Mesh(fixGeo, fixMat);
+    const fix = new THREE.Mesh(
+      new THREE.BoxGeometry(0.55, 0.06, 0.55),
+      new THREE.MeshLambertMaterial({ color: 0x3a3832 })
+    );
     fix.position.set(w.x, WALL_H - 0.05, w.z);
     root.add(fix);
 
-    // bulb plane (emissive-looking)
-    const bulbGeo = new THREE.PlaneGeometry(0.45, 0.45);
-    const bulbMat = new THREE.MeshBasicMaterial({
-      color: 0xffe0a0, transparent: true, opacity: 0.75, side: THREE.DoubleSide
-    });
-    const bulb = new THREE.Mesh(bulbGeo, bulbMat);
+    const bulb = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.45, 0.45),
+      new THREE.MeshBasicMaterial({ color: 0xffe0a0, transparent: true, opacity: 0.75, side: THREE.DoubleSide })
+    );
     bulb.rotation.x = Math.PI / 2;
     bulb.position.set(w.x, WALL_H - 0.09, w.z);
     root.add(bulb);
 
-    // actual light
     const light = new THREE.PointLight(0xffd9a0, 0.55, 9, 1.4);
     light.position.set(w.x, WALL_H - 0.25, w.z);
     root.add(light);
@@ -826,16 +707,13 @@ function buildLevel() {
     });
   }
 
-  /* ---- spawn point ---- */
+  /* ---- spawn ---- */
   const sp = cellToWorld(1, 1);
   rigEl.object3D.position.set(sp.x, 0, sp.z);
   G.player.x = sp.x;
   G.player.z = sp.z;
 
-  /* ---- place items ---- */
   placeItems();
-
-  /* ---- place entities ---- */
   spawnEntities();
 }
 
@@ -844,15 +722,10 @@ function buildLevel() {
    ========================================================= */
 const NOTE_TEXTS = [
   "INTAKE FORM — PATIENT 004\n\nName: [REDACTED]\nComplaint: \"It stands at the end of the hall. It only moves when I blink.\"\n\nAddendum: Patient's room was found empty. The door was locked from the inside.",
-
   "DR. VANE'S LOG — DAY 12\n\nWe have stopped using the east wing. The lights there fail without explanation. Klein swears something counted his footsteps.\n\nIt reached nine. He took ten.",
-
   "MAINTENANCE NOTICE\n\nThree fuses were removed from the generator after the incident.\n\nDO NOT RESTORE POWER.\n\n— Chief Adeyemi",
-
   "A child's drawing is taped here.\n\nA tall black shape with two white eyes.\n\nUnderneath, in crayon:\n\n\"HE WAITS FOR YOU TO LOOK AWAY\"",
-
   "DR. VANE'S LOG — FINAL ENTRY\n\nThe Hollow is not a place. It is a hunger.\n\nIt learned to wear the shape of a man.\n\nWhen you see it, do not run. Running means you looked away.",
-
   "SCRAWLED ON THE WALL IN SOMETHING DARK\n\n\"THE GENERATOR IS IN THE NORTH ROOM.\nTHE DOOR IS BESIDE IT.\nDON'T LET IT TOUCH YOU.\""
 ];
 
@@ -860,17 +733,14 @@ function makeFuseMesh() {
   const g = new THREE.Group();
   const bodyMat = new THREE.MeshLambertMaterial({ color: 0x6a5a3a });
   const capMat = new THREE.MeshLambertMaterial({ color: 0xb09050 });
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.20, 10), bodyMat);
-  g.add(body);
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.20, 10), bodyMat));
   for (const s of [-1, 1]) {
     const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.062, 0.045, 10), capMat);
     cap.position.y = s * 0.115;
     g.add(cap);
   }
-  const glow = new THREE.Mesh(
-    new THREE.SphereGeometry(0.03, 8, 8),
-    new THREE.MeshBasicMaterial({ color: 0xffcc66 })
-  );
+  const glow = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8),
+    new THREE.MeshBasicMaterial({ color: 0xffcc66 }));
   glow.position.y = 0.135;
   g.add(glow);
   return g;
@@ -878,16 +748,12 @@ function makeFuseMesh() {
 
 function makeNoteMesh() {
   const g = new THREE.Group();
-  const paper = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.22, 0.29),
-    new THREE.MeshLambertMaterial({ color: 0xd8cfb4, side: THREE.DoubleSide })
-  );
+  const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.29),
+    new THREE.MeshLambertMaterial({ color: 0xd8cfb4, side: THREE.DoubleSide }));
   paper.rotation.x = -Math.PI / 2 + 0.35;
   g.add(paper);
-  const glow = new THREE.Mesh(
-    new THREE.SphereGeometry(0.025, 8, 8),
-    new THREE.MeshBasicMaterial({ color: 0x88bbff })
-  );
+  const glow = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8),
+    new THREE.MeshBasicMaterial({ color: 0x88bbff }));
   glow.position.y = 0.05;
   g.add(glow);
   return g;
@@ -895,15 +761,10 @@ function makeNoteMesh() {
 
 function makeBatteryMesh() {
   const g = new THREE.Group();
-  const b = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.045, 0.045, 0.16, 10),
-    new THREE.MeshLambertMaterial({ color: 0x2a3a2a })
-  );
-  g.add(b);
-  const cap = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.03, 0.03, 0.03, 10),
-    new THREE.MeshLambertMaterial({ color: 0xaa9944 })
-  );
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.16, 10),
+    new THREE.MeshLambertMaterial({ color: 0x2a3a2a })));
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.03, 10),
+    new THREE.MeshLambertMaterial({ color: 0xaa9944 }));
   cap.position.y = 0.09;
   g.add(cap);
   return g;
@@ -914,9 +775,9 @@ function addInteractable(mesh, type, data) {
   mesh.userData = Object.assign(mesh.userData || {}, {
     type, data, taken: false, isItem: true
   });
+  mesh.classList && mesh.classList.add && mesh.classList.add('interactable');
   worldEl.object3D.add(mesh);
   G.interactables.push(mesh);
-  if (type !== 'generator' && type !== 'exit') G.lootableItems.push(mesh);
   return mesh;
 }
 
@@ -931,16 +792,14 @@ function placeItems() {
       const key = c[0] + ',' + c[1];
       if (used.has(key)) continue;
       const w = cellToWorld(c[0], c[1]);
-      const d = Math.hypot(w.x - spawn.x, w.z - spawn.z);
-      if (d < minDist) continue;
+      if (Math.hypot(w.x - spawn.x, w.z - spawn.z) < minDist) continue;
       used.add(key);
       return w;
     }
-    const c = pick(openCells);
-    return cellToWorld(c[0], c[1]);
+    return cellToWorld(pick(openCells)[0], pick(openCells)[1]);
   }
 
-  // --- 3 fuses ---
+  // 3 fuses
   for (let i = 0; i < 3; i++) {
     const w = farCell(10);
     const m = makeFuseMesh();
@@ -948,7 +807,7 @@ function placeItems() {
     addInteractable(m, 'fuse', { label: 'FUSE' });
   }
 
-  // --- 6 notes ---
+  // 6 notes
   for (let i = 0; i < 6; i++) {
     const w = farCell(6);
     const m = makeNoteMesh();
@@ -957,7 +816,7 @@ function placeItems() {
     addInteractable(m, 'note', { index: i, label: 'NOTE' });
   }
 
-  // --- 2 batteries ---
+  // 2 batteries
   for (let i = 0; i < 2; i++) {
     const w = farCell(8);
     const m = makeBatteryMesh();
@@ -965,31 +824,28 @@ function placeItems() {
     addInteractable(m, 'battery', { label: 'BATTERY' });
   }
 
-  // --- generator (in a far room) ---
+  // generator
   const gw = farCell(14);
   const genGroup = new THREE.Group();
-  const boxMat = new THREE.MeshLambertMaterial({ color: 0x2e2c28 });
-  const box = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.2, 0.8), boxMat);
-  box.position.y = 0.6;
-  genGroup.add(box);
-  const panel = new THREE.Mesh(
-    new THREE.BoxGeometry(0.85, 0.55, 0.06),
-    new THREE.MeshLambertMaterial({ color: 0x181818 })
-  );
+  genGroup.add(new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.2, 0.8),
+    new THREE.MeshLambertMaterial({ color: 0x2e2c28 })));
+  genGroup.children[0].position.y = 0.6;
+
+  const panel = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.55, 0.06),
+    new THREE.MeshLambertMaterial({ color: 0x181818 }));
   panel.position.set(0, 0.9, 0.42);
   genGroup.add(panel);
-  // three sockets
+
   G.genSockets = [];
   for (let i = 0; i < 3; i++) {
-    const sock = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.07, 0.07, 0.05, 10),
-      new THREE.MeshBasicMaterial({ color: 0x331111 })
-    );
+    const sock = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.05, 10),
+      new THREE.MeshBasicMaterial({ color: 0x331111 }));
     sock.rotation.x = Math.PI / 2;
     sock.position.set(-0.25 + i * 0.25, 0.9, 0.46);
     genGroup.add(sock);
     G.genSockets.push(sock);
   }
+
   const genLight = new THREE.PointLight(0x220000, 0.4, 5, 1.5);
   genLight.position.set(0, 1.4, 0.5);
   genGroup.add(genLight);
@@ -1000,12 +856,12 @@ function placeItems() {
   addInteractable(genGroup, 'generator', { label: 'GENERATOR' });
   G.generator = genGroup;
 
-  // --- exit door next to generator ---
+  // exit door
   const ex = new THREE.Group();
-  const frameMat = new THREE.MeshLambertMaterial({ color: 0x1a1614 });
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.4, 0.18), frameMat);
-  frame.position.y = 1.2;
-  ex.add(frame);
+  ex.add(new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.4, 0.18),
+    new THREE.MeshLambertMaterial({ color: 0x1a1614 })));
+  ex.children[0].position.y = 1.2;
+
   const doorMat = new THREE.MeshLambertMaterial({
     color: 0x2a1010, emissive: 0x220000, emissiveIntensity: 1
   });
@@ -1020,13 +876,7 @@ function placeItems() {
   ex.add(exitLight);
   G.exitLight = exitLight;
 
-  // place exit 2m from generator
-  ex.position.set(gw.x + 2.2, 0, gw.z);
-  ex.rotation.y = -Math.PI / 2;
-  addInteractable(ex, 'exit', { label: 'SEALED DOOR' });
-  G.exitGroup = ex;
-
-  // move exit to a free spot near generator
+  // try to place next to generator
   let placed = false;
   for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1]]) {
     const cx = Math.round(gw.x / CELL + MW / 2 - 0.5) + dx;
@@ -1040,10 +890,13 @@ function placeItems() {
     }
   }
   if (!placed) ex.position.set(gw.x + 2.2, 0, gw.z);
+
+  addInteractable(ex, 'exit', { label: 'SEALED DOOR' });
+  G.exitGroup = ex;
 }
 
 /* =========================================================
-   9. ENTITIES  (the things that stalk you)
+   9. ENTITIES
    ========================================================= */
 function makeWatcherMesh() {
   const g = new THREE.Group();
@@ -1059,14 +912,13 @@ function makeWatcherMesh() {
   head.scale.set(1, 1.35, 1);
   g.add(head);
 
-  // eyes
-  for (const s of [-1, 1]) {
-    const e = new THREE.Mesh(new THREE.SphereGeometry(0.036, 8, 8), eyeMat);
-    e.position.set(s * 0.072, 2.34, 0.155);
-    g.add(e);
-  }
+  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.036, 8, 8), eyeMat.clone());
+  eyeL.position.set(-0.072, 2.34, 0.155);
+  g.add(eyeL);
+  const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.036, 8, 8), eyeMat.clone());
+  eyeR.position.set(0.072, 2.34, 0.155);
+  g.add(eyeR);
 
-  // long arms
   for (const s of [-1, 1]) {
     const arm = new THREE.Mesh(new THREE.BoxGeometry(0.11, 1.5, 0.11), mat);
     arm.position.set(s * 0.32, 1.42, 0);
@@ -1075,16 +927,12 @@ function makeWatcherMesh() {
     const hand = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.26, 0.09), mat);
     hand.position.set(s * 0.37, 0.62, 0);
     g.add(hand);
-  }
-
-  // legs
-  for (const s of [-1, 1]) {
     const leg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.0, 0.14), mat);
     leg.position.set(s * 0.12, 0.5, 0);
     g.add(leg);
   }
 
-  g.userData.eyes = [g.children[3], g.children[4]];
+  g.userData.eyes = [eyeL, eyeR];
   return g;
 }
 
@@ -1109,7 +957,6 @@ function makeCrawlerMesh() {
     g.add(e);
   }
 
-  // legs
   for (let i = 0; i < 4; i++) {
     for (const s of [-1, 1]) {
       const leg = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.05, 0.72), mat);
@@ -1120,46 +967,6 @@ function makeCrawlerMesh() {
     }
   }
   return g;
-}
-
-function spawnEntities() {
-  const spawn = cellToWorld(1, 1);
-
-  /* --- THE WATCHER (weeping-angel) --- */
-  const wMesh = makeWatcherMesh();
-  const wStart = findFarCell(spawn, 16);
-  wMesh.position.set(wStart.x, 0, wStart.z);
-  worldEl.object3D.add(wMesh);
-
-  G.watcher = {
-    mesh: wMesh,
-    pos: V3(wStart.x, 0, wStart.z),
-    alive: true,
-    moveTimer: 0,
-    active: false,          // becomes active after first pickup
-    screamCooldown: 0,
-    growlTimer: 0
-  };
-
-  /* --- THE CRAWLER (chaser) --- */
-  const cMesh = makeCrawlerMesh();
-  const cStart = findFarCell(spawn, 18);
-  cMesh.position.set(cStart.x, 0, cStart.z);
-  worldEl.object3D.add(cMesh);
-
-  G.crawler = {
-    mesh: cMesh,
-    pos: V3(cStart.x, 0, cStart.z),
-    alive: true,
-    active: false,
-    speed: 1.45,
-    chargeSpeed: 3.1,
-    charging: false,
-    sightRange: 11,
-    stepTimer: 0
-  };
-
-  G.entities = [G.watcher, G.crawler];
 }
 
 function findFarCell(from, minDist) {
@@ -1173,8 +980,36 @@ function findFarCell(from, minDist) {
   return best || cellToWorld(pick(openCells)[0], pick(openCells)[1]);
 }
 
+function spawnEntities() {
+  const spawn = cellToWorld(1, 1);
+
+  const wMesh = makeWatcherMesh();
+  const wStart = findFarCell(spawn, 16);
+  wMesh.position.set(wStart.x, 0, wStart.z);
+  worldEl.object3D.add(wMesh);
+
+  G.watcher = {
+    mesh: wMesh, pos: V3(wStart.x, 0, wStart.z),
+    alive: true, moveTimer: 0, active: false, growlTimer: 0
+  };
+
+  const cMesh = makeCrawlerMesh();
+  const cStart = findFarCell(spawn, 18);
+  cMesh.position.set(cStart.x, 0, cStart.z);
+  worldEl.object3D.add(cMesh);
+
+  G.crawler = {
+    mesh: cMesh, pos: V3(cStart.x, 0, cStart.z),
+    alive: true, active: false,
+    speed: 1.45, chargeSpeed: 3.1,
+    charging: false, sightRange: 11, stepTimer: 0
+  };
+
+  G.entities = [G.watcher, G.crawler];
+}
+
 /* =========================================================
-   10. PLAYER MOVEMENT & CONTROLS
+   10. HEAD TRACKING HELPERS
    ========================================================= */
 function getHeadYaw() {
   const q = new THREE.Quaternion();
@@ -1182,19 +1017,20 @@ function getHeadYaw() {
   const fwd = V3(0, 0, -1).applyQuaternion(q);
   return Math.atan2(-fwd.x, -fwd.z);
 }
-
 function getHeadForward() {
   const q = new THREE.Quaternion();
   camEl.object3D.getWorldQuaternion(q);
   return V3(0, 0, -1).applyQuaternion(q).normalize();
 }
-
 function getHeadPos() {
   const v = new THREE.Vector3();
   camEl.object3D.getWorldPosition(v);
   return v;
 }
 
+/* =========================================================
+   11. MOVEMENT (controller thumbsticks)
+   ========================================================= */
 function tryMove(dx, dz) {
   const rig = rigEl.object3D;
   const nx = rig.position.x + dx;
@@ -1220,38 +1056,29 @@ function snapTurn(angle) {
 let snapCooldown = 0;
 
 function updateMovement(dt) {
-  if (!G.running) return;
+  if (!G.running || G.noteOpen) return;
 
-  let moveF = 0, moveR = 0;
+  // deadzone on left stick
+  let sx = G.stickL.x, sy = G.stickL.y;
+  if (Math.hypot(sx, sy) < 0.15) { sx = 0; sy = 0; }
 
-  // keyboard
-  if (G.keys['KeyW'] || G.keys['ArrowUp']) moveF += 1;
-  if (G.keys['KeyS'] || G.keys['ArrowDown']) moveF -= 1;
-  if (G.keys['KeyA'] || G.keys['ArrowLeft']) moveR -= 1;
-  if (G.keys['KeyD'] || G.keys['ArrowRight']) moveR += 1;
-
-  // left thumbstick (y = -1 is up)
-  moveF += -G.stickL.y;
-  moveR += G.stickL.x;
+  const moveF = -sy;
+  const moveR = sx;
 
   const mag = Math.hypot(moveF, moveR);
-  if (mag > 1) { moveF /= mag; moveR /= mag; }
-
-  const speed = 2.55;
   if (mag > 0.08) {
     const yaw = getHeadYaw();
     const fx = -Math.sin(yaw), fz = -Math.cos(yaw);
     const rx = Math.cos(yaw), rz = -Math.sin(yaw);
+    const speed = 2.55;
     const dx = (fx * moveF + rx * moveR) * speed * dt;
     const dz = (fz * moveF + rz * moveR) * speed * dt;
     tryMove(dx, dz);
 
-    // footsteps
     G.stepTimer -= dt;
     if (G.stepTimer <= 0) {
       G.stepTimer = 0.46;
       SFX.footstep(false);
-      // crawler hears you
       if (G.crawler.alive && G.crawler.active) {
         const d = Math.hypot(G.crawler.pos.x - G.player.x, G.crawler.pos.z - G.player.z);
         if (d < 16) G.crawler.charging = true;
@@ -1259,7 +1086,7 @@ function updateMovement(dt) {
     }
   }
 
-  // snap turn (right stick)
+  // snap turn
   snapCooldown -= dt;
   if (snapCooldown <= 0 && Math.abs(G.stickR.x) > 0.72) {
     snapTurn(G.stickR.x > 0 ? -Math.PI / 6 : Math.PI / 6);
@@ -1268,10 +1095,9 @@ function updateMovement(dt) {
 }
 
 /* =========================================================
-   11. INTERACTION
+   12. INTERACTION
    ========================================================= */
 const pickRay = new THREE.Raycaster();
-const tmpV = new THREE.Vector3();
 
 function getInteractOriginDir() {
   let origin, dir;
@@ -1282,7 +1108,6 @@ function getInteractOriginDir() {
     const q = new THREE.Quaternion();
     hand.getWorldQuaternion(q);
     dir = V3(0, 0, -1).applyQuaternion(q).normalize();
-    // if hand not tracked, fall back to head
     if (origin.lengthSq() < 0.0001) {
       origin = getHeadPos();
       dir = getHeadForward();
@@ -1310,7 +1135,7 @@ function findTarget() {
     if (d > 3.6) continue;
     toObj.normalize();
     const dot = dir.dot(toObj);
-    if (dot < 0.62) continue;   // ~52 degree cone
+    if (dot < 0.62) continue;
     if (d < bestD) { bestD = d; best = obj; }
   }
   return best;
@@ -1356,20 +1181,15 @@ function handleInteract(obj) {
   }
   else if (type === 'generator') {
     if (G.powerOn) { showSubtitle('The generator hums. It is already awake.'); return; }
-    if (G.fuses >= 3) {
-      installFuses();
-    } else {
+    if (G.fuses >= 3) installFuses();
+    else {
       SFX.thud();
       showSubtitle(`The generator is dead. You need three fuses. (${G.fuses}/3)`);
     }
   }
   else if (type === 'exit') {
-    if (G.powerOn) {
-      winGame();
-    } else {
-      SFX.thud();
-      showSubtitle('The seal is cold. No power. No way out.');
-    }
+    if (G.powerOn) winGame();
+    else { SFX.thud(); showSubtitle('The seal is cold. No power. No way out.'); }
   }
 }
 
@@ -1383,7 +1203,7 @@ function installFuses() {
   G.exitMat.emissive.setHex(0x2288ff);
   G.exitLight.color.setHex(0x66aaff);
   G.exitLight.intensity = 2.0;
-  // every lamp in the building turns on for one horrible second
+
   G.worldLights.forEach(w => {
     w.light.color.setHex(0xff2200);
     w.light.intensity = 2.0;
@@ -1396,7 +1216,6 @@ function installFuses() {
     });
   }, 1400);
 
-  // wake the Watcher for good
   G.watcher.active = true;
   G.crawler.active = true;
   G.crawler.speed = 2.0;
@@ -1406,7 +1225,7 @@ function installFuses() {
 }
 
 /* =========================================================
-   12. NOTES UI
+   13. NOTES
    ========================================================= */
 function openNote(text) {
   G.noteOpen = true;
@@ -1414,42 +1233,34 @@ function openNote(text) {
   notePanel.setAttribute('visible', true);
   SFX.whisper();
 }
-
 function closeNote() {
   G.noteOpen = false;
   notePanel.setAttribute('visible', false);
 }
 
 /* =========================================================
-   13. SUBTITLES
+   14. SUBTITLES
    ========================================================= */
 function showSubtitle(text, duration) {
   G.subTimer = duration || 4.5;
   if (subEl) subEl.setAttribute('text', 'value', text);
-  if (desksubEl) {
-    desksubEl.textContent = text;
-    desksubEl.classList.add('on');
-  }
 }
 
 function updateSubtitles(dt) {
   if (G.subTimer > 0) {
     G.subTimer -= dt;
-    if (G.subTimer <= 0) {
-      if (subEl) subEl.setAttribute('text', 'value', '');
-      if (desksubEl) desksubEl.classList.remove('on');
-    }
+    if (G.subTimer <= 0 && subEl) subEl.setAttribute('text', 'value', '');
   }
 }
 
 /* =========================================================
-   14. ENTITY AI
+   15. ENTITY AI
    ========================================================= */
 function updateWatcher(dt) {
   const w = G.watcher;
   if (!w || !w.alive) return;
+
   if (!w.active) {
-    // idle breathing motion only
     w.mesh.position.y = Math.sin(G.clock * 0.7) * 0.02;
     return;
   }
@@ -1462,27 +1273,23 @@ function updateWatcher(dt) {
   if (dist < 0.001) return;
   const dirToW = toW.clone().normalize();
 
-  // is the player looking at it?
   const dot = fwd.dot(dirToW);
-  const looking = dot > 0.42;   // ~65 degrees half-cone
+  const looking = dot > 0.42;
 
-  // eye pulse
   const eyes = w.mesh.userData.eyes;
   if (eyes) {
     const b = looking ? 1.0 : 0.55 + Math.sin(G.clock * 3.1) * 0.25;
-    eyes.forEach(e => { e.material.color.setRGB(b, b * 0.94, b * 0.86); });
+    eyes.forEach(e => e.material.color.setRGB(b, b * 0.94, b * 0.86));
   }
 
   w.mesh.position.y = Math.sin(G.clock * 0.7) * 0.02;
 
   if (looking) {
-    // frozen. It knows you see it.
     w.growlTimer -= dt;
     if (w.growlTimer <= 0 && dist < 14) {
       w.growlTimer = rand(3.5, 7);
       SFX.whisper();
     }
-    // it still creeps forward very slowly if you stare from far away
     if (dist > 8) {
       const step = 0.22 * dt;
       const nx = w.pos.x - dirToW.x * step;
@@ -1490,14 +1297,10 @@ function updateWatcher(dt) {
       if (isFreeAt(nx, nz, 0.2)) { w.pos.x = nx; w.pos.z = nz; }
     }
   } else {
-    // NOT LOOKING — it moves. Fast.
     w.moveTimer -= dt;
     if (w.moveTimer <= 0) {
       w.moveTimer = clamp(dist * 0.055, 0.12, 0.55);
-
       const targetDist = clamp(dist - rand(2.2, 4.6), 1.0, 40);
-
-      // find a free cell roughly that distance from the player
       let bestCell = null, bestErr = Infinity;
       for (let i = 0; i < 90; i++) {
         const c = pick(openCells);
@@ -1507,11 +1310,8 @@ function updateWatcher(dt) {
         if (err < bestErr && d > 1.2) { bestErr = err; bestCell = cw; }
       }
       if (bestCell) { w.pos.x = bestCell.x; w.pos.z = bestCell.z; }
-
-      // whisper when it relocates
       if (dist < 20 && Math.random() < 0.5) SFX.whisper();
     }
-    // if very close and unseen, it can lunge
     if (dist < 3.2 && Math.random() < dt * 1.6) {
       w.pos.x = lerp(w.pos.x, head.x, 0.35);
       w.pos.z = lerp(w.pos.z, head.z, 0.35);
@@ -1522,10 +1322,7 @@ function updateWatcher(dt) {
   w.mesh.position.z = w.pos.z;
   w.mesh.lookAt(head.x, w.mesh.position.y, head.z);
 
-  // catch
-  if (dist < 1.15) {
-    killPlayer('THE WATCHER');
-  }
+  if (dist < 1.15) killPlayer('THE WATCHER');
 }
 
 function updateCrawler(dt) {
@@ -1555,30 +1352,22 @@ function updateCrawler(dt) {
   const nz = dz / dist * spd * dt;
 
   if (isFreeAt(c.pos.x + nx, c.pos.z, 0.28)) c.pos.x += nx;
-  else {
-    // slide along wall
-    if (isFreeAt(c.pos.x + nx, c.pos.z + nz * 1.4, 0.28)) c.pos.z += nz * 1.4;
-  }
+  else if (isFreeAt(c.pos.x + nx, c.pos.z + nz * 1.4, 0.28)) c.pos.z += nz * 1.4;
   if (isFreeAt(c.pos.x, c.pos.z + nz, 0.28)) c.pos.z += nz;
-  else {
-    if (isFreeAt(c.pos.x + nx * 1.4, c.pos.z + nz, 0.28)) c.pos.x += nx * 1.4;
-  }
+  else if (isFreeAt(c.pos.x + nx * 1.4, c.pos.z + nz, 0.28)) c.pos.x += nx * 1.4;
 
   c.mesh.position.x = c.pos.x;
   c.mesh.position.z = c.pos.z;
   c.mesh.position.y = Math.sin(G.clock * 9) * 0.025;
   c.mesh.lookAt(head.x, c.mesh.position.y, head.z);
 
-  // skittering sound
   c.stepTimer -= dt;
   if (c.stepTimer <= 0 && dist < 14) {
     c.stepTimer = c.charging ? 0.17 : 0.34;
     SFX.footstep(true);
   }
 
-  if (dist < 1.05) {
-    killPlayer('THE CRAWLER');
-  }
+  if (dist < 1.05) killPlayer('THE CRAWLER');
 }
 
 function wakeEntities() {
@@ -1590,7 +1379,7 @@ function wakeEntities() {
 }
 
 /* =========================================================
-   15. SANITY / TENSION
+   16. SANITY / TENSION
    ========================================================= */
 function updateSanity(dt) {
   const head = getHeadPos();
@@ -1612,14 +1401,10 @@ function updateSanity(dt) {
   if (entityVisible) G.sanity = clamp(G.sanity - dt * 0.11, 0, 1);
   else G.sanity = clamp(G.sanity + dt * 0.045, 0, 1);
 
-  // fog thickens as terror rises
-  const fogDensity = 0.082 + (1 - G.sanity) * 0.05 + G.tension * 0.03;
   const sceneObj = sceneEl.object3D;
-  if (sceneObj.fog) {
-    sceneObj.fog.density = lerp(sceneObj.fog.density || fogDensity, fogDensity, dt * 2);
-  }
+  const fogDensity = 0.082 + (1 - G.sanity) * 0.05 + G.tension * 0.03;
+  if (sceneObj.fog) sceneObj.fog.density = lerp(sceneObj.fog.density || fogDensity, fogDensity, dt * 2);
 
-  // heartbeat
   G.heartTimer -= dt;
   if (G.heartTimer <= 0) {
     const rate = lerp(2.0, 0.42, G.tension);
@@ -1629,18 +1414,12 @@ function updateSanity(dt) {
 
   SFX.setTension(G.tension);
 
-  // random whispers
   G.whisperTimer -= dt;
   if (G.whisperTimer <= 0) {
     G.whisperTimer = rand(14, 34) * (1 - G.tension * 0.5);
     if (Math.random() < 0.7) SFX.whisper();
   }
 
-  // vignette
-  if (vignetteEl) vignetteEl.style.opacity = String(0.7 + (1 - G.sanity) * 0.3 + G.tension * 0.15);
-  if (bloodEl) bloodEl.style.opacity = String(clamp((1 - G.sanity) * 0.75 + G.tension * 0.3, 0, 0.92));
-
-  // flashlight flicker when terrified
   if (flashEl && G.flashlightOn) {
     const flick = G.tension > 0.55 && Math.random() < G.tension * 0.09;
     const base = 1.9 * (0.55 + 0.45 * (G.battery / 100));
@@ -1649,7 +1428,7 @@ function updateSanity(dt) {
 }
 
 /* =========================================================
-   16. FLASHLIGHT BATTERY
+   17. BATTERY / LIGHTS
    ========================================================= */
 function updateBattery(dt) {
   if (G.flashlightOn && G.battery > 0) {
@@ -1660,13 +1439,9 @@ function updateBattery(dt) {
       showSubtitle('The flashlight dies.', 4);
       SFX.thud();
     }
-    if (Math.random() < dt * 0.4) updateHUD();
   }
 }
 
-/* =========================================================
-   17. LAMP FLICKER
-   ========================================================= */
 function updateLights(dt) {
   for (const w of G.worldLights) {
     if (!w.flicker) continue;
@@ -1681,51 +1456,15 @@ function updateLights(dt) {
 }
 
 /* =========================================================
-   18. DEATH / WIN
+   18. DEATH / WIN (3D UI)
    ========================================================= */
-function killPlayer(reason) {
-  if (G.phase !== 'playing') return;
-  G.phase = 'dead';
-  G.running = false;
-  G.deathCount++;
-  G.deathReason = reason;
-
-  SFX.screech();
-  drawJumpscareFace();
-
-  const js = $('#jumpscare');
-  js.classList.add('on');
-
-  // in VR, push a face right in front of the camera
-  if (G.inVR) {
-    const plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.2, 1.2),
-      new THREE.MeshBasicMaterial({ map: jumpscareTexture, transparent: true })
-    );
-    plane.position.set(0, 0, -0.35);
-    camEl.object3D.add(plane);
-    G.jumpscareMesh = plane;
-  }
-
-  setTimeout(() => {
-    js.classList.remove('on');
-    if (G.jumpscareMesh) {
-      camEl.object3D.remove(G.jumpscareMesh);
-      G.jumpscareMesh.material.dispose();
-      G.jumpscareMesh.geometry.dispose();
-      G.jumpscareMesh = null;
-    }
-    showEndScreen(false, reason);
-  }, 1500);
-}
-
 let jumpscareTexture = null;
+let jumpscareMesh = null;
 
 function drawJumpscareFace() {
-  const c = $('#jscanvas'), x = c.getContext('2d');
+  const c = makeCanvas(1024, 1024), x = c.getContext('2d');
   x.fillStyle = '#000'; x.fillRect(0, 0, 1024, 1024);
 
-  // face
   x.save();
   x.translate(512, 512);
   const grd = x.createRadialGradient(0, -40, 60, 0, 0, 460);
@@ -1733,21 +1472,13 @@ function drawJumpscareFace() {
   grd.addColorStop(0.6, '#120a08');
   grd.addColorStop(1, '#000');
   x.fillStyle = grd;
-  x.beginPath();
-  x.ellipse(0, 0, 300, 400, 0, 0, TAU);
-  x.fill();
+  x.beginPath(); x.ellipse(0, 0, 300, 400, 0, 0, TAU); x.fill();
 
-  // eyes
   for (const s of [-1, 1]) {
     x.fillStyle = '#f2ece0';
-    x.beginPath();
-    x.ellipse(s * 118, -110, 78, 56, s * 0.15, 0, TAU);
-    x.fill();
+    x.beginPath(); x.ellipse(s * 118, -110, 78, 56, s * 0.15, 0, TAU); x.fill();
     x.fillStyle = '#000';
-    x.beginPath();
-    x.arc(s * 118 + rand(-12, 12), -110 + rand(-8, 8), 30, 0, TAU);
-    x.fill();
-    // bleeding
+    x.beginPath(); x.arc(s * 118 + rand(-12, 12), -110 + rand(-8, 8), 30, 0, TAU); x.fill();
     x.strokeStyle = 'rgba(90,0,0,0.8)'; x.lineWidth = 6;
     x.beginPath();
     x.moveTo(s * 118, -60);
@@ -1755,11 +1486,8 @@ function drawJumpscareFace() {
     x.stroke();
   }
 
-  // mouth
   x.fillStyle = '#080404';
-  x.beginPath();
-  x.ellipse(0, 178, 118, 168, 0, 0, TAU);
-  x.fill();
+  x.beginPath(); x.ellipse(0, 178, 118, 168, 0, 0, TAU); x.fill();
   x.strokeStyle = '#d8cfc0'; x.lineWidth = 9;
   for (let i = 0; i < 10; i++) {
     const a = (i / 10) * Math.PI - Math.PI;
@@ -1768,21 +1496,16 @@ function drawJumpscareFace() {
     x.beginPath(); x.moveTo(px, py); x.lineTo(px * 0.72, py - 42); x.stroke();
   }
 
-  // cracks
   x.strokeStyle = 'rgba(30,0,0,0.9)'; x.lineWidth = 3;
   for (let i = 0; i < 24; i++) {
     x.beginPath();
     let px = rand(-300, 300), py = rand(-380, 380);
     x.moveTo(px, py);
-    for (let j = 0; j < 5; j++) {
-      px += rand(-50, 50); py += rand(-50, 50);
-      x.lineTo(px, py);
-    }
+    for (let j = 0; j < 5; j++) { px += rand(-50, 50); py += rand(-50, 50); x.lineTo(px, py); }
     x.stroke();
   }
   x.restore();
 
-  // vignette
   const vg = x.createRadialGradient(512, 512, 220, 512, 512, 720);
   vg.addColorStop(0, 'rgba(0,0,0,0)');
   vg.addColorStop(1, 'rgba(0,0,0,1)');
@@ -1792,62 +1515,79 @@ function drawJumpscareFace() {
   jumpscareTexture.needsUpdate = true;
 }
 
+function killPlayer(reason) {
+  if (G.phase !== 'playing') return;
+  G.phase = 'dead';
+  G.running = false;
+  G.deathCount++;
+
+  SFX.screech();
+  drawJumpscareFace();
+
+  const plane = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.0, 1.0),
+    new THREE.MeshBasicMaterial({ map: jumpscareTexture, transparent: true })
+  );
+  plane.position.set(0, 0, -0.4);
+  camEl.object3D.add(plane);
+  jumpscareMesh = plane;
+
+  setTimeout(() => {
+    if (jumpscareMesh) {
+      camEl.object3D.remove(jumpscareMesh);
+      jumpscareMesh.material.dispose();
+      jumpscareMesh.geometry.dispose();
+      jumpscareMesh = null;
+    }
+    showEndScreen(false, reason);
+  }, 1500);
+}
+
 function winGame() {
   if (G.phase !== 'playing') return;
   G.phase = 'won';
   G.running = false;
   SFX.powerOn();
-  setTimeout(() => {
-    showEndScreen(true);
-  }, 600);
+  setTimeout(() => showEndScreen(true), 600);
 }
 
 function showEndScreen(win, reason) {
-  const end = $('#endscreen');
-  const title = $('#endtitle');
-  const text = $('#endtext');
-  end.classList.remove('hidden', 'gone');
-  end.classList.add('on');
+  const end3d = $('#end3d');
+  const title = $('#endTitle3d');
+  const body = $('#endBody3d');
+
   if (win) {
-    end.classList.add('win');
-    title.textContent = 'YOU ESCAPED';
-    text.innerHTML =
-      'The door gave way and the Hollow spat you out onto wet grass.<br><br>' +
-      'You walked for two hours before you realized you were still counting your footsteps.<br><br>' +
-      'It reached nine. You took ten.<br><br>' +
-      `<span style="color:#5a4a44">Notes recovered: ${G.notesRead} / 6<br>Fuses installed: 3</span>`;
+    end3d.setAttribute('visible', true);
+    title.setAttribute('text', { value: 'YOU ESCAPED', color: '#b8a878' });
+    body.setAttribute('text', {
+      value: 'The door gave way and the Hollow spat you out onto wet grass.\n\n' +
+             'You walked for two hours before you realized you were still counting your footsteps.\n\n' +
+             'It reached nine. You took ten.\n\n' +
+             `Notes recovered: ${G.notesRead} / 6\nFuses installed: 3`
+    });
   } else {
-    end.classList.remove('win');
-    title.textContent = 'IT TOOK YOU';
-    text.innerHTML =
-      `Something wearing ${reason === 'THE WATCHER' ? 'a tall dark shape' : 'too many legs'} found you in the dark.<br><br>` +
-      'You did not hear it. You never do. You only stop hearing everything else.<br><br>' +
-      `<span style="color:#5a4a44">Notes recovered: ${G.notesRead} / 6<br>Deaths: ${G.deathCount}</span>`;
+    end3d.setAttribute('visible', true);
+    title.setAttribute('text', { value: 'IT TOOK YOU', color: '#b01818' });
+    body.setAttribute('text', {
+      value: `Something wearing ${reason === 'THE WATCHER' ? 'a tall dark shape' : 'too many legs'} found you in the dark.\n\n` +
+             'You did not hear it. You never do.\n\n' +
+             `Notes recovered: ${G.notesRead} / 6\nDeaths: ${G.deathCount}`
+    });
   }
-  if (document.exitPointerLock) document.exitPointerLock();
 }
 
 /* =========================================================
-   19. HUD UPDATE
+   19. HUD
    ========================================================= */
 function updateHUD() {
-  if (!invEl) return;
-  const fuseDots = [0, 1, 2].map(i =>
-    i < G.fuses ? '<span class="lit">◆</span>' : '<span>◇</span>'
-  ).join(' ');
+  const dots = [0, 1, 2].map(i => i < G.fuses ? '◆' : '◇').join(' ');
+  showSubtitle(`FUSES ${dots} (${G.fuses}/3)   NOTES ${G.notesRead}/6   BAT ${Math.round(G.battery)}%`, 2.5);
+}
 
-  invEl.innerHTML =
-    `FUSES &nbsp;${fuseDots} &nbsp; ${G.fuses}/3<br>` +
-    `NOTES &nbsp;${G.notesRead}/${G.notesTotal}<br>` +
-    `BATTERY &nbsp;${Math.round(G.battery)}%`;
-
-  if (objectiveEl) {
-    let obj;
-    if (G.powerOn) obj = 'THE SEAL IS OPEN — GET OUT';
-    else if (G.fuses >= 3) obj = 'FIND THE GENERATOR';
-    else obj = 'FIND THREE FUSES';
-    objectiveEl.textContent = obj;
-  }
+function showProgress() {
+  if (G.phase !== 'playing') return;
+  const dots = [0, 1, 2].map(i => i < G.fuses ? '◆' : '◇').join(' ');
+  showSubtitle(`FUSES ${dots} (${G.fuses}/3)\nNOTES ${G.notesRead}/6\nBATTERY ${Math.round(G.battery)}%`, 4);
 }
 
 /* =========================================================
@@ -1860,7 +1600,7 @@ function gameLoop(now) {
   const t = now / 1000;
   let dt = t - lastT;
   lastT = t;
-  if (dt > 0.1) dt = 0.1;      // clamp huge frames (tab switches)
+  if (dt > 0.1) dt = 0.1;
   if (dt <= 0) return;
 
   G.clock += dt;
@@ -1874,101 +1614,56 @@ function gameLoop(now) {
     updateLights(dt);
     updateSubtitles(dt);
 
-    // proximity prompt
-    if (!G.noteOpen && G.clock % 0.25 < dt) {
-      const tgt = findTarget();
-      if (tgt) {
-        const lbl = tgt.userData.data ? tgt.userData.data.label : 'OBJECT';
-        if (G.subTimer <= 0.05) {
-          showSubtitle(`[ TRIGGER ]  ${lbl}`, 0.4);
-        }
-      }
-    }
-
-    // exit proximity win
+    // exit proximity
     if (G.powerOn && G.exitGroup) {
       const ep = new THREE.Vector3();
       G.exitGroup.getWorldPosition(ep);
       const hp = getHeadPos();
-      if (Math.hypot(ep.x - hp.x, ep.z - hp.z) < 1.3) {
-        winGame();
-      }
+      if (Math.hypot(ep.x - hp.x, ep.z - hp.z) < 1.3) winGame();
     }
   }
 }
 
 /* =========================================================
-   21. CUTSCENE
+   21. 3D CUTSCENE
    ========================================================= */
 const CUTSCENE_LINES = [
-  { text: 'The Hallowate Asylum closed its doors in 1987.<br>It did not close its eyes.', cls: '' },
-  { text: 'You are the fourth investigator to enter.<br>The first three are still in here.', cls: '' },
-  { text: 'There is no electricity. There is no exit.<br>There is only the sound of something learning your breathing.', cls: 'whisper' },
-  { text: 'Find the three fuses.<br>Restore the generator.<br>Leave before it learns your name.', cls: 'red' }
+  { text: 'The Hallowate Asylum closed its doors in 1987.\nIt did not close its eyes.', cls: '' },
+  { text: 'You are the fourth investigator to enter.\nThe first three are still in here.', cls: '' },
+  { text: 'There is no electricity. There is no exit.\nThere is only the sound of something learning your breathing.', cls: 'whisper' },
+  { text: 'Find the three fuses.\nRestore the generator.\nLeave before it learns your name.', cls: 'red' }
 ];
 
 function playCutscene() {
-  const cs = $('#cutscene');
-  cs.classList.remove('hidden', 'gone');
-  cs.style.opacity = '1';
   G.phase = 'cutscene';
+  const cs3d = $('#cutscene3d');
+  const csText = $('#csText3d');
+  cs3d.setAttribute('visible', true);
 
-  const lineEls = [$('#cs0'), $('#cs1'), $('#cs2')];
   let idx = 0;
   let finished = false;
   let timer = null;
-
-  function clearLines() {
-    lineEls.forEach(el => {
-      el.classList.remove('show');
-      el.style.opacity = '0';
-    });
-  }
-
-  function showPair() {
-    clearLines();
-    if (idx >= CUTSCENE_LINES.length) { endCutscene(); return; }
-
-    const a = CUTSCENE_LINES[idx];
-    idx++;
-    const b = CUTSCENE_LINES[idx];
-    idx++;
-
-    lineEls[0].innerHTML = a.text;
-    lineEls[0].className = 'line show ' + a.cls;
-    lineEls[1].className = 'line ' + (b ? b.cls : '');
-    if (b) lineEls[1].innerHTML = b.text;
-
-    SFX.whisper();
-
-    timer = setTimeout(() => {
-      lineEls[0].classList.remove('show');
-      if (b) {
-        lineEls[1].classList.add('show');
-        SFX.whisper();
-      }
-      timer = setTimeout(() => {
-        lineEls[1].classList.remove('show');
-        timer = setTimeout(showPair, 700);
-      }, 4200);
-    }, 4200);
-  }
 
   function endCutscene() {
     if (finished) return;
     finished = true;
     if (timer) clearTimeout(timer);
-    clearLines();
-    cs.style.opacity = '0';
-    setTimeout(() => {
-      cs.classList.add('hidden', 'gone');
-      beginPlay();
-    }, 1000);
+    cs3d.setAttribute('visible', false);
+    beginPlay();
   }
 
-  cs.addEventListener('click', endCutscene);
-  cs.addEventListener('touchstart', endCutscene);
-  setTimeout(showPair, 700);
+  function showNext() {
+    if (finished) return;
+    if (idx >= CUTSCENE_LINES.length) { endCutscene(); return; }
+    const line = CUTSCENE_LINES[idx++];
+    csText.setAttribute('text', 'value', line.text);
+    csText.setAttribute('color', line.cls === 'red' ? '#c83030' : line.cls === 'whisper' ? '#4a4440' : '#9a8c80');
+    SFX.whisper();
+    timer = setTimeout(showNext, 4200);
+  }
+
+  G.cutsceneSkip = endCutscene;
+  showNext();
 }
 
 /* =========================================================
@@ -1977,52 +1672,42 @@ function playCutscene() {
 function beginPlay() {
   G.phase = 'playing';
   G.running = true;
-  hudEl.classList.add('on');
   updateHUD();
-
   showSubtitle('You are inside. The door behind you is gone.', 6);
+  rigEl.object3D.rotation.y = rand(0, TAU);
   setTimeout(() => {
     if (G.phase === 'playing') SFX.whisper();
   }, 4000);
-
-  // point the player toward the maze
-  const head = getHeadPos();
-  const rig = rigEl.object3D;
-  rig.rotation.y = rand(0, TAU);
-
-  // try to lock pointer on desktop
-  if (!G.inVR) {
-    try {
-      camEl.components['look-controls'] && camEl.components['look-controls'].pause &&
-        camEl.components['look-controls'].pause();
-    } catch (e) { /* noop */ }
-  }
 }
 
-function startGame(vr) {
+function startGame() {
   SFX.init();
   SFX.resume();
 
   const menu = $('#menu');
   menu.style.opacity = '0';
-  setTimeout(() => { menu.classList.add('hidden', 'gone'); }, 900);
+  setTimeout(() => menu.classList.add('hidden', 'gone'), 900);
 
-  if (vr) {
-    G.inVR = true;
-    if (sceneEl.enterVR) {
-      sceneEl.enterVR().catch(() => { });
-    }
+  let started = false;
+  function doStart() {
+    if (started) return;
+    started = true;
+    playCutscene();
   }
 
-  setTimeout(() => playCutscene(), 1000);
+  sceneEl.addEventListener('enter-vr', doStart, { once: true });
+  sceneEl.enterVR().catch(err => {
+    console.warn('VR entry failed:', err);
+    doStart();
+  });
+  setTimeout(doStart, 3000);
 }
 
 function restartGame() {
-  const end = $('#endscreen');
-  end.classList.remove('on');
-  end.classList.add('hidden', 'gone');
+  // Hide end screen
+  $('#end3d').setAttribute('visible', false);
 
-  // reset state
+  // Reset state
   G.fuses = 0;
   G.notesRead = 0;
   G.powerOn = false;
@@ -2033,14 +1718,14 @@ function restartGame() {
   G.noteOpen = false;
   G.clock = 0;
   G.subTimer = 0;
+  G.stickL.x = 0; G.stickL.y = 0;
+  G.stickR.x = 0; G.stickR.y = 0;
 
   notePanel.setAttribute('visible', false);
   subEl.setAttribute('text', 'value', '');
-
-  // reset flashlight
   flashEl.setAttribute('light', 'intensity', 1.9);
 
-  // reset interactables
+  // Reset interactables
   for (const obj of G.interactables) {
     if (obj.userData.isItem) {
       obj.userData.taken = false;
@@ -2052,7 +1737,7 @@ function restartGame() {
   if (G.genLight) { G.genLight.color.setHex(0x220000); G.genLight.intensity = 0.4; }
   if (G.genSockets) G.genSockets.forEach(s => s.material.color.setHex(0x331111));
 
-  // reset entities
+  // Reset entities
   const spawn = cellToWorld(1, 1);
   const wStart = findFarCell(spawn, 16);
   G.watcher.pos.set(wStart.x, 0, wStart.z);
@@ -2069,14 +1754,14 @@ function restartGame() {
   G.crawler.speed = 1.45;
   G.crawler.chargeSpeed = 3.1;
 
-  // reset lamps
+  // Reset lamps
   G.worldLights.forEach(w => {
     w.light.color.setHex(0xffd9a0);
     w.light.intensity = w.baseIntensity;
     w.bulb.material.opacity = 0.75;
   });
 
-  // reset player
+  // Reset player
   rigEl.object3D.position.set(spawn.x, 0, spawn.z);
   rigEl.object3D.rotation.y = 0;
   G.player.x = spawn.x;
@@ -2084,85 +1769,90 @@ function restartGame() {
 
   G.phase = 'playing';
   G.running = true;
-  hudEl.classList.add('on');
-  updateHUD();
-
   showSubtitle('Again. The Hollow remembers you.', 5);
   SFX.thud();
 }
 
 /* =========================================================
-   23. INPUT BINDING
+   23. INPUT BINDING (VR ONLY)
    ========================================================= */
 function bindInputs() {
-  // keyboard
-  window.addEventListener('keydown', e => {
-    G.keys[e.code] = true;
-    if (e.code === 'KeyE' || e.code === 'Space') {
+  // ---- LEFT controller ----
+  if (handL) {
+    handL.addEventListener('thumbstickmoved', e => {
+      if (e.detail) {
+        G.stickL.x = e.detail.x || 0;
+        G.stickL.y = e.detail.y || 0;
+      }
+    });
+
+    handL.addEventListener('triggerdown', () => {
+      SFX.resume();
+      if (G.phase === 'cutscene' && G.cutsceneSkip) { G.cutsceneSkip(); return; }
+      if (G.phase === 'dead' || G.phase === 'won') { restartGame(); return; }
       if (G.phase === 'playing') interact();
-      e.preventDefault();
-    }
-    if (e.code === 'KeyF') {
+    });
+
+    handL.addEventListener('squeezedown', () => {
       if (G.phase === 'playing' && G.battery > 0) {
         G.flashlightOn = !G.flashlightOn;
         flashEl.setAttribute('light', 'intensity', G.flashlightOn ? 1.9 : 0);
         SFX.click();
-        updateHUD();
       }
-    }
-    if (e.code === 'Escape') closeNote();
-  });
-  window.addEventListener('keyup', e => { G.keys[e.code] = false; });
-
-  // mouse / touch click = interact
-  window.addEventListener('mousedown', e => {
-    if (G.phase === 'playing' && !G.noteOpen && e.button === 0) {
-      // small delay to not conflict with pointer lock
-      setTimeout(() => { if (G.phase === 'playing') interact(); }, 40);
-    }
-  });
-
-  // VR controllers
-  if (handL) {
-    handL.addEventListener('thumbstickmoved', e => {
-      G.stickL.x = e.detail.x;
-      G.stickL.y = e.detail.y;
     });
-    handL.addEventListener('triggerdown', () => {
-      if (G.phase === 'playing') interact();
+
+    handL.addEventListener('ybuttondown', () => {
+      if (G.phase === 'playing') showProgress();
     });
-    handL.addEventListener('squeezedown', () => toggleFlashlightVR());
   }
+
+  // ---- RIGHT controller ----
   if (handR) {
     handR.addEventListener('thumbstickmoved', e => {
-      G.stickR.x = e.detail.x;
-      G.stickR.y = e.detail.y;
+      if (e.detail) {
+        G.stickR.x = e.detail.x || 0;
+        G.stickR.y = e.detail.y || 0;
+      }
     });
+
     handR.addEventListener('triggerdown', () => {
+      SFX.resume();
+      if (G.phase === 'cutscene' && G.cutsceneSkip) { G.cutsceneSkip(); return; }
+      if (G.phase === 'dead' || G.phase === 'won') { restartGame(); return; }
       if (G.phase === 'playing') interact();
     });
-    handR.addEventListener('squeezedown', () => toggleFlashlightVR());
+
+    handR.addEventListener('squeezedown', () => {
+      if (G.phase === 'playing' && G.battery > 0) {
+        G.flashlightOn = !G.flashlightOn;
+        flashEl.setAttribute('light', 'intensity', G.flashlightOn ? 1.9 : 0);
+        SFX.click();
+      }
+    });
+
+    handR.addEventListener('bbuttondown', () => {
+      if (G.phase === 'playing') showProgress();
+    });
   }
 
-  // VR enter/exit
+  // ---- VR lifecycle ----
   sceneEl.addEventListener('enter-vr', () => {
     G.inVR = true;
     document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
-    hudEl.style.display = 'none';
   });
+
   sceneEl.addEventListener('exit-vr', () => {
     G.inVR = false;
+    G.running = false;
+    G.phase = 'menu';
     document.querySelectorAll('.overlay').forEach(o => o.style.display = '');
-    hudEl.style.display = '';
+    const menu = $('#menu');
+    menu.classList.remove('hidden', 'gone');
+    menu.style.opacity = '1';
+    $('#end3d').setAttribute('visible', false);
+    $('#cutscene3d').setAttribute('visible', false);
+    notePanel.setAttribute('visible', false);
   });
-}
-
-function toggleFlashlightVR() {
-  if (G.phase !== 'playing' || G.battery <= 0) return;
-  G.flashlightOn = !G.flashlightOn;
-  flashEl.setAttribute('light', 'intensity', G.flashlightOn ? 1.9 : 0);
-  SFX.click();
-  updateHUD();
 }
 
 /* =========================================================
@@ -2218,59 +1908,27 @@ function boot() {
   noteTextEl = $('#noteText');
   worldEl = $('#world');
 
-  hudEl = $('#hud');
-  vignetteEl = $('#vignette');
-  bloodEl = $('#blood');
-  invEl = $('#inv');
-  objectiveEl = $('#objective');
-  desksubEl = $('#desksub');
-
-  // generate + build
   genMaze();
   buildLevel();
 
-  // position camera
+  // spawn player
   const sp = cellToWorld(1, 1);
   rigEl.object3D.position.set(sp.x, 0, sp.z);
 
   bindInputs();
-  updateHUD();
   runLoading();
-
-  // pre-render jumpscare canvas
   drawJumpscareFace();
 
-  // buttons
-  $('#btn-vr').addEventListener('click', () => startGame(true));
-  $('#btn-desktop').addEventListener('click', () => startGame(false));
-  $('#btn-audio').addEventListener('click', () => {
+  $('#btn-start').addEventListener('click', () => {
     SFX.init();
     SFX.resume();
-    SFX.click();
-    showMenuAudioNote();
+    startGame();
   });
-  $('#btn-restart').addEventListener('click', () => restartGame());
 
-  // start loop
   lastT = performance.now() / 1000;
   requestAnimationFrame(gameLoop);
 
-  // desktop pointer lock on click of canvas
-  sceneEl.addEventListener('click', () => {
-    if (G.phase === 'playing' && !G.inVR) {
-      SFX.resume();
-    }
-  });
-
-  console.log('%c THE HOLLOW — ready ', 'background:#300;color:#f88;font-size:14px');
-}
-
-function showMenuAudioNote() {
-  const btn = $('#btn-audio');
-  btn.textContent = 'AUDIO ENABLED ✓';
-  btn.style.color = '#7fd07f';
-  btn.style.borderColor = '#2a5a2a';
-  setTimeout(() => { SFX.whisper(); }, 200);
+  console.log('%c THE HOLLOW — VR only. Ready. ', 'background:#300;color:#f88;font-size:14px');
 }
 
 window.addEventListener('load', () => {
@@ -2280,10 +1938,9 @@ window.addEventListener('load', () => {
 });
 
 /* =========================================================
-   26. SAFETY: fix a couple of things after a while
+   26. FINAL TOUCHES
    ========================================================= */
 setTimeout(() => {
-  // ensure the subtitle text renders crisply
   const st = document.querySelector('#subtitle');
   if (st) {
     st.setAttribute('text', {
