@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>THE HOLLOW — VR Horror</title>
+<title>THE HOLLOW: OVERDRIVE - Director's Cut</title>
 <style>
   body {
     margin: 0; padding: 0; height: 100%; overflow: hidden;
@@ -12,45 +12,54 @@
     -webkit-user-select: none; user-select: none;
   }
   canvas { display: block; }
+  
   #overlay {
     position: fixed; inset: 0; z-index: 10;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; padding: 24px; gap: 20px;
-    background: radial-gradient(circle at 50% 50%, #1a0000 0%, #000000 80%);
+    background: radial-gradient(circle at 50% 50%, #1a0000 0%, #000000 90%);
+    transition: opacity 0.5s ease;
   }
-  #overlay.hidden { display: none; }
+  #overlay.hidden { display: none; opacity: 0; }
+  
   h1 {
     margin: 0; font-size: clamp(40px, 10vw, 90px);
     letter-spacing: .1em; color: #8a0303;
-    text-shadow: 0 0 20px #ff0000, 0 0 40px #8a0303;
-    animation: pulse 2s infinite;
+    text-shadow: 0 0 20px #ff0000, 0 0 60px #ff0000;
+    animation: pulse 1.5s infinite;
   }
   @keyframes pulse {
-    0% { opacity: 0.8; text-shadow: 0 0 10px #ff0000; }
-    50% { opacity: 1; text-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000; }
-    100% { opacity: 0.8; text-shadow: 0 0 10px #ff0000; }
+    0% { opacity: 0.6; text-shadow: 0 0 10px #ff0000; }
+    50% { opacity: 1; text-shadow: 0 0 40px #ff0000; }
+    100% { opacity: 0.6; text-shadow: 0 0 10px #ff0000; }
   }
+  
   #status { max-width: 600px; line-height: 1.6; font-size: 1.2rem; color: #ccc; }
+  
   button {
     font-family: inherit; font-size: 1.5rem; letter-spacing: .2em; padding: 15px 50px;
     color: #fff; background: #5a0000; border: 2px solid #ff0000; border-radius: 5px;
     box-shadow: 0 0 15px #ff0000; cursor: pointer; transition: 0.2s; font-weight: bold;
+    text-transform: uppercase;
   }
   button:hover { background: #8a0303; box-shadow: 0 0 30px #ff0000; }
   button:disabled { opacity: .2; filter: grayscale(1); cursor: default; }
-  #hint { max-width: 600px; font-size: 0.9rem; color: #666; border-top: 1px solid #330000; padding-top: 15px; margin-top: 20px; }
+  
+  #hint { max-width: 600px; font-size: 0.9rem; color: #aaa; border-top: 1px solid #330000; padding-top: 15px; margin-top: 20px; line-height: 1.8; }
+  .highlight { color: #ff0000; font-weight: bold; }
 </style>
 </head>
 <body>
 
 <div id="overlay">
   <h1>THE HOLLOW</h1>
-  <div id="status">Looking for VR hardware...</div>
-  <button id="startBtn" style="display:none" disabled>ENTER THE VOID</button>
+  <div id="status">Initializing WebXR...</div>
+  <button id="startBtn" style="display:none" disabled>ENTER THE MAZE</button>
   <div id="hint">
-    WARNING: Contains flashing lights and intense audio. <br>
-    <b>RIGHT HAND:</b> Flashlight &nbsp;•&nbsp; <b>GOAL:</b> Find 3 glowing doors. <br>
-    <b>SURVIVAL:</b> Shine your flashlight directly at the entity to freeze it.
+    WARNING: Flashing lights and intense audio. <br>
+    <span class="highlight">LEFT STICK:</span> Move &nbsp;|&nbsp; <span class="highlight">RIGHT STICK:</span> Turn (Snap) <br>
+    <b>RIGHT HAND:</b> Flashlight &nbsp;|&nbsp; <b>GOAL:</b> Find 3 Red Rifts. <br>
+    <b>SURVIVAL:</b> Light freezes it. Darkness lets it run.
   </div>
 </div>
 
@@ -65,6 +74,7 @@
 <script type="module">
 import * as THREE from 'three';
 
+// --- DOM & INITIALIZATION ---
 const overlayEl = document.getElementById('overlay');
 const statusEl = document.getElementById('status');
 const startBtn = document.getElementById('startBtn');
@@ -74,7 +84,7 @@ let xrSupported = false;
 navigator.xr?.isSessionSupported('immersive-vr').then(supported => {
   xrSupported = supported;
   if (supported) {
-    statusEl.innerHTML = 'Headset detected.<br>Put it on and press the button.';
+    statusEl.innerHTML = 'Headset detected. Put it on to begin.';
     startBtn.disabled = false;
     startBtn.style.display = 'inline-block';
   } else {
@@ -90,31 +100,21 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.xr.enabled = true;
 renderer.xr.setReferenceSpaceType('local-floor');
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
-// Thick fog to make it scary
-scene.fog = new THREE.FogExp2(0x000000, 0.1);
+scene.fog = new THREE.FogExp2(0x050000, 0.08); // Suffocating dark fog
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+const playerGroup = new THREE.Group();
+scene.add(playerGroup);
+playerGroup.add(camera);
+camera.position.set(0, 1.6, 0);
 
-// --- LIGHTING ---
-// Barely any ambient light
-scene.add(new THREE.AmbientLight(0x111111, 0.2));
-
-// Red glowing light from doors
-const doorLight = new THREE.PointLight(0xff0000, 0, 15);
-scene.add(doorLight);
-
-// Flashlight (Attached to right hand)
-const flashlight = new THREE.SpotLight(0xffffff, 8, 40, Math.PI / 5, 0.4, 1);
-flashlight.position.set(0, 0, 0);
-flashlight.target.position.set(0, 0, -1);
-scene.add(flashlight);
-scene.add(flashlight.target);
-
-// --- AUDIO SYSTEM ---
+// --- AUDIO ENGINE ---
 let actx = null;
 function initAudio() {
   if (!actx) {
@@ -124,135 +124,246 @@ function initAudio() {
   if (actx.state === 'suspended') actx.resume();
 }
 
-// Atmospheric Drone
-let droneOsc = null;
+// Background Drone
+let droneOsc, droneGain;
 function startDrone() {
   if (!actx || droneOsc) return;
   droneOsc = actx.createOscillator();
-  const gain = actx.createGain();
+  droneGain = actx.createGain();
   droneOsc.type = 'sawtooth';
-  droneOsc.frequency.value = 40; // Deep rumble
-  gain.gain.value = 0.08;
-  droneOsc.connect(gain).connect(actx.destination);
+  droneOsc.frequency.value = 35;
+  droneGain.gain.value = 0.05;
+  droneOsc.connect(droneGain).connect(actx.destination);
   droneOsc.start();
 }
 
 // Heartbeat
-let heartTimer = 0;
+let lastHeartbeat = 0;
 function playHeartbeat() {
   if (!actx) return;
   const t = actx.currentTime;
   const osc = actx.createOscillator();
   const gain = actx.createGain();
   osc.type = 'sine';
-  osc.frequency.setValueAtTime(60, t);
-  osc.frequency.exponentialRampToValueAtTime(30, t + 0.15);
-  gain.gain.setValueAtTime(0.3, t);
+  osc.frequency.setValueAtTime(50, t);
+  osc.frequency.exponentialRampToValueAtTime(30, t + 0.2);
+  gain.gain.setValueAtTime(0.4, t);
   gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
   osc.connect(gain).connect(actx.destination);
   osc.start(t);
-  osc.stop(t + 0.35);
+  osc.stop(t + 0.3);
 }
 
-// Scream
-function playScream() {
+// Monster Clicking (when close)
+function playClick() {
   if (!actx) return;
   const t = actx.currentTime;
   const osc = actx.createOscillator();
   const gain = actx.createGain();
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(800, t);
-  osc.frequency.exponentialRampToValueAtTime(100, t + 1.0);
-  gain.gain.setValueAtTime(0.6, t);
-  gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(120, t);
+  gain.gain.setValueAtTime(0.1, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05);
   osc.connect(gain).connect(actx.destination);
   osc.start(t);
-  osc.stop(t + 1.5);
+  osc.stop(t + 0.05);
 }
 
-// --- ENVIRONMENT ---
-// Floor (Slightly reflective)
-const floorGeo = new THREE.PlaneGeometry(200, 200);
-const floorMat = new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.5, metalness: 0.8 });
-const floor = new THREE.Mesh(floorGeo, floorMat);
-floor.rotation.x = -Math.PI / 2;
-scene.add(floor);
-
-// Pillars to get lost in
-const pillarGeo = new THREE.BoxGeometry(1.5, 10, 1.5);
-const pillarMat = new THREE.MeshStandardMaterial({ color: 0x151515 });
-for (let i = 0; i < 60; i++) {
-  const pillar = new THREE.Mesh(pillarGeo, pillarMat);
-  const angle = Math.random() * Math.PI * 2;
-  const dist = 4 + Math.random() * 45;
-  pillar.position.set(Math.cos(angle) * dist, 5, Math.sin(angle) * dist);
-  pillar.rotation.y = Math.random() * Math.PI;
-  scene.add(pillar);
+// Jumpscare
+function playScream() {
+  if (!actx) return;
+  const t = actx.currentTime;
+  const bufferSize = actx.sampleRate * 2.0;
+  const buffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+  const noise = actx.createBufferSource();
+  noise.buffer = buffer;
+  
+  const osc = actx.createOscillator();
+  const gain = actx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(800, t);
+  osc.frequency.exponentialRampToValueAtTime(50, t + 1.5);
+  gain.gain.setValueAtTime(0.8, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 2.0);
+  
+  noise.connect(gain);
+  osc.connect(gain).connect(actx.destination);
+  osc.start(t);
+  noise.start(t);
+  osc.stop(t + 2.0);
+  noise.stop(t + 2.0);
 }
 
-// Doors
-const doors = [];
-function spawnDoor() {
-  // Create a glowing door
-  const geo = new THREE.BoxGeometry(2, 4, 0.2);
-  const mat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-  const door = new THREE.Mesh(geo, mat);
+// --- ENVIRONMENT BUILDING ---
+const ambientLight = new THREE.AmbientLight(0x110000, 1.0);
+scene.add(ambientLight);
+
+const flashlight = new THREE.SpotLight(0xffffff, 20, 35, Math.PI / 6, 0.4, 1.2);
+flashlight.position.set(0, 0, 0);
+flashlight.target.position.set(0, 0, -1);
+flashlight.castShadow = true;
+flashlight.shadow.mapSize.width = 1024;
+flashlight.shadow.mapSize.height = 1024;
+flashlight.shadow.bias = -0.001;
+scene.add(flashlight);
+scene.add(flashlight.target);
+
+const wallGeo = new THREE.BoxGeometry(4, 10, 4);
+const wallMat = new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.9, metalness: 0.1 });
+const walls = [];
+
+function generateMaze() {
+  // Clear old walls
+  walls.forEach(w => scene.remove(w));
+  walls.length = 0;
+
+  // Simple procedural grid maze
+  const gridSize = 10;
+  const spacing = 5;
   
-  const angle = Math.random() * Math.PI * 2;
-  const dist = 12 + Math.random() * 15; // Spawn 12-27 meters away
-  door.position.set(Math.cos(angle) * dist, 2, Math.sin(angle) * dist);
-  door.lookAt(0, 2, 0);
-  
-  // Add a glowing halo behind it
-  const haloGeo = new THREE.PlaneGeometry(3, 5);
-  const haloMat = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending });
-  const halo = new THREE.Mesh(haloGeo, haloMat);
-  halo.position.z = -0.1;
-  door.add(halo);
-  
-  scene.add(door);
-  doors.push(door);
+  for (let x = -gridSize; x <= gridSize; x+=2) {
+    for (let z = -gridSize; z <= gridSize; z+=2) {
+      if (Math.random() > 0.3) {
+        const wall = new THREE.Mesh(wallGeo, wallMat);
+        wall.position.set(x * spacing, 5, z * spacing);
+        wall.castShadow = true;
+        wall.receiveShadow = true;
+        scene.add(wall);
+        walls.push(wall);
+      }
+    }
+  }
 }
 
-// --- THE ENTITY ---
+// Particles (Dust motes for the flashlight)
+const particleGeo = new THREE.BufferGeometry();
+const particleCount = 2000;
+const posArray = new Float32Array(particleCount * 3);
+for(let i=0; i<particleCount * 3; i++) {
+  posArray[i] = (Math.random() - 0.5) * 100;
+}
+particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+const particleMat = new THREE.PointsMaterial({ color: 0x555555, size: 0.05, transparent: true, opacity: 0.5 });
+const particles = new THREE.Points(particleGeo, particleMat);
+scene.add(particles);
+
+// Exit Rifts (Doors)
+const rifts = [];
+function spawnRift() {
+  const geo = new THREE.BoxGeometry(2, 5, 0.5);
+  const mat = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 3 });
+  const rift = new THREE.Mesh(geo, mat);
+  
+  let valid = false;
+  let attempts = 0;
+  while(!valid && attempts < 100) {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 15 + Math.random() * 20;
+    rift.position.set(Math.cos(angle) * dist, 2.5, Math.sin(angle) * dist);
+    // Check if it's inside a wall
+    valid = true;
+    for (const w of walls) {
+      if (rift.position.distanceTo(w.position) < 3.0) { valid = false; break; }
+    }
+    attempts++;
+  }
+  
+  rift.lookAt(0, 2.5, 0);
+  
+  const dLight = new THREE.PointLight(0xff0000, 8, 20);
+  dLight.position.set(0, 0, 1);
+  rift.add(dLight);
+  
+  scene.add(rift);
+  rifts.push(rift);
+}
+
+// --- THE ENTITY (Stalker) ---
 const entityGroup = new THREE.Group();
-const bodyGeo = new THREE.CapsuleGeometry(0.4, 1.8, 4, 8);
-const bodyMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
-const body = new THREE.Mesh(bodyGeo, bodyMat);
-body.position.y = 1.4;
-entityGroup.add(body);
 
-const headGeo = new THREE.DodecahedronGeometry(0.4, 1);
-const headMat = new THREE.MeshStandardMaterial({ color: 0x050000, roughness: 0.1 });
-const head = new THREE.Mesh(headGeo, headMat);
-head.position.y = 2.6;
-head.scale.set(0.8, 1.3, 0.8);
+const bodyMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.2, metalness: 0.8 });
+const bodyGeo = new THREE.CylinderGeometry(0.35, 0.1, 2.2, 5);
+const torso = new THREE.Mesh(bodyGeo, bodyMat);
+torso.position.y = 1.5;
+torso.castShadow = true;
+entityGroup.add(torso);
+
+const headGeo = new THREE.DodecahedronGeometry(0.45, 1);
+const head = new THREE.Mesh(headGeo, bodyMat);
+head.position.y = 2.8;
+head.castShadow = true;
 entityGroup.add(head);
 
-// Glowing Eyes
-const eyeGeo = new THREE.SphereGeometry(0.06, 8, 8);
+// Blooming Eyes
+const eyeGeo = new THREE.SphereGeometry(0.1, 8, 8);
 const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const eye1 = new THREE.Mesh(eyeGeo, eyeMat); eye1.position.set(-0.15, 2.65, -0.35); entityGroup.add(eye1);
-const eye2 = new THREE.Mesh(eyeGeo, eyeMat); eye2.position.set(0.15, 2.65, -0.35); entityGroup.add(eye2);
+const eye1 = new THREE.Mesh(eyeGeo, eyeMat); eye1.position.set(-0.18, 2.85, -0.35); entityGroup.add(eye1);
+const eye2 = new THREE.Mesh(eyeGeo, eyeMat); eye2.position.set(0.18, 2.85, -0.35); entityGroup.add(eye2);
 
-// Creepy long arms
-const armGeo = new THREE.CylinderGeometry(0.06, 0.02, 2.0, 6);
-const arm1 = new THREE.Mesh(armGeo, bodyMat); arm1.position.set(-0.45, 1.4, 0); arm1.rotation.z = 0.3; entityGroup.add(arm1);
-const arm2 = new THREE.Mesh(armGeo, bodyMat); arm2.position.set(0.45, 1.4, 0); arm2.rotation.z = -0.3; entityGroup.add(arm2);
+// Disjointed Arms
+const armGeo = new THREE.CylinderGeometry(0.1, 0.02, 2.2, 6);
+const leftArm = new THREE.Mesh(armGeo, bodyMat);
+leftArm.position.set(-0.5, 1.8, 0);
+leftArm.castShadow = true;
+entityGroup.add(leftArm);
 
+const rightArm = new THREE.Mesh(armGeo, bodyMat);
+rightArm.position.set(0.5, 1.8, 0);
+rightArm.castShadow = true;
+entityGroup.add(rightArm);
+
+entityGroup.visible = false;
 scene.add(entityGroup);
+
+// --- PLAYER HUD ---
+const hudCanvas = document.createElement('canvas');
+hudCanvas.width = 512; hudCanvas.height = 256;
+const hctx = hudCanvas.getContext('2d');
+const hudTex = new THREE.CanvasTexture(hudCanvas);
+const hudMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(0.12, 0.06),
+  new THREE.MeshBasicMaterial({ map: hudTex, transparent: true, depthTest: false })
+);
+hudMesh.rotation.set(-Math.PI / 2, 0, 0);
+hudMesh.position.set(0, 0.05, -0.05);
+hudMesh.renderOrder = 999;
+
+function updateHUD() {
+  hctx.fillStyle = 'rgba(5,0,0,0.9)';
+  hctx.fillRect(0, 0, 512, 256);
+  hctx.strokeStyle = '#ff0000';
+  hctx.lineWidth = 4;
+  hctx.strokeRect(4, 4, 504, 248);
+  
+  hctx.fillStyle = '#ff0000';
+  hctx.font = 'bold 40px Courier New';
+  hctx.textAlign = 'left';
+  hctx.fillText('RIFTS FOUND:', 30, 80);
+  
+  hctx.font = 'bold 90px Courier New';
+  hctx.fillText(state.riftsFound + ' / 3', 30, 180);
+  
+  hctx.font = '20px Courier New';
+  hctx.fillStyle = '#888';
+  hctx.fillText('SURVIVE', 380, 220);
+  
+  hudTex.needsUpdate = true;
+}
 
 // --- GAME STATE ---
 const state = {
   active: false,
   over: false,
-  doorsFound: 0,
-  totalDoors: 3,
-  entitySpeed: 1.2,
+  riftsFound: 0,
+  entitySpeed: 1.8,
   entityFrozen: false,
-  lastHeartbeat: 0,
-  headPos: new THREE.Vector3(),
-  flashlightOn: true
+  entityState: 'wander', // wander, chase, freeze
+  time: 0,
+  turnCooldown: 0,
+  wanderAngle: 0,
+  clickTimer: 0
 };
 
 // --- CONTROLLERS ---
@@ -260,22 +371,64 @@ const controllers = [];
 for (let i = 0; i < 2; i++) {
   const c = renderer.xr.getController(i);
   
-  // Simple hand mesh
-  const handGeo = new THREE.CylinderGeometry(0.02, 0.03, 0.15, 8);
-  const handMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+  const handGeo = new THREE.BoxGeometry(0.04, 0.04, 0.12);
+  const handMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
   const hand = new THREE.Mesh(handGeo, handMat);
-  hand.rotation.x = Math.PI / 2;
   c.add(hand);
 
-  // Attach flashlight to right hand (index 1)
   if (i === 1) {
     c.add(flashlight);
-    flashlight.position.set(0, -0.05, -0.1);
+    flashlight.position.set(0, 0, -0.05);
     c.add(flashlight.target);
+  } else if (i === 0) {
+    c.add(hudMesh);
   }
 
   scene.add(c);
   controllers.push(c);
+}
+
+// --- MOVEMENT & INPUT ---
+const moveVector = new THREE.Vector3();
+const camDir = new THREE.Vector3();
+const camRight = new THREE.Vector3();
+
+function handleMovement(dt) {
+  if (!state.active) return;
+  
+  const session = renderer.xr.getSession();
+  if (!session) return;
+  
+  const leftStick = session.inputSources.find(s => s.handedness === 'left')?.gamepad;
+  const rightStick = session.inputSources.find(s => s.handedness === 'right')?.gamepad;
+  
+  if (leftStick) {
+    const x = leftStick.axes[2] || 0; 
+    const y = leftStick.axes[3] || 0;
+    
+    if (Math.abs(x) > 0.15 || Math.abs(y) > 0.15) {
+      camera.getWorldDirection(camDir);
+      camDir.y = 0; camDir.normalize();
+      camRight.crossVectors(camDir, new THREE.Vector3(0,1,0)).normalize();
+      
+      moveVector.set(0,0,0);
+      // Speed multiplier
+      moveVector.addScaledVector(camDir, y * -3.5 * dt); 
+      moveVector.addScaledVector(camRight, x * 3.5 * dt);
+      
+      playerGroup.position.add(moveVector);
+    }
+  }
+
+  if (rightStick) {
+    const x = rightStick.axes[2] || 0;
+    if (Math.abs(x) > 0.7 && state.turnCooldown <= 0) {
+      const turnAngle = x > 0 ? -Math.PI / 4 : Math.PI / 4;
+      playerGroup.rotation.y += turnAngle;
+      state.turnCooldown = 0.3;
+    }
+  }
+  if (state.turnCooldown > 0) state.turnCooldown -= dt;
 }
 
 // --- VR SESSION ---
@@ -288,7 +441,7 @@ function requestVRSession() {
       session.addEventListener('end', onSessionEnd);
       await renderer.xr.setSession(session);
       overlayEl.classList.add('hidden');
-      setTimeout(() => { if (renderer.xr.isPresenting) startGame(); }, 200);
+      setTimeout(() => { if (renderer.xr.isPresenting) startGame(); }, 500);
     })
     .catch((err) => {
       console.error(err);
@@ -303,7 +456,7 @@ function onSessionEnd() {
   state.active = false;
   overlayEl.classList.remove('hidden');
   startBtn.disabled = false;
-  startBtn.textContent = 'ENTER THE VOID';
+  startBtn.textContent = 'ENTER THE MAZE';
   if (droneOsc) { droneOsc.stop(); droneOsc = null; }
 }
 
@@ -311,25 +464,33 @@ function onSessionEnd() {
 function startGame() {
   state.active = true;
   state.over = false;
-  state.doorsFound = 0;
-  state.entityFrozen = false;
+  state.riftsFound = 0;
+  state.time = 0;
   
-  doors.forEach(d => scene.remove(d));
-  doors.length = 0;
+  generateMaze();
   
-  spawnDoor();
+  rifts.forEach(r => scene.remove(r));
+  rifts.length = 0;
   
-  // Spawn entity far away
-  entityGroup.position.set(0, 0, -20); 
+  for (let i=0; i<3; i++) spawnRift();
+  
+  playerGroup.position.set(0, 0, 0);
+  playerGroup.rotation.set(0, 0, 0);
+  
+  entityGroup.position.set(0, 0, -30); 
+  entityGroup.visible = true;
+  state.entityState = 'wander';
   
   initAudio();
   startDrone();
+  updateHUD();
 }
 
 function gameOver() {
   state.active = false;
   state.over = true;
   playScream();
+  entityGroup.visible = false;
   startBtn.textContent = 'YOU DIED. TRY AGAIN?';
   overlayEl.classList.remove('hidden');
 }
@@ -337,7 +498,8 @@ function gameOver() {
 function winGame() {
   state.active = false;
   state.over = true;
-  startBtn.textContent = 'YOU ESCAPED';
+  entityGroup.visible = false;
+  startBtn.textContent = 'YOU ESCAPED THE HOLLOW';
   overlayEl.classList.remove('hidden');
   if (droneOsc) { droneOsc.stop(); droneOsc = null; }
 }
@@ -348,64 +510,110 @@ const raycaster = new THREE.Raycaster();
 
 function update(dt) {
   if (!state.active) return;
+  
+  state.time += dt;
+
+  handleMovement(dt);
+
+  // Animate dust particles
+  particles.rotation.y += dt * 0.02;
 
   const cam = renderer.xr.getCamera();
   cam.updateWorldMatrix(true, false);
-  state.headPos.setFromMatrixPosition(cam.matrixWorld);
+  const headPos = new THREE.Vector3().setFromMatrixPosition(cam.matrixWorld);
 
-  if (state.doorsFound >= state.totalDoors) {
+  if (state.riftsFound >= 3) {
     winGame();
     return;
   }
 
   // --- ENTITY AI ---
-  const distToPlayer = entityGroup.position.distanceTo(state.headPos);
+  const distToPlayer = entityGroup.position.distanceTo(headPos);
   
-  // Create a raycast from the flashlight
+  // Light detection
   const flashMatrix = new THREE.Matrix4().extractRotation(flashlight.matrixWorld);
   const flashDir = new THREE.Vector3(0, 0, -1).applyMatrix4(flashMatrix).normalize();
   const flashPos = new THREE.Vector3().setFromMatrixPosition(flashlight.matrixWorld);
   
   raycaster.set(flashPos, flashDir);
-  raycaster.far = 20; // Flashlight range
+  raycaster.far = 25; 
   
-  // Check if the flashlight beam hits the entity
-  const intersect = raycaster.intersectObject(body);
-  const hitByLight = intersect.length > 0 && intersect[0].distance < 15;
-  
-  state.entityFrozen = hitByLight;
+  const intersect = raycaster.intersectObject(torso);
+  const hitByLight = intersect.length > 0;
 
-  if (!state.entityFrozen) {
-    // Move towards player
-    const moveDir = state.headPos.clone().sub(entityGroup.position);
-    moveDir.y = 0;
-    moveDir.normalize();
+  if (hitByLight) {
+    state.entityState = 'freeze';
+    state.entityFrozen = true;
+    leftArm.rotation.x = 0;
+    rightArm.rotation.x = 0;
+    // Shake violently
+    entityGroup.position.x += (Math.random() - 0.5) * 0.05;
+    entityGroup.position.z += (Math.random() - 0.5) * 0.05;
     
-    const speed = distToPlayer < 6 ? state.entitySpeed * 2.0 : state.entitySpeed;
-    entityGroup.position.addScaledVector(moveDir, speed * dt);
-    
-    // Creepy head bob
-    entityGroup.rotation.y += dt * 3;
-    entityGroup.position.y = Math.sin(state.time * 5) * 0.1;
+    // Audio: High pitched ring when frozen
   } else {
-    // Shake when frozen
-    entityGroup.position.x += (Math.random() - 0.5) * 0.03;
-    entityGroup.position.y += (Math.random() - 0.5) * 0.03;
+    state.entityFrozen = false;
+    
+    // If player is close or looking at it, chase. Otherwise, wander.
+    if (distToPlayer < 15) {
+      state.entityState = 'chase';
+    } else {
+      state.entityState = 'wander';
+    }
+
+    if (state.entityState === 'chase') {
+      // Sprint at player
+      const moveDir = headPos.clone().sub(entityGroup.position);
+      moveDir.y = 0;
+      moveDir.normalize();
+      
+      const speed = state.entitySpeed * 2.0;
+      entityGroup.position.addScaledVector(moveDir, speed * dt);
+      
+      // Fast arm flailing
+      const swing = Math.sin(state.time * 20) * 1.0;
+      leftArm.rotation.x = swing;
+      rightArm.rotation.x = -swing;
+      
+    } else if (state.entityState === 'wander') {
+      // Wander around the maze
+      state.wanderAngle += (Math.random() - 0.5) * dt * 2;
+      const wanderDir = new THREE.Vector3(Math.cos(state.wanderAngle), 0, Math.sin(state.wanderAngle));
+      entityGroup.position.addScaledVector(wanderDir, state.entitySpeed * 0.5 * dt);
+      
+      // Slow arm sway
+      const swing = Math.sin(state.time * 5) * 0.3;
+      leftArm.rotation.x = swing;
+      rightArm.rotation.x = -swing;
+    }
   }
 
-  // Look at player
-  const lookPos = state.headPos.clone();
-  lookPos.y = entityGroup.position.y + 1.5;
-  entityGroup.lookAt(lookPos);
+  // Look at player (or where it's going)
+  if (state.entityState === 'chase') {
+    entityGroup.lookAt(headPos.x, entityGroup.position.y + 1.5, headPos.z);
+  } else {
+    entityGroup.rotation.y = state.wanderAngle;
+  }
 
-  // --- AUDIO & DAMAGE ---
+  // --- AUDIO TRIGGERS ---
   if (distToPlayer < 20) {
-    const hbRate = distToPlayer < 6 ? 0.25 : (distToPlayer < 12 ? 0.5 : 0.9);
-    if (state.lastHeartbeat <= 0) {
+    const hbRate = distToPlayer < 8 ? 0.2 : 0.6;
+    if (lastHeartbeat <= 0) {
       playHeartbeat();
-      state.lastHeartbeat = hbRate;
+      lastHeartbeat = hbRate;
     } else {
-      state.lastHeartbeat -= dt;
+      lastHeartbeat -= dt;
+    }
+    
+    if (droneGain) droneGain.gain.value = 0.05 + (1 - Math.min(distToPlayer/20, 1)) * 0.2;
+    
+    // Clicking sound when very close
+    if (distToPlayer < 6 && state.entityState === 'chase') {
+      state.clickTimer -= dt;
+      if (state.clickTimer <= 0) {
+        playClick();
+        state.clickTimer = 0.2 + Math.random() * 0.3;
+      }
     }
   }
 
@@ -413,37 +621,41 @@ function update(dt) {
     gameOver();
   }
 
-  // --- DOOR COLLISION ---
-  for (let i = doors.length - 1; i >= 0; i--) {
-    const d = doors[i];
-    if (d.position.distanceTo(state.headPos) < 1.5) {
-      scene.remove(d);
-      doors.splice(i, 1);
-      state.doorsFound++;
+  // --- RIFT COLLISION ---
+  for (let i = rifts.length - 1; i >= 0; i--) {
+    const r = rifts[i];
+    const dx = r.position.x - headPos.x;
+    const dz = r.position.z - headPos.z;
+    if (Math.sqrt(dx*dx + dz*dz) < 2.0) {
+      scene.remove(r);
+      rifts.splice(i, 1);
+      state.riftsFound++;
+      updateHUD();
       
-      if (state.doorsFound < state.totalDoors) {
-        spawnDoor();
+      // Teleport entity away as a reward
+      entityGroup.position.set((Math.random()-0.5)*40, 0, (Math.random()-0.5)*40);
+      
+      // Audio chime
+      if (actx) {
+        const osc = actx.createOscillator();
+        const g = actx.createGain();
+        osc.frequency.setValueAtTime(800, actx.currentTime);
+        g.gain.setValueAtTime(0.2, actx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.5);
+        osc.connect(g).connect(actx.destination);
+        osc.start(); osc.stop(actx.currentTime + 0.5);
       }
-      
-      // Reset entity position to give player a breather
-      entityGroup.position.set(0, 0, -25); 
     }
-  }
-
-  // Pulse door light
-  if (doors.length > 0) {
-    doorLight.position.copy(doors[0].position);
-    doorLight.intensity = 3 + Math.sin(state.time * 15) * 2;
   }
 }
 
-state.time = 0;
 renderer.setAnimationLoop(() => {
   const dt = Math.min(clock.getDelta(), 0.1);
-  state.time += dt;
   update(dt);
   renderer.render(scene, camera);
 });
+
+updateHUD();
 
 </script>
 </body>
